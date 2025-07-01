@@ -1,0 +1,1758 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ settings.title_text }}</title>
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%234F46E5%22></rect><polygon points=%2240,30 70,50 40,70%22 fill=%22%23ffffff%22></polygon></svg>">
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+        :root {
+            --primary-color: #4F46E5;
+            --secondary-color: #10B981;
+            --bg-color: #F1F5F9;
+            --card-bg-color: #ffffff;
+            --text-color: #4B5563;
+            --subtle-text-color: #6B7280;
+            --border-color: #E5E7EB;
+            --sorted-col-bg: #EEF2FF;
+            --error-color: #d63031;
+        }
+
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+        }
+
+        body {
+            font-family: 'Pretendard', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0 0 0;
+            box-sizing: border-box;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background-color: var(--card-bg-color);
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+            width: 95%;
+            flex-grow: 1;
+        }
+
+        h2 {
+            font-size: 32px;
+            font-weight: 800;
+            text-align: center;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 0;
+            margin-bottom: 30px;
+        }
+
+        h2 a {
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            align-items: center;
+        }
+
+        h2 img {
+            max-height: 40px;
+            width: auto;
+        }
+
+        .search-container {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        input,
+        select,
+        button {
+            font-family: inherit;
+            font-size: 16px;
+            padding: 10px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        input[type="text"] {
+            flex-grow: 1;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, .15);
+        }
+
+        #apiKeyInput {
+            text-align: center;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        button:disabled {
+            background-color: #e9ecef;
+            color: #adb5bd;
+            cursor: not-allowed;
+        }
+
+        .button-secondary {
+            background-color: var(--subtle-text-color);
+        }
+
+        .history-tag {
+            display: inline-block;
+            background-color: #eef2f6;
+            padding: 4px 12px;
+            border-radius: 15px;
+            margin: 4px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .search-history {
+            margin-top: 10px;
+            min-height: 28px;
+            text-align: center;
+        }
+
+        .api-explainer {
+            font-size: 14px;
+            color: var(--subtle-text-color);
+            margin-top: 20px;
+            background-color: #F9FAFB;
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid #dfe4ea;
+            line-height: 1.8;
+            text-align: center;
+        }
+
+        .api-explainer p {
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        .api-explainer strong {
+            color: var(--text-color);
+            font-weight: 600;
+        }
+
+        .api-explainer a {
+            font-weight: 600;
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 1.1em;
+        }
+
+        .api-explainer a:hover {
+            text-decoration: underline;
+        }
+
+        #pre-search-ad-container,
+        .ad-container {
+            width: 100%;
+            min-height: 90px;
+            background-color: #f0f2f5;
+            border: 1px dashed var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: var(--subtle-text-color);
+            box-sizing: border-box;
+        }
+
+        #pre-search-ad-container {
+            display: none;
+            margin: 25px auto;
+            width: 728px;
+            height: 90px;
+        }
+
+        .ad-container {
+            margin: 10px 0;
+        }
+
+        #results-container.grid-view .ad-card {
+            grid-column: 1 / -1;
+        }
+
+        .ad-row .ad-cell {
+            padding: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .ad-row .ad-container {
+            margin: 0;
+        }
+
+
+        .filter-controls {
+            display: none;
+            justify-content: flex-end;
+            align-items: center;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+
+        .filter-controls .right {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .filter-controls .right span,
+        .filter-controls .right select {
+            font-size: 13px;
+        }
+
+        .filter-controls .right select {
+            width: auto;
+            min-width: 90px;
+            padding: 8px 28px 8px 12px;
+            -webkit-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.5rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+        }
+
+        #view-toggle-btn {
+            background: none;
+            border: 1px solid var(--border-color);
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+        }
+
+        #view-toggle-btn svg {
+            width: 22px;
+            height: 22px;
+            fill: #6b7280;
+        }
+
+        #results-container {
+            overflow-x: auto;
+            text-align: left;
+        }
+
+        #results-container.grid-view {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            overflow-x: hidden;
+        }
+
+        .grid-view .video-card {
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: var(--card-bg-color);
+        }
+
+        .grid-view .video-card .thumbnail-container {
+            width: 100%;
+            height: auto;
+            padding-top: 56.25%;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .grid-view .video-card .thumbnail-container img {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .grid-view .video-card .info-main {
+            flex-grow: 1;
+            text-align: left;
+            padding: 12px;
+        }
+
+        .grid-view .video-card .video-title {
+            white-space: normal;
+            height: 42px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .grid-view .video-card .stat-grid {
+            display: flex;
+            justify-content: space-around;
+            font-size: 13px;
+            padding: 8px 12px;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            color: var(--subtle-text-color);
+        }
+
+        .grid-view .video-card .stat-grid b {
+            color: var(--text-color);
+        }
+
+        .download-icon-grid {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            background-color: rgba(0, 0, 0, 0.6);
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
+            opacity: 0;
+        }
+
+        .video-card:hover .download-icon-grid {
+            opacity: 1;
+        }
+
+        .download-icon-grid:hover {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        .download-icon-grid svg {
+            width: 18px;
+            height: 18px;
+            fill: #ffffff;
+        }
+
+        #results-container .loader {
+            display: block;
+            text-align: center;
+            padding: 100px 0;
+            font-size: 20px;
+            font-weight: 500;
+            grid-column: 1 / -1;
+        }
+
+        .loader-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 2s linear infinite;
+            margin: 0 auto 15px auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        #results-container .message {
+            display: block;
+            text-align: center;
+            padding: 100px 0;
+            font-size: 20px;
+            font-weight: 500;
+            grid-column: 1 / -1;
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            border: 1px solid var(--border-color);
+        }
+
+        .video-card-row:hover {
+            background-color: #F5F5F5;
+        }
+
+        .list-header {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--subtle-text-color);
+        }
+
+        .list-header th {
+            padding: 10px 12px;
+            border-bottom: 2px solid #333;
+            cursor: pointer;
+        }
+
+        .list-header th.active {
+            background-color: var(--sorted-col-bg);
+        }
+
+        .header-item-content {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 5px;
+        }
+
+        .list-header th .arrow {
+            opacity: 0.8;
+        }
+
+        .h-rank {
+            width: 45px;
+            text-align: center;
+        }
+
+        .h-info {
+            text-align: left;
+        }
+
+        .h-stat {
+            width: 110px;
+            text-align: right;
+        }
+
+        .h-download {
+            width: 100px;
+            cursor: default;
+            text-align: center;
+        }
+
+        .cell {
+            vertical-align: middle;
+            padding: 12px 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .download-cell {
+            text-align: center;
+        }
+
+        .rank {
+            text-align: center;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--subtle-text-color);
+        }
+
+        .info-cell {
+            display: flex;
+            align-items: center;
+            text-align: left;
+        }
+
+        .thumbnail-container {
+            position: relative;
+            flex-shrink: 0;
+            width: 120px;
+            height: 67px;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .thumbnail-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .info-main {
+            padding: 0 15px;
+            min-width: 0;
+        }
+
+        .video-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0 0 4px 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .video-title a {
+            color: var(--text-color);
+            text-decoration: none;
+        }
+
+        .video-title a:hover {
+            color: var(--primary-color);
+        }
+
+        .channel-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .channel-title {
+            font-size: 14px;
+            color: var(--subtle-text-color);
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .stat {
+            text-align: right;
+            font-size: 15px;
+        }
+
+        .stat .rate {
+            font-size: 0.9em;
+            color: var(--secondary-color);
+        }
+
+        .download-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+        }
+
+        .download-icon svg {
+            width: 20px;
+            height: 20px;
+            fill: var(--subtle-text-color);
+        }
+
+        #recommend-tags-section {
+            box-sizing: border-box;
+            width: 100%;
+        }
+
+        .recommend-tags-container {
+            position: relative;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            text-align: left;
+        }
+
+        .recommend-tags-container h4 {
+            margin: 0 0 10px 0;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .recommend-tags-container .tag {
+            display: inline-block;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            background: #eef2f6;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin: 2px;
+        }
+
+        .recommend-tags-container .tag:hover {
+            background-color: #dcebfd;
+        }
+
+        .tag-copy-notification {
+            position: fixed;
+            background-color: white;
+            color: var(--text-color);
+            padding: 8px 12px;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            font-size: 13px;
+            font-weight: 500;
+            z-index: 2000;
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+            transform: translateY(10px);
+            pointer-events: none;
+        }
+
+        .tag-copy-notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .action-buttons {
+            position: absolute;
+            right: 15px;
+            bottom: 10px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .secondary-action-btn {
+            font-size: 12px;
+            padding: 5px 10px;
+            font-weight: 500;
+            color: var(--subtle-text-color);
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .secondary-action-btn:hover {
+            background-color: #eef2f6;
+            color: var(--text-color);
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 25px;
+        }
+
+        .pagination button {
+            font-size: 14px;
+            padding: 6px 12px;
+            min-width: auto;
+            height: auto;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            text-align: left;
+            width: 90%;
+            max-width: 600px;
+            transform: translateY(-20px);
+            transition: transform 0.3s;
+            margin: auto;
+            display: flex;
+            flex-direction: column;
+            max-height: 85vh;
+        }
+
+        .modal-content[data-scrollable="true"] {
+            padding: 0;
+        }
+
+        .modal-header {
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+
+        .guide-content {
+            padding: 20px 30px;
+            overflow-y: auto;
+            flex-grow: 1;
+            min-height: 0;
+        }
+
+        .modal-body {
+            padding: 20px 30px 30px;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            flex-grow: 1;
+        }
+
+        .modal-header .modal-close-btn {
+            position: static;
+        }
+
+        .modal-overlay.show .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-content h3 {
+            margin-top: 0;
+            font-weight: 700;
+            font-size: 22px;
+            text-align: center;
+        }
+
+        .modal-content p {
+            margin-bottom: 20px;
+            color: var(--subtle-text-color);
+            line-height: 1.6;
+        }
+
+        #api-key-error {
+            color: var(--error-color);
+            font-size: 14px;
+            margin-bottom: 10px;
+            display: none;
+            font-weight: 500;
+        }
+
+        .modal-content p a {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .modal-content input {
+            width: 100%;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .modal-close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #888;
+        }
+
+        .modal-content textarea {
+            width: 100%;
+            box-sizing: border-box;
+            min-height: 100px;
+            padding: 10px;
+            font-family: inherit;
+            font-size: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            resize: vertical;
+            margin-bottom: 15px;
+        }
+
+        #char-counter {
+            font-size: 12px;
+            color: var(--subtle-text-color);
+            text-align: right;
+            display: block;
+            margin-top: -10px;
+            margin-bottom: 10px;
+        }
+
+        .guide-step {
+            margin-bottom: 25px;
+        }
+
+        .guide-step h4,
+        .guide-section h4 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-top: 20px;
+            margin-bottom: 8px;
+        }
+
+        .guide-step p,
+        .guide-section p {
+            margin-top: 0;
+        }
+
+        .guide-step b,
+        .guide-step strong,
+        .guide-section code {
+            color: var(--primary-color);
+        }
+
+        .guide-image {
+            width: 100%;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            margin-top: 15px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .guide-image:hover {
+            transform: scale(1.02);
+        }
+
+        .page-footer {
+            text-align: center;
+            padding: 20px 0;
+            border-top: 1px solid var(--border-color);
+            font-size: 13px;
+            color: var(--subtle-text-color);
+            flex-shrink: 0;
+            width: 100%;
+            box-sizing: border-box;
+            background-color: var(--bg-color);
+        }
+
+        .page-footer a {
+            color: var(--subtle-text-color);
+            font-weight: 500;
+            text-decoration: none;
+        }
+
+        .page-footer a:hover {
+            text-decoration: underline;
+            color: var(--primary-color);
+        }
+
+        .page-footer .separator {
+            margin: 0 10px;
+        }
+
+        /* 기존 .notification-modal, .notification-modal.show, .notification-modal.success, .notification-modal.error 스타일을 모두 삭제하고 아래 코드로 교체 */
+        .notification-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 8px;
+            z-index: 2000;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            opacity: 0;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .notification-modal.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+            visibility: visible;
+        }
+
+        .notification-modal.success {
+            background-color: var(--primary-color);
+        }
+
+        .notification-modal.error {
+            background-color: var(--error-color);
+        }
+
+        .custom-tooltip {
+            position: absolute;
+            background-color: #fff;
+            color: #212529;
+            padding: 10px 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            max-width: 300px;
+            font-size: 13px;
+            line-height: 1.6;
+            z-index: 1010;
+            opacity: 0;
+            transition: opacity 0.2s, transform 0.2s;
+            pointer-events: none;
+            border: 1px solid #e5e7eb;
+            transform: translateY(5px);
+        }
+
+        .custom-tooltip.show {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+
+        .custom-tooltip .tooltip-arrow {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #fff;
+            transform: rotate(45deg);
+            bottom: -6px;
+            left: 50%;
+            margin-left: -5px;
+            border-bottom: 1px solid #e5e7eb;
+            border-right: 1px solid #e5e7eb;
+        }
+
+        #tooltip-content h4 {
+            margin: 0 0 8px 0;
+            font-size: 14px;
+            font-weight: 600;
+            color: #212529;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 5px;
+            text-align: center;
+        }
+
+        #tooltip-content p {
+            margin: 0 0 4px 0;
+            color: #6a6a6a;
+        }
+
+        #image-lightbox {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+            cursor: pointer;
+        }
+
+        #image-lightbox.show {
+            display: flex;
+        }
+
+        #image-lightbox img {
+            max-width: 90vw;
+            max-height: 90vh;
+            object-fit: contain;
+            cursor: default;
+        }
+
+        #metrics-guide-modal .guide-content {
+            text-align: center;
+        }
+
+        /* ✨ 예쁜 오류 경고창 스타일 추가 ✨ */
+        .error-modal-content {
+            background-color: #f8f9fa;
+            color: var(--text-color);
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 480px;
+            text-align: center;
+            border-top: 5px solid var(--error-color);
+            overflow: hidden;
+        }
+
+        .error-modal-header {
+            padding: 20px 30px 10px;
+        }
+
+        .error-modal-header .error-icon {
+            font-size: 40px;
+            line-height: 1;
+        }
+
+        .error-modal-header h3 {
+            margin: 10px 0 0 0;
+            font-size: 22px;
+            color: var(--text-color);
+        }
+
+        .error-modal-body {
+            padding: 0 30px 20px;
+        }
+
+        .error-modal-body p {
+            margin: 0;
+            font-size: 16px;
+            line-height: 1.7;
+            color: var(--subtle-text-color);
+        }
+
+        .error-modal-body p a {
+            color: var(--primary-color);
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .error-modal-body p a:hover {
+            text-decoration: underline;
+        }
+
+        .error-modal-footer {
+            background-color: #e9ecef;
+            padding: 15px 30px;
+        }
+
+        .error-modal-footer button {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="image-lightbox" onclick="closeImageLightbox()">
+        <img src="" alt="확대된 가이드 이미지" onclick="event.stopPropagation()">
+    </div>
+    <div id="custom-tooltip" class="custom-tooltip">
+        <div id="tooltip-content"></div>
+        <div class="tooltip-arrow"></div>
+    </div>
+    <div id="notification-modal"></div>
+
+    <div id="error-modal" class="modal-overlay">
+        <div class="error-modal-content">
+            <div class="error-modal-header">
+                <div class="error-icon">⚠️</div>
+                <h3>오류 발생</h3>
+            </div>
+            <div class="error-modal-body">
+                <p id="error-modal-message"></p>
+            </div>
+            <div class="error-modal-footer">
+                <button onclick="closeErrorModal()">확인</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="api-key-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>API 키 등록</h3>
+                <button class="modal-close-btn" onclick="closeApiKeyModal()">×</button>
+            </div>
+            <div class="modal-body" style="text-align: center;">
+                <p>YouTube Data API v3 키를 입력해주세요.<br>키 발급 방법은 <a href="#" onclick="openApiGuide(event)">가이드 페이지</a>를
+                    참고하세요.</p>
+                <p id="api-key-error"></p>
+                <input type="password" id="apiKeyInput" placeholder="API 키를 여기에 붙여넣으세요">
+                <div class="modal-actions">
+                    <button class="button-secondary" onclick="closeApiKeyModal()">닫기</button>
+                    <button onclick="saveApiKey()">저장</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="api-guide-modal" class="modal-overlay">
+        <div class="modal-content" data-scrollable="true">
+            <div class="modal-header">
+                <h3>🔑 YouTube API 키 발급 방법</h3>
+                <button class="modal-close-btn" onclick="closeApiGuide()">×</button>
+            </div>
+            <div class="guide-content">
+                <div class="guide-step">
+                    <h4>1단계: Google Cloud Platform 접속 및 약관 동의</h4>
+                    <p><a href="https://console.cloud.google.com/apis/api/youtube.googleapis.com/metrics?inv=1&invt=Ab1erg&project=ttsproject"
+                            target="_blank">Google Cloud Platform 링크</a>에 접속하여 로그인 후, 서비스 약관에 동의해주세요.</p><img
+                        src="{{ url_for('static', filename='images/guide_step_1.png') }}" alt="1단계: GCP 접속"
+                        class="guide-image" onclick="enlargeImage(this)">
+                </div>
+                <div class="guide-step">
+                    <h4>2단계: API 검색</h4>
+                    <p>로그인 후, 화면 상단의 검색창에 'youtube api'를 검색하고 결과에서 <b>'YouTube Data API v3'</b>를 선택합니다.</p><img
+                        src="{{ url_for('static', filename='images/guide_step_2.png') }}" alt="2단계: API 검색"
+                        class="guide-image" onclick="enlargeImage(this)">
+                </div>
+                <div class="guide-step">
+                    <h4>3단계: API 사용 설정</h4>
+                    <p>'YouTube Data API v3' 페이지에서 파란색 <b>'사용'</b> 버튼을 선택하여 API를 활성화합니다.</p><img
+                        src="{{ url_for('static', filename='images/guide_step_3.png') }}" alt="3단계: API 사용 설정"
+                        class="guide-image" onclick="enlargeImage(this)">
+                </div>
+                <div class="guide-step">
+                    <h4>4단계: API 키 생성</h4>
+                    <p>좌측 메뉴에서 <b>'사용자 인증 정보'</b>를 누른 후, 상단의 <b>'+ 사용자 인증 정보 만들기'</b>를 클릭하고 <b>'API 키'</b>를 선택합니다.</p>
+                    <img src="{{ url_for('static', filename='images/guide_step_4.png') }}" alt="4단계: API 키 생성"
+                        class="guide-image" onclick="enlargeImage(this)">
+                </div>
+                <div class="guide-step">
+                    <h4>5단계: API 키 복사 및 보관</h4>
+                    <p>생성된 API 키가 팝업으로 나타나면, 우측의 아이콘을 눌러 키를 복사한 후 안전한 곳에 따로 저장해두세요.<br><strong>⚠️ 경고: 이 API 키는 비밀번호와
+                            같습니다. 절대로 외부에 유출되지 않도록 주의하세요!</strong></p><img
+                        src="{{ url_for('static', filename='images/guide_step_5.png') }}" alt="5단계: API 키 복사"
+                        class="guide-image" onclick="enlargeImage(this)">
+                </div>
+                <div class="guide-step">
+                    <h4>6단계: API 키 설정 페이지로 이동</h4>
+                    <p>팝업을 닫고 '사용자 인증 정보' 페이지에 보이는 <b>'API 키 1개'</b> 버튼을 선택하여 키 설정 페이지로 이동합니다.</p><img
+                        src="{{ url_for('static', filename='images/guide_step_6.png') }}" alt="6단계: API 키 설정 이동"
+                        class="guide-image" onclick="enlargeImage(this)">
+                </div>
+                <div class="guide-step">
+                    <h4>7단계: IP 주소로 키 제한 (보안 강화)</h4>
+                    <p> '키 제한사항' 섹션에서 <b>'IP 주소'</b>를 선택합니다. 그 후 <b>'+ 항목 추가'</b> 버튼을 눌러 자신의 공인 IP 주소를 입력하고 '완료'를
+                        누릅니다.<br>(내 IP 주소를 모를 경우: <a href="https://www.whatismyip.com/" target="_blank">여기를 클릭해서 확인</a>)
+                    </p><img src="{{ url_for('static', filename='images/guide_step_7.png') }}" alt="7단계: IP 주소 제한"
+                        class="guide-image" onclick="enlargeImage(this)">
+                </div>
+                <div class="guide-step">
+                    <h4>8단계: 저장 및 오류 해결</h4>
+                    <p>페이지 하단의 <b>'저장'</b> 버튼을 눌러 모든 설정을 마칩니다.<br>만약 이 키를 사용했을 때 검색 오류가 발생한다면, 대부분 7단계의 <b>IP 주소가 정확하지
+                            않기 때문</b>입니다. IP 주소를 다시 확인하고 정확히 입력한 후 저장해주세요.</p><img
+                        src="{{ url_for('static', filename='images/guide_step_8.png') }}" alt="8단계: 저장 및 오류 해결"
+                        class="guide-image" onclick="enlargeImage(this)">
+                </div>
+
+                <hr style="margin: 30px 0;">
+                <div class="guide-section">
+                    <h4 style="color: var(--error-color);">🚨 API 키 사용 중 오류가 발생하나요?</h4>
+                    <p>API 키를 정확히 입력했는데도 '403 Forbidden' 또는 '인증 오류' 메시지가 표시된다면, 대부분 아래 4가지 경우 중 하나입니다.</p>
+                    <ol style="padding-left: 20px; line-height: 1.8; text-align: left;">
+                        <li><strong>API 미사용 설정:</strong> 가장 흔한 실수입니다. Google Cloud에서 'YouTube Data API v3' 사용 설정을 하지 않은
+                            경우입니다. <a href="https://console.cloud.google.com/apis/library/youtube.googleapis.com"
+                                target="_blank">API 라이브러리 페이지</a>로 이동하여 '사용' 버튼이 파란색으로 활성화되어 있다면 꼭 클릭해주세요.</li>
+                        <li><strong>IP 주소 변경:</strong> API 키에 IP 주소 제한을 설정한 경우, 현재 접속한 곳의 IP가 바뀌었을 수 있습니다. <a
+                                href="https://console.cloud.google.com/apis/credentials" target="_blank">사용자 인증 정보
+                                페이지</a>에서 현재 IP를 목록에 추가해주세요.</li>
+                        <li><strong>사용량(쿼터) 초과:</strong> 하루에 사용할 수 있는 양을 모두 소진한 경우입니다. 할당량은 보통 <strong>한국 시간 기준 매일 오후
+                                5시경에 초기화</strong>됩니다.</li>
+                        <li><strong>다른 구글 계정 사용:</strong> 여러 구글 계정을 사용하신다면, 지금 프로그램에 입력한 키가 어떤 계정의 어떤 프로젝트에서 발급되었는지 다시
+                            한번 확인해보세요.</li>
+                    </ol>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div id="metrics-guide-modal" class="modal-overlay">
+        <div class="modal-content" data-scrollable="true">
+            <div class="modal-header">
+                <h3>📊 지표(LVR/CVR)는 무엇인가요?</h3>
+                <button class="modal-close-btn" onclick="closeMetricsGuide()">×</button>
+            </div>
+            <div class="guide-content">
+                <div class="guide-section">
+                    <h4>좋아요 비율 (LVR: Like to View Ratio)</h4>
+                    <p><b>계산식:</b> <code>(좋아요 수 / 총조회수) * 100</code> <br>콘텐츠 만족도를 나타내는 핵심 지표.</p>
+                </div>
+                <div class="guide-section">
+                    <h4>댓글 비율 (CVR: Comment to View Ratio)</h4>
+                    <p><b>계산식:</b> <code>(댓글 수 / 총조회수) * 100</code> <br>'적극적인 참여도'를 보여주는 지표.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="feedback-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>피드백 보내기</h3>
+                <button class="modal-close-btn" onclick="closeFeedbackModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <p>서비스 개선을 위한 소중한 의견을 남겨주세요.</p>
+                <textarea id="feedback-message" placeholder="여기에 메시지를 입력하세요..." maxlength="1000"
+                    oninput="updateCharCounter()"></textarea>
+                <div id="char-counter">0 / 1000</div>
+                <div class="modal-actions">
+                    <button class="button-secondary" onclick="closeFeedbackModal()">닫기</button>
+                    <button onclick="submitFeedback()">전송</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2><a href="/">{% if settings.logo_path %}<img src="{{ url_for('static', filename=settings.logo_path) }}"
+                    alt="Logo">{% else %}{{ settings.title_text }}{% endif %}</a></h2>
+        <div class="search-container">
+            <div class="controls">
+                <input id="query" type="text" />
+                <button id="search-btn">검색</button>
+                <button id="api-btn">API 키 등록</button>
+            </div>
+            <div id="api-explainer-container"></div>
+            <div id="search-history" class="search-history"></div>
+            <div id="pre-search-ad-container">광고 영역</div>
+        </div>
+        <div class="filter-controls">
+            <div class="right">
+                <span>필터:</span>
+                <select id="daysFilter" onchange="renderData()">
+                    <option value="" disabled selected>기간</option>
+                    <option value="0">전체</option>
+                    <option value="0.042">1시간 전</option>
+                    <option value="1">1일 전</option>
+                    <option value="3">3일 전</option>
+                    <option value="7">7일 전</option>
+                    <option value="15">15일 전</option>
+                    <option value="30">30일 전</option>
+                </select>
+                <select id="subscriberFilter" onchange="renderData()">
+                    <option value="" disabled selected>구독자 수</option>
+                    <option value="0">전체</option>
+                    <option value="1000">1천명 미만</option>
+                    <option value="5000">5천명 미만</option>
+                    <option value="10000">1만명 미만</option>
+                    <option value="30000">3만명 미만</option>
+                    <option value="50000">5만명 미만</option>
+                    <option value="100000">10만명 미만</option>
+                </select>
+                <select id="videoTypeFilter" onchange="renderData()">
+                    <option value="" disabled selected>유형</option>
+                    <option value="all">전체</option>
+                    <option value="video">동영상</option>
+                    <option value="shorts">쇼츠</option>
+                </select>
+                <select id="itemsPerPage" onchange="changeItemsPerPage()">
+                    <option value="" disabled selected>검색량</option>
+                    <option value="10">10개씩</option>
+                    <option value="20">20개씩</option>
+                    <option value="30">30개씩</option>
+                    <option value="50">50개씩</option>
+                </select>
+                <button id="view-toggle-btn" onclick="toggleViewMode()"></button>
+            </div>
+        </div>
+        <div id="recommend-tags-section" style="display: none;"></div>
+        <div id="results-container"></div>
+        <div id="pagination-controls" class="pagination"></div>
+    </div>
+
+    <footer class="page-footer">
+        <span>YouTube 영상 분석 툴 v1.0</span>
+        <span class="separator">|</span>
+        <a href="#" onclick="openFeedbackModal(event)">피드백 보내기</a>
+    </footer>
+
+    <script>
+        function parseISO8601Duration(duration) {
+            if (!duration) return 0;
+            const match = duration.match(/PT(\d+H)?(\d+M)?(\d+S)?/);
+            if (!match) return 0;
+            const hours = (parseInt(match[1]) || 0);
+            const minutes = (parseInt(match[2]) || 0);
+            const seconds = (parseInt(match[3]) || 0);
+            return hours * 3600 + minutes * 60 + seconds;
+        }
+        let allResults = [], searchHistory = [], currentPage = 1, itemsPerPage = 50;
+        let sortConfig = { key: 'likeCount', direction: 'desc' };
+        let currentView = 'list';
+        let activeTooltipTarget = null;
+        const viewIcons = { list: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3,14H7V10H3M3,19H7V15H3M3,9H7V5H3M9,14H21V10H9M9,19H21V15H9M9,9H21V5H9V9Z" /></svg>`, grid: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3,3V11H11V3M13,3V11H21V3M3,13V21H11V13M13,13V21H21V13" /></svg>` };
+        const downloadIconSVG = `<svg viewBox="0 0 24 24" fill="var(--subtle-text-color)"><path d="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z" /></svg>`;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('search-btn').onclick = searchVideos;
+            document.getElementById('api-btn').onclick = showApiKeyModal;
+            document.getElementById('query').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.target.disabled) searchVideos(); });
+            try {
+                searchHistory = JSON.parse(localStorage.getItem('youtubeSearchHistory') || '[]');
+                if (!Array.isArray(searchHistory)) { searchHistory = []; }
+            } catch (e) { searchHistory = []; }
+            currentView = localStorage.getItem('youtubeSearchView') || 'list';
+            updateApiKeyUI();
+
+            document.addEventListener('click', (event) => {
+                if (activeTooltipTarget && !event.target.closest('.channel-title')) {
+                    hideCustomTooltip();
+                }
+            });
+        });
+
+        function updateApiKeyUI() {
+            const apiKey = sessionStorage.getItem('youtubeApiKey');
+            const queryInput = document.getElementById('query');
+            const searchBtn = document.getElementById('search-btn');
+            const apiBtn = document.getElementById('api-btn');
+            const explainerContainer = document.getElementById('api-explainer-container');
+            const filterControls = document.querySelector('.filter-controls');
+            const searchHistoryEl = document.getElementById('search-history');
+            const adContainer = document.getElementById('pre-search-ad-container');
+
+            if (apiKey) {
+                queryInput.disabled = false;
+                searchBtn.disabled = false;
+                queryInput.placeholder = '분석하고 싶은 키워드 입력';
+                apiBtn.textContent = '키 변경';
+                if (explainerContainer) explainerContainer.style.display = 'none';
+                searchHistoryEl.style.display = 'block';
+                adContainer.style.display = 'flex';
+                renderSearchHistory();
+            } else {
+                queryInput.disabled = true;
+                searchBtn.disabled = true;
+                queryInput.placeholder = 'API 키를 먼저 등록해주세요.';
+                apiBtn.textContent = 'API 키 등록';
+                if (explainerContainer) explainerContainer.style.display = 'block';
+                if (explainerContainer) explainerContainer.innerHTML = `<div class="api-explainer"><p><strong>이 툴은 YouTube의 공식 데이터 API를 통해 정보를 가져옵니다.</strong></p><p>따라서 구글에서 발급하는 무료 API 키를 등록해야만 정상적으로 작동합니다.</p></div>`;
+                filterControls.style.display = 'none';
+                searchHistoryEl.style.display = 'none';
+                adContainer.style.display = 'none';
+                document.getElementById('results-container').innerHTML = '';
+                document.getElementById('pagination-controls').innerHTML = '';
+            }
+            applyViewMode();
+        }
+
+        function showNotification(message, type = 'success') {
+            const el = document.getElementById('notification-modal');
+            if (el) {
+                el.textContent = message;
+                el.className = 'notification-modal'; // Reset classes
+                el.classList.add(type);
+                el.classList.add('show');
+                setTimeout(() => {
+                    el.classList.remove('show');
+                }, 3000);
+            }
+        }
+
+        // ✨ 오류 경고창 관련 함수 추가
+        function showErrorModal(htmlMessage) {
+            document.getElementById('error-modal-message').innerHTML = htmlMessage;
+            document.getElementById('error-modal').classList.add('show');
+        }
+        function closeErrorModal() {
+            document.getElementById('error-modal').classList.remove('show');
+        }
+
+        function showApiKeyModal() { document.getElementById('api-key-modal').classList.add('show'); }
+        function closeApiKeyModal() {
+            const errorElement = document.getElementById('api-key-error');
+            if (errorElement) errorElement.style.display = 'none';
+            document.getElementById('api-key-modal').classList.remove('show');
+        }
+        function openApiGuide(event) { event.preventDefault(); document.getElementById('api-guide-modal').classList.add('show'); }
+        function closeApiGuide() { document.getElementById('api-guide-modal').classList.remove('show'); }
+        function openMetricsGuide(event) { event.preventDefault(); document.getElementById('metrics-guide-modal').classList.add('show'); }
+        function closeMetricsGuide() { document.getElementById('metrics-guide-modal').classList.remove('show'); }
+        function openFeedbackModal(event) { event.preventDefault(); document.getElementById('feedback-modal').classList.add('show'); }
+        function closeFeedbackModal() { document.getElementById('feedback-modal').classList.remove('show'); }
+
+        function updateCharCounter() {
+            const message = document.getElementById('feedback-message').value;
+            const counter = document.getElementById('char-counter');
+            counter.textContent = `${message.length} / 1000`;
+        }
+
+        async function submitFeedback() {
+            const message = document.getElementById('feedback-message').value.trim();
+            if (!message) { showNotification("메시지를 입력해주세요.", "error"); return; }
+            if (message.length > 1000) { showNotification("메시지는 1000자 이내로 입력해주세요.", "error"); return; }
+            const formData = new FormData();
+            formData.append('message', message);
+            try {
+                const response = await fetch('/submit_feedback', { method: 'POST', body: formData });
+                const result = await response.json();
+                if (result.success) {
+                    showNotification(result.message, "success");
+                    closeFeedbackModal();
+                } else { throw new Error(result.error); }
+            } catch (error) { showNotification('전송 실패: ' + error.message, "error"); }
+        }
+
+        async function saveApiKey() {
+            const apiKey = document.getElementById('apiKeyInput').value.trim();
+            const saveButton = document.querySelector('#api-key-modal button:last-child');
+            const errorElement = document.getElementById('api-key-error');
+
+            if (!apiKey) {
+                errorElement.textContent = 'API 키를 입력해주세요.';
+                errorElement.style.display = 'block';
+                return;
+            }
+
+            const originalButtonText = saveButton.textContent;
+            saveButton.disabled = true;
+            saveButton.textContent = '확인 중...';
+            errorElement.style.display = 'none';
+
+            try {
+                const response = await fetch('/validate_key', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ apiKey: apiKey })
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    sessionStorage.setItem('youtubeApiKey', apiKey);
+                    closeApiKeyModal();
+                    showNotification("API 키가 인증 및 저장되었습니다.", "success");
+                    updateApiKeyUI();
+                } else {
+                    errorElement.textContent = result.error || '유효하지 않은 API 키입니다. 다시 확인해주세요.';
+                    errorElement.style.display = 'block';
+                }
+            } catch (err) {
+                errorElement.textContent = '인증 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+                errorElement.style.display = 'block';
+            } finally {
+                saveButton.disabled = false;
+                saveButton.textContent = originalButtonText;
+            }
+        }
+
+        function updateSearchHistory(query) {
+            if (!query) return;
+            searchHistory = searchHistory.filter(item => item !== query);
+            searchHistory.unshift(query);
+            if (searchHistory.length > 10) searchHistory.pop();
+            localStorage.setItem('youtubeSearchHistory', JSON.stringify(searchHistory));
+            renderSearchHistory();
+        }
+
+        function renderSearchHistory() {
+            const searchHistoryEl = document.getElementById('search-history');
+            if (searchHistoryEl) {
+                searchHistoryEl.innerHTML = searchHistory.map(term => `<span class="history-tag" onclick="document.getElementById('query').value='${term}'; searchVideos();">${term}</span>`).join('');
+            }
+        }
+
+        async function searchVideos() {
+            const query = document.getElementById("query").value.trim();
+            const apiKey = sessionStorage.getItem('youtubeApiKey');
+            const resultsContainer = document.getElementById('results-container');
+            const filterControls = document.querySelector('.filter-controls');
+            const recommendSection = document.getElementById('recommend-tags-section');
+
+            if (!apiKey) { showNotification("API 키를 먼저 등록해주세요.", "error"); showApiKeyModal(); return; }
+            if (!query) { showNotification("검색어를 입력하세요.", "error"); return; }
+
+            updateSearchHistory(query);
+            currentPage = 1;
+            allResults = [];
+            document.getElementById('pre-search-ad-container').style.display = 'none';
+            filterControls.style.display = 'none';
+            recommendSection.style.display = 'none';
+            resultsContainer.innerHTML = `<div class="loader"><div class="loader-spinner"></div>검색 중...</div>`;
+            document.getElementById('pagination-controls').innerHTML = '';
+
+            try {
+                const res = await fetch(`/search?q=${encodeURIComponent(query)}&apiKey=${apiKey}`);
+                const data = await res.json();
+                if (!res.ok) { throw new Error(data.error || '알 수 없는 서버 오류'); }
+
+                const now = new Date();
+                allResults = (data.videos || []).map(v => ({ ...v, dailyAverageViews: Math.round(v.viewCount / (Math.max(1, (now - new Date(v.publishedAt)) / 86400000))), lvr: v.viewCount > 0 ? (v.likeCount / v.viewCount * 100).toFixed(2) : 0, cvr: v.viewCount > 0 ? (v.commentCount / v.viewCount * 100).toFixed(2) : 0 }));
+
+                if (allResults.length === 0) {
+                    resultsContainer.innerHTML = `<div class="message">😢 검색 결과가 없습니다.</div>`;
+                } else {
+                    filterControls.style.display = 'flex';
+                    if (data.recommended_tags && data.recommended_tags.length > 0) {
+                        let tagsHTML = `<h4>💡 추천 태그 (클릭하여 복사)</h4><div>`;
+                        data.recommended_tags.forEach(tag => {
+                            tagsHTML += `<span class="tag" onclick="copyTagToClipboard(event, '${tag.replace(/'/g, "\\'")}')">${tag}</span>`;
+                        });
+                        tagsHTML += `</div>
+                            <div class="action-buttons">
+                                <button class="secondary-action-btn" onclick="openMetricsGuide(event)">📊 지표 분석</button>
+                                <button class="secondary-action-btn" onclick="downloadCSV()">📄 CSV 다운로드</button>
+                            </div>`;
+                        recommendSection.innerHTML = `<div class="recommend-tags-container">${tagsHTML}</div>`;
+                        recommendSection.style.display = 'block';
+                    }
+                    renderData();
+                }
+            } catch (error) {
+                // ✨ 수정된 오류 처리: 에러 모달 띄우기
+                showErrorModal(error.message);
+                resultsContainer.innerHTML = '';
+                filterControls.style.display = 'none';
+            }
+        }
+
+        function buildAdHTML() {
+            const adContent = `<div class="ad-container">광고 영역</div>`;
+            if (currentView === 'list') {
+                return `<tr class="ad-row"><td colspan="7" class="ad-cell">${adContent}</td></tr>`;
+            } else { // Grid View
+                return `<div class="ad-card">${adContent}</div>`;
+            }
+        }
+
+        function renderData() {
+            const daysValue = document.getElementById('daysFilter').value;
+            const days = daysValue === "" ? 0 : parseFloat(daysValue);
+
+            const subscriberLimitValue = document.getElementById('subscriberFilter').value;
+            const subscriberLimit = subscriberLimitValue === "" ? 0 : parseInt(subscriberLimitValue, 10);
+
+            const videoTypeValue = document.getElementById('videoTypeFilter').value;
+            const videoType = videoTypeValue === "" ? 'all' : videoTypeValue;
+
+            const filtered = allResults.filter(v => {
+                const dateFilter = days === 0 || (new Date() - new Date(v.publishedAt)) / 86400000 <= days;
+                const subFilter = subscriberLimit === 0 || (v.channelSubscriberCount != null && v.channelSubscriberCount < subscriberLimit);
+
+                let videoTypeFilter = true;
+                if (videoType !== 'all') {
+                    const durationInSeconds = parseISO8601Duration(v.duration);
+                    if (videoType === 'shorts') {
+                        videoTypeFilter = durationInSeconds > 0 && durationInSeconds <= 60;
+                    } else if (videoType === 'video') {
+                        videoTypeFilter = durationInSeconds > 60;
+                    }
+                }
+
+                return dateFilter && subFilter && videoTypeFilter;
+            });
+
+            const sorted = [...filtered].sort((a, b) => {
+                if (sortConfig.key === 'publishedAt') { return sortConfig.direction === 'asc' ? new Date(a.publishedAt) - new Date(b.publishedAt) : new Date(b.publishedAt) - new Date(a.publishedAt); }
+                const valA = parseFloat(a[sortConfig.key] || 0); const valB = parseFloat(b[sortConfig.key] || 0);
+                return sortConfig.direction === 'asc' ? valA - valB : valB - valA;
+            });
+
+            itemsPerPage = parseInt(document.getElementById('itemsPerPage').value, 10) || 50;
+            const paginated = sorted.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+            const container = document.getElementById('results-container');
+            container.innerHTML = '';
+
+            if (paginated.length === 0) {
+                container.innerHTML = `<div class="message">😢 필터 조건에 맞는 결과가 없습니다.</div>`;
+            } else {
+                if (currentView === 'list') {
+                    container.innerHTML = buildListHeader();
+                    const tableBody = container.querySelector('tbody');
+                    paginated.forEach((v, i) => {
+                        const rank = (currentPage - 1) * itemsPerPage + i + 1;
+                        tableBody.insertAdjacentHTML('beforeend', buildCardHTML(v, rank));
+                        if ((i + 1) % 5 === 0 && (i + 1) < paginated.length) {
+                            tableBody.insertAdjacentHTML('beforeend', buildAdHTML());
+                        }
+                    });
+                    if (paginated.length > 0) tableBody.insertAdjacentHTML('beforeend', buildAdHTML());
+                } else {
+                    paginated.forEach((v, i) => {
+                        const rank = (currentPage - 1) * itemsPerPage + i + 1;
+                        container.insertAdjacentHTML('beforeend', buildCardHTML(v, rank));
+                        if ((i + 1) % 5 === 0 && (i + 1) < paginated.length) {
+                            container.insertAdjacentHTML('beforeend', buildAdHTML());
+                        }
+                    });
+                    if (paginated.length > 0) container.insertAdjacentHTML('beforeend', buildAdHTML());
+                }
+            }
+
+            addChannelClickListeners();
+            renderPaginationControls(sorted.length);
+        }
+
+        function buildListHeader() {
+            const headers = [{ key: 'likeCount', label: '좋아요' }, { key: 'commentCount', label: '댓글' }, { key: 'viewCount', label: '조회수' }, { key: 'publishedAt', label: '업로드' }];
+            let headerHTML = `<table class="results-table"><thead><tr class="list-header"><th class="h-rank">순위</th><th class="h-info">영상 정보</th>`;
+            headers.forEach(h => {
+                const isActive = sortConfig.key === h.key;
+                const arrow = isActive ? (sortConfig.direction === 'asc' ? '▲' : '▼') : '▼';
+                headerHTML += `<th class="h-stat ${isActive ? 'active' : ''}" data-sort="${h.key}"><div class="header-item-content"><span>${h.label}</span><span class="arrow">${arrow}</span></div></th>`;
+            });
+            headerHTML += `<th class="h-download">다운로드</th></tr></thead><tbody></tbody></table>`;
+            return headerHTML;
+        }
+
+        function buildCardHTML(v, rank) {
+            const cleanedTitle = v.title ? v.title.replace(/"/g, '&quot;') : '';
+            const channelData = JSON.stringify(v).replace(/'/g, "&apos;");
+
+            const publishedDate = new Date(v.publishedAt);
+            const formattedDate = `${publishedDate.getFullYear()}. ${publishedDate.getMonth() + 1}. ${publishedDate.getDate()}.`;
+            const formattedDateShort = `${publishedDate.getMonth() + 1}월 ${publishedDate.getDate()}일`;
+
+            if (currentView === 'list') {
+                return `<tr class="video-card-row"><td class="cell rank">${rank}</td><td class="cell info-cell"><div class="thumbnail-container"><a href="${v.videoUrl}" target="_blank"><img src="${v.thumbnail}" loading="lazy"></a></div><div class="info-main"><h3 class="video-title"><a href="${v.videoUrl}" target="_blank" title="${cleanedTitle}">${cleanedTitle}</a></h3><div class="channel-info"><div class="channel-title" data-channel='${channelData}'>${v.channel || 'N/A'}</div></div></div></td><td class="cell stat"><strong>${(v.likeCount || 0).toLocaleString()}</strong><br><span class="rate">(${v.lvr}%)</span></td><td class="cell stat"><strong>${(v.commentCount || 0).toLocaleString()}</strong><br><span class="rate">(${v.cvr}%)</span></td><td class="cell stat"><strong>${(v.viewCount || 0).toLocaleString()}</strong><br><span class="rate">${v.dailyAverageViews.toLocaleString()}/일</span></td><td class="cell stat"><strong>${formattedDate}</strong></td><td class="cell download-cell"><a href="#" class="download-icon" title="썸네일 다운로드" onclick="event.preventDefault(); downloadThumbnail('${v.thumbnail}', '${cleanedTitle.replace(/'/g, "\\'")}');">${downloadIconSVG}</a></td></tr>`;
+            } else {
+                return `<div class="video-card"><div class="thumbnail-container"><a href="${v.videoUrl}" target="_blank"><img src="${v.thumbnail}" loading="lazy"></a><a href="#" class="download-icon-grid" title="썸네일 다운로드" onclick="event.preventDefault(); downloadThumbnail('${v.thumbnail}', '${cleanedTitle.replace(/'/g, "\\'")}');">${downloadIconSVG}</a></div><div class="info-main"><h3 class="video-title"><a href="${v.videoUrl}" target="_blank" title="${cleanedTitle}">${cleanedTitle}</a></h3><div class="channel-title" data-channel='${channelData}'>${v.channel}</div></div><div class="stat-grid"><div><b>${(v.viewCount || 0).toLocaleString()}</b><br>조회수</div><div><b>${(v.likeCount || 0).toLocaleString()}</b><br>좋아요</div><div><b>${formattedDateShort}</b><br>업로드</div></div></div>`;
+            }
+        }
+
+        function addChannelClickListeners() {
+            document.querySelectorAll('.channel-title').forEach(el => {
+                el.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    try {
+                        const videoData = JSON.parse(event.currentTarget.dataset.channel.replace(/'/g, "'"));
+                        if (videoData) {
+                            showCustomTooltip(event.currentTarget, videoData);
+                        }
+                    } catch (e) { console.error("Could not parse video data for tooltip", e); }
+                });
+            });
+        }
+
+        async function downloadThumbnail(url, title) {
+            try {
+                const response = await fetch(url);
+                const blob = await response.blob();
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `${title.replace(/[\\/:*?"<>|]/g, '')}_thumbnail.jpg`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } catch (e) {
+                showNotification("썸네일 다운로드에 실패했습니다.", "error");
+            }
+        }
+
+        function downloadCSV() {
+            const dataToDownload = allResults;
+            if (dataToDownload.length === 0) { showNotification("다운로드할 데이터가 없습니다.", "error"); return; }
+            const headers = ["제목", "채널", "좋아요", "댓글", "총조회수", "업로드 날짜", "영상 URL"];
+            let csvContent = headers.join(',') + '\n';
+            dataToDownload.forEach((v) => {
+                const title = `"${(v.title || '').replace(/"/g, '""')}"`;
+                const channel = `"${(v.channel || '').replace(/"/g, '""')}"`;
+                const publishedDate = new Date(v.publishedAt).toLocaleDateString('ko-KR');
+                const row = [title, channel, v.likeCount, v.commentCount, v.viewCount, publishedDate, v.videoUrl];
+                csvContent += row.join(',') + '\n';
+            });
+            const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", "youtube_analysis_results.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function copyTagToClipboard(event, tagText) {
+            navigator.clipboard.writeText(tagText).then(() => {
+                const notif = document.createElement('div');
+                notif.className = 'tag-copy-notification';
+                notif.textContent = `'${tagText}' 복사 완료!`;
+                document.body.appendChild(notif);
+
+                const targetRect = event.target.getBoundingClientRect();
+                notif.style.left = `${targetRect.left + window.scrollX}px`;
+                notif.style.top = `${targetRect.top + window.scrollY - notif.offsetHeight - 5}px`;
+
+                setTimeout(() => {
+                    notif.classList.add('show');
+                }, 10);
+
+                setTimeout(() => {
+                    notif.classList.remove('show');
+                    setTimeout(() => {
+                        notif.remove();
+                    }, 300);
+                }, 1500);
+
+            }, (err) => {
+                showNotification('태그 복사에 실패했습니다.', "error");
+            });
+        }
+
+        function toggleViewMode() { currentView = (currentView === 'list') ? 'grid' : 'list'; localStorage.setItem('youtubeSearchView', currentView); applyViewMode(); if (allResults.length > 0) renderData(); }
+
+        function applyViewMode() {
+            const btn = document.getElementById('view-toggle-btn');
+            const container = document.getElementById('results-container');
+            if (container) { container.className = currentView === 'grid' ? 'grid-view' : ''; }
+            if (btn) { btn.innerHTML = viewIcons[currentView]; btn.title = currentView === 'list' ? '그리드 보기' : '리스트 보기'; }
+        }
+        function setSort(key) { if (sortConfig.key === key) { sortConfig.direction = sortConfig.direction === 'desc' ? 'asc' : 'desc'; } else { sortConfig.key = key; sortConfig.direction = 'desc'; } currentPage = 1; renderData(); }
+        function changeItemsPerPage() {
+            const itemsPerPageValue = document.getElementById('itemsPerPage').value;
+            itemsPerPage = itemsPerPageValue === "" ? 50 : parseInt(itemsPerPageValue, 10);
+            currentPage = 1;
+            renderData();
+        }
+
+        function renderPaginationControls(totalItems) {
+            const pageCount = Math.ceil(totalItems / itemsPerPage);
+            const controls = document.getElementById('pagination-controls');
+            controls.innerHTML = '';
+            if (pageCount <= 1) return;
+            for (let i = 1; i <= pageCount; i++) { const button = document.createElement('button'); button.innerText = i; button.className = (i === currentPage) ? 'active' : ''; button.onclick = () => { currentPage = i; renderData(); window.scrollTo(0, 0); }; controls.appendChild(button); }
+        }
+
+        function showCustomTooltip(targetElement, videoData) {
+            const tooltip = document.getElementById('custom-tooltip');
+            const tooltipContent = document.getElementById('tooltip-content');
+            if (!tooltip || !tooltipContent) return;
+
+            if (activeTooltipTarget === targetElement) {
+                hideCustomTooltip();
+                return;
+            }
+
+            let statsHtml = `<h4>${videoData.channel} 채널 정보</h4>`;
+            let subscriberText = videoData.channelSubscriberCount != null ? `${videoData.channelSubscriberCount.toLocaleString()}명` : '비공개';
+            statsHtml += `<p><b>구독자:</b> ${subscriberText}</p>`;
+            if (videoData.channelTotalVideos != null) {
+                statsHtml += `<p><b>총 영상:</b> ${videoData.channelTotalVideos.toLocaleString()}개</p>`;
+                statsHtml += `<p><b>총 조회수:</b> ${videoData.channelTotalViews.toLocaleString()}회</p>`;
+                statsHtml += `<p><b>영상당 평균 조회수:</b> ${videoData.channelAvgViews.toLocaleString()}회</p>`;
+            }
+            tooltipContent.innerHTML = statsHtml;
+
+            const targetRect = targetElement.getBoundingClientRect();
+
+            tooltip.style.left = `${targetRect.left + window.scrollX + (targetRect.width / 2)}px`;
+            tooltip.style.top = `${targetRect.top + window.scrollY}px`;
+            tooltip.style.transform = 'translate(-50%, -100%)';
+            tooltip.style.marginTop = '-10px';
+
+            tooltip.classList.add('show');
+            activeTooltipTarget = targetElement;
+        }
+
+        function hideCustomTooltip() {
+            const tooltip = document.getElementById('custom-tooltip');
+            if (!tooltip) return;
+            tooltip.classList.remove('show');
+            activeTooltipTarget = null;
+        }
+
+        function enlargeImage(imgElement) {
+            const lightbox = document.getElementById('image-lightbox');
+            if (lightbox) {
+                const lightboxImg = lightbox.querySelector('img');
+                lightboxImg.src = imgElement.src;
+                lightbox.classList.add('show');
+            }
+        }
+
+        function closeImageLightbox() {
+            const lightbox = document.getElementById('image-lightbox');
+            if (lightbox) {
+                lightbox.classList.remove('show');
+            }
+        }
+    </script>
+</body>
+
+</html>

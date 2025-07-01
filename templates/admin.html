@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>관리자 페이지</title>
+    <style>
+        body { font-family: 'Pretendard', sans-serif; padding: 20px; background-color: #f4f7f6; color: #333; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h1, h2 { text-align: center; color: #4F46E5; }
+        .form-group, .stats-section { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input[type="text"], input[type="password"], input[type="file"], select { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ddd; border-radius: 4px; }
+        .hint { font-size: 12px; color: #777; margin-top: 5px; }
+        .preview { margin-top: 10px; padding: 10px; border: 1px dashed #ddd; border-radius: 4px; }
+        .preview img { max-width: 100%; height: auto; display: block; margin-top: 10px; }
+        .button-group { text-align: right; margin-top: 10px;}
+        button { background-color: #4F46E5; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background-color: #4338CA; }
+        .delete-button, .reset-button, .logout-button { background-color: #e17055; }
+        .delete-button:hover, .reset-button:hover, .logout-button:hover { background-color: #d63031; }
+        .flash-success { padding: 15px; background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; border-radius: 4px; margin-bottom: 20px; }
+        hr { border: none; border-top: 1px solid #eee; margin: 30px 0; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f9f9f9; }
+        .feedback-item { position: relative; background: #f9f9f9; border: 1px solid #eee; border-left: 4px solid #4F46E5; padding: 15px; padding-left: 45px; margin-bottom: 10px; border-radius: 4px; }
+        .feedback-item .checkbox { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); }
+        .feedback-item .delete-one-btn { position: absolute; top: 10px; right: 10px; background: none; border: none; font-size: 20px; cursor: pointer; color: #aaa; padding: 0 5px; line-height: 1; }
+        .feedback-item p { margin: 0 0 5px 0; white-space: pre-wrap; word-break: break-all; }
+        .feedback-item .timestamp { font-size: 12px; color: #777; }
+        .feedback-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; }
+        .header-controls { display: flex; justify-content: space-between; align-items: center; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-controls">
+            <h1>관리자 설정</h1>
+            <form action="{{ url_for('logout') }}">
+                <button type="submit" class="logout-button">로그아웃</button>
+            </form>
+        </div>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="flash-{{ category }}">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+        <form method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="title_text">제목 텍스트</label>
+                <input type="text" id="title_text" name="title_text" value="{{ settings.title_text }}">
+            </div>
+            <div class="form-group">
+                <label for="logo_image">로고 이미지 업로드</label>
+                <input type="file" id="logo_image" name="logo_image" accept="image/*">
+                <p class="hint">권장 사이즈: 가로 400px, 세로 100px.</p>
+                {% if settings.logo_path %}
+                <div class="preview">
+                    <strong>현재 로고:</strong>
+                    <img src="{{ url_for('static', filename=settings.logo_path) }}" alt="Current Logo">
+                </div>
+                {% endif %}
+            </div>
+             <div class="form-group">
+                <label for="admin_password">관리자 비밀번호 변경</label>
+                <input type="password" id="admin_password" name="admin_password" placeholder="변경할 경우에만 입력하세요">
+                <p class="hint">비밀번호를 변경하려면 여기에 새 비밀번호를 입력하고 '설정 저장'을 누르세요.</p>
+            </div>
+            <div class="button-group">
+                <button type="submit">설정 저장</button>
+            </div>
+        </form>
+        {% if settings.logo_path %}
+        <form method="POST" onsubmit="return confirm('정말로 로고를 삭제하시겠습니까?');">
+             <div class="button-group">
+                <button type="submit" name="reset_logo" class="reset-button">로고 삭제</button>
+            </div>
+        </form>
+        {% endif %}
+        <hr>
+        <h2>통계 정보</h2>
+        <div class="stats-section">
+            <h3>API 호출</h3>
+            <p>총 호출 횟수: <strong>{{ stats.total_api_calls }}</strong>회</p>
+        </div>
+        <div class="stats-section">
+            <h3>일자별 인기 검색어</h3>
+            <form method="GET" action="{{ url_for('admin_page') }}">
+                <select name="date" onchange="this.form.submit()">
+                    {% if not stats.available_dates %}<option>기록 없음</option>{% endif %}
+                    {% for date in stats.available_dates %}
+                    <option value="{{ date }}" {% if date == stats.selected_date %}selected{% endif %}>{{ date }}</option>
+                    {% endfor %}
+                </select>
+            </form>
+            {% if stats.popular_searches %}
+                <table>
+                    <thead><tr><th>검색어</th><th>횟수</th></tr></thead>
+                    <tbody>
+                        {% for term, count in stats.popular_searches %}
+                        <tr><td>{{ term }}</td><td>{{ count }}</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>{{ stats.selected_date or '해당' }} 날짜에 대한 검색 기록이 없습니다.</p>
+            {% endif %}
+        </div>
+        <div class="stats-section">
+            <h3>최근 검색 기록</h3>
+            {% if stats.search_log %}
+                <table>
+                    <thead><tr><th>시간</th><th>검색어</th></tr></thead>
+                    <tbody>
+                        {% for log in stats.search_log %}
+                        <tr><td>{{ log.timestamp }}</td><td>{{ log.term }}</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>아직 검색 기록이 없습니다.</p>
+            {% endif %}
+        </div>
+        <hr>
+        <h2>수신된 피드백</h2>
+        <div class="stats-section">
+            <form id="feedback-form" action="{{ url_for('delete_feedback') }}" method="POST" onsubmit="return confirm('선택된 피드백을 정말로 삭제하시겠습니까?');">
+                {% if received_feedback %}
+                    {% for feedback in received_feedback %}
+                    <div class="feedback-item">
+                        <input type="checkbox" name="feedback_ids" value="{{ feedback.timestamp }}" class="feedback-checkbox checkbox">
+                        <button type="button" class="delete-one-btn" title="이 메시지 삭제" onclick="deleteSingleFeedback('{{ feedback.timestamp }}')">×</button>
+                        <p>{{ feedback.message | safe }}</p>
+                        <p class="timestamp">{{ feedback.timestamp }}</p>
+                    </div>
+                    {% endfor %}
+                    <div class="feedback-controls">
+                        <div>
+                            <input type="checkbox" id="select-all-checkbox">
+                            <label for="select-all-checkbox">전체 선택</label>
+                        </div>
+                        <button type="submit" class="delete-button">선택 항목 삭제</button>
+                    </div>
+                {% else %}
+                    <p>아직 수신된 피드백이 없습니다.</p>
+                {% endif %}
+            </form>
+            <form id="single-delete-form" action="{{ url_for('delete_feedback') }}" method="POST" style="display: none;">
+                <input type="hidden" id="single-delete-id" name="feedback_ids">
+            </form>
+        </div>
+    </div>
+    <script>
+        document.getElementById('select-all-checkbox')?.addEventListener('click', function(event) {
+            document.querySelectorAll('.feedback-checkbox').forEach(checkbox => {
+                checkbox.checked = event.target.checked;
+            });
+        });
+        function deleteSingleFeedback(timestamp) {
+            if (confirm('이 피드백을 정말로 삭제하시겠습니까?')) {
+                const form = document.getElementById('single-delete-form');
+                document.getElementById('single-delete-id').value = timestamp;
+                form.submit();
+            }
+        }
+    </script>
+</body>
+</html>
