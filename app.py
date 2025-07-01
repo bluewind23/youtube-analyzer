@@ -1,5 +1,3 @@
-# ✨ 아래 전체 코드로 app.py 파일을 교체해주세요.
-
 from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, session
 import requests
 import time
@@ -13,10 +11,7 @@ app = Flask(__name__)
 app.secret_key = 'supersecretkey_for_session'
 
 # ✨ 비밀 경로 설정 ✨
-# 다른 사람이 추측하기 어려운 복잡한 문자열로 이 부분을 직접 수정하세요.
-# 예: '/my-secret-admin-a1b2c3'
-SECRET_ADMIN_PREFIX = '/manage-youtube-tool-78s1-z90p'
-
+SECRET_ADMIN_PREFIX = '/admin'
 
 # --- 설정 ---
 UPLOAD_FOLDER = 'static/uploads'
@@ -66,13 +61,10 @@ def save_feedback(feedback_data):
     with open(FEEDBACK_FILE, 'w', encoding='utf-8') as f:
         json.dump(feedback_data, f, ensure_ascii=False, indent=4)
 
-# ✨ 안정성을 높인 새로운 오류 처리 함수
 def get_youtube_api_error_message(response):
     try:
         error_details = response.json()
-        error_info = error_details.get('error', {})
-        errors_list = error_info.get('errors', [])
-        
+        errors_list = error_details.get('error', {}).get('errors', [])
         if errors_list and isinstance(errors_list, list) and len(errors_list) > 0:
             reason = errors_list[0].get('reason')
             if reason == 'keyInvalid':
@@ -88,18 +80,15 @@ def get_youtube_api_error_message(response):
                     f'<a href="{gcp_url}" target="_blank" style="color: #4F46E5; font-weight: bold;">Google Cloud Console</a>에서 쿼터를 늘려주세요.'
                 )
             elif reason == 'forbidden':
-                message = error_info.get('message', '')
+                message = error_details.get('error', {}).get('message', '')
                 if 'API not enabled' in message:
                     return '프로젝트에 YouTube Data API v3가 활성화되지 않았습니다.'
                 return 'API 접근이 거부되었습니다. Google Cloud 설정을 확인해주세요.'
             else:
                 return f"API 오류가 발생했습니다: {reason}"
-
-        return error_info.get('message', f'알 수 없는 API 오류 (상태 코드: {response.status_code})')
-        
+        return error_details.get('error', {}).get('message', f'알 수 없는 API 오류 (상태 코드: {response.status_code})')
     except (json.JSONDecodeError, AttributeError):
         return f'API 응답을 처리할 수 없습니다 (상태 코드: {response.status_code}).'
-
 
 @app.route('/')
 def index():
@@ -111,13 +100,10 @@ def index():
 def login():
     if session.get('logged_in'):
         return redirect(url_for('admin_page'))
-        
     if request.method == 'POST':
         settings = get_settings()
-        password_attempt = request.form.get('password')
-        if password_attempt == settings.get('admin_password'):
+        if request.form.get('password') == settings.get('admin_password'):
             session['logged_in'] = True
-            flash('로그인되었습니다.', 'success')
             return redirect(url_for('admin_page'))
         else:
             flash('비밀번호가 틀렸습니다.', 'error')
@@ -126,7 +112,6 @@ def login():
 @app.route(f'{SECRET_ADMIN_PREFIX}/logout')
 def logout():
     session.pop('logged_in', None)
-    flash('로그아웃되었습니다.', 'success')
     return redirect(url_for('login'))
 
 # --- 기존 라우트 ---
@@ -192,7 +177,23 @@ def search_videos():
             ch_stats = channel_stats.get(channel_id, {})
             video_tags = snippet.get('tags', [])
             if video_tags: all_tags.extend(video_tags)
-            results.append({'title': snippet.get('title'), 'videoUrl': f"https://www.youtube.com/watch?v={item.get('id')}", 'thumbnail': snippet.get('thumbnails', {}).get('high', {}).get('url'), 'channel': snippet.get('channelTitle'), 'channelId': channel_id, 'channelSubscriberCount': ch_stats.get('subscriberCount'), 'channelTotalVideos': ch_stats.get('totalVideoCount'), 'channelTotalViews': ch_stats.get('totalViewCount'), 'channelAvgViews': ch_stats.get('avgViewsPerVideo'), 'tags': video_tags, 'viewCount': int(stats.get('viewCount', 0)), 'likeCount': int(stats.get('likeCount', 0)), 'commentCount': int(stats.get('commentCount', 0)), 'publishedAt': snippet.get('publishedAt'), 'duration': content_details.get('duration')})
+            results.append({
+                'title': snippet.get('title'),
+                'videoUrl': f"https://www.youtube.com/watch?v={item.get('id')}",
+                'thumbnail': snippet.get('thumbnails', {}).get('high', {}).get('url'),
+                'channel': snippet.get('channelTitle'),
+                'channelId': channel_id,
+                'channelSubscriberCount': ch_stats.get('subscriberCount'),
+                'channelTotalVideos': ch_stats.get('totalVideoCount'),
+                'channelTotalViews': ch_stats.get('totalViewCount'),
+                'channelAvgViews': ch_stats.get('avgViewsPerVideo'),
+                'tags': video_tags,
+                'viewCount': int(stats.get('viewCount', 0)),
+                'likeCount': int(stats.get('likeCount', 0)),
+                'commentCount': int(stats.get('commentCount', 0)),
+                'publishedAt': snippet.get('publishedAt'),
+                'duration': content_details.get('duration')
+            })
         tag_counts = collections.Counter(all_tags)
         for term in query.lower().split(): tag_counts.pop(term, None)
         recommended_tags = [tag for tag, count in tag_counts.most_common(10)]
@@ -211,8 +212,6 @@ def search_videos():
 
 @app.route('/submit_feedback', methods=['POST'])
 def submit_feedback():
-    if not session.get('logged_in'):
-        return redirect(url_for('login'))
     message = request.form.get('message')
     if not message: return jsonify({'success': False, 'error': '메시지를 입력해주세요.'}), 400
     all_feedback = get_feedback()
