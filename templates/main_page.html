@@ -1315,7 +1315,15 @@
                 queryInput.placeholder = 'API 키를 먼저 등록해주세요.';
                 apiBtn.textContent = 'API 키 등록';
                 if (explainerContainer) explainerContainer.style.display = 'block';
-                if (explainerContainer) explainerContainer.innerHTML = `<div class="api-explainer"><p><strong>이 툴은 YouTube의 공식 데이터 API를 통해 정보를 가져옵니다.</strong></p><p>따라서 구글에서 발급하는 무료 API 키를 등록해야만 정상적으로 작동합니다.</p></div>`;
+                // explainerContainer.innerHTML = ... 이 부분을 찾아 아래 코드로 통째로 교체해주세요.
+
+                if (explainerContainer) explainerContainer.innerHTML = `
+    <div class="api-explainer">
+        <p><strong>이 툴은 YouTube의 공식 데이터 API를 통해 정보를 가져옵니다.</strong></p>
+        <p>따라서 구글에서 발급하는 무료 API 키를 등록해야만 정상적으로 작동합니다.</p>
+        <p style="margin-top: 15px;">API 키 발급 방법이 궁금하신가요? <a href="#" onclick="openApiGuide(event)" style="font-weight: 600; color: var(--primary-color);">가이드 페이지</a>에서 자세한 방법을 확인해보세요.</p>
+    </div>
+`;
                 filterControls.style.display = 'none';
                 searchHistoryEl.style.display = 'none';
                 adContainer.style.display = 'none';
