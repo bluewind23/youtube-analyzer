@@ -1,4 +1,7 @@
 {
-    "title_text": "유튜브 영상 검색기",
-    "logo_path": null
+    "title_text": "유튜브 상승 키워드 분석기",
+    "logo_path": null,
+    "admin_password": "admin",
+    "shared_api_key": "AIzaSyArWYUTQTl1xhmqn6nenT5DzBWgEaioyWI",
+    "visitor_count": 28
 }

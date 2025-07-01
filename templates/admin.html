@@ -6,7 +6,8 @@
     <style>
         body { font-family: 'Pretendard', sans-serif; padding: 20px; background-color: #f4f7f6; color: #333; }
         .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        h1, h2 { text-align: center; color: #4F46E5; }
+        h1, h2, h3 { text-align: center; color: #4F46E5; }
+        h3 { color: #333; margin-top: 20px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
         .form-group, .stats-section { margin-bottom: 15px; }
         label { display: block; margin-bottom: 5px; font-weight: bold; }
         input[type="text"], input[type="password"], input[type="file"], select { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ddd; border-radius: 4px; }
@@ -68,6 +69,11 @@
                 <input type="password" id="admin_password" name="admin_password" placeholder="변경할 경우에만 입력하세요">
                 <p class="hint">비밀번호를 변경하려면 여기에 새 비밀번호를 입력하고 '설정 저장'을 누르세요.</p>
             </div>
+            <div class="form-group">
+                <label for="shared_api_key">공용 API 키 (인기 동영상용)</label>
+                <input type="password" id="shared_api_key" name="shared_api_key" value="{{ settings.shared_api_key }}">
+                <p class="hint">첫 페이지의 '인기 동영상' 표시에 사용되는 서버의 공용 API 키입니다.</p>
+            </div>
             <div class="button-group">
                 <button type="submit">설정 저장</button>
             </div>
@@ -82,8 +88,9 @@
         <hr>
         <h2>통계 정보</h2>
         <div class="stats-section">
-            <h3>API 호출</h3>
-            <p>총 호출 횟수: <strong>{{ stats.total_api_calls }}</strong>회</p>
+            <h3>방문 및 호출 통계</h3>
+            <p>총 페이지 방문 횟수: <strong>{{ stats.visitor_count | default('0') }}</strong>회</p>
+            <p>총 API 호출 횟수: <strong>{{ stats.total_api_calls }}</strong>회</p>
         </div>
         <div class="stats-section">
             <h3>일자별 인기 검색어</h3>

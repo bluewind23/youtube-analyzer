@@ -1,0 +1,50 @@
+{
+  "videos": [
+    {
+      "title": "샘플 영상 1: 고양이 vs 강아지, 세기의 대결!",
+      "videoUrl": "javascript:void(0);",
+      "thumbnail": "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
+      "channel": "샘플 채널 A",
+      "viewCount": 1500000,
+      "likeCount": 85000,
+      "commentCount": 4500,
+      "publishedAt": "2025-06-15T00:00:00Z",
+      "duration": "PT5M31S",
+      "channelSubscriberCount": 500000,
+      "channelTotalVideos": 250,
+      "channelTotalViews": 120000000,
+      "channelAvgViews": 480000
+    },
+    {
+      "title": "이것이 바로 미래의 코딩 기술 (샘플)",
+      "videoUrl": "javascript:void(0);",
+      "thumbnail": "https://i.ytimg.com/vi/3_yD_cE4pQo/hqdefault.jpg",
+      "channel": "코딩 파트너",
+      "viewCount": 280000,
+      "likeCount": 18000,
+      "commentCount": 1200,
+      "publishedAt": "2025-05-20T00:00:00Z",
+      "duration": "PT10M2S",
+      "channelSubscriberCount": 1200000,
+      "channelTotalVideos": 150,
+      "channelTotalViews": 350000000,
+      "channelAvgViews": 2333333
+    },
+    {
+      "title": "여행 브이로그 샘플: 아이슬란드 오로라",
+      "videoUrl": "javascript:void(0);",
+      "thumbnail": "https://i.ytimg.com/vi/s64S_M4_e3o/hqdefault.jpg",
+      "channel": "여행자 샘플",
+      "viewCount": 880000,
+      "likeCount": 54000,
+      "commentCount": 2300,
+      "publishedAt": "2025-04-10T00:00:00Z",
+      "duration": "PT8M45S",
+      "channelSubscriberCount": 230000,
+      "channelTotalVideos": 80,
+      "channelTotalViews": 98000000,
+      "channelAvgViews": 1225000
+    }
+  ],
+  "recommended_tags": ["샘플태그1", "샘플태그2", "데모용태그", "미리보기"]
+}
