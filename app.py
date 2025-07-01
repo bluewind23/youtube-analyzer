@@ -11,7 +11,7 @@ app = Flask(__name__)
 app.secret_key = 'supersecretkey_for_session'
 
 # ✨ 비밀 경로 설정 ✨
-SECRET_ADMIN_PREFIX = '/admin'
+SECRET_ADMIN_PREFIX = '/manage-youtube-tool-78s1-z90p'
 
 # --- 설정 ---
 UPLOAD_FOLDER = 'static/uploads'
