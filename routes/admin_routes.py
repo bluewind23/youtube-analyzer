@@ -13,7 +13,7 @@ import secrets
 ADMIN_SECRET_PATH = os.environ.get(
     'ADMIN_SECRET_PATH', 'a7b9f3e2d8c1x4m6n9p2q5r8t1v4w7z0')
 admin_routes = Blueprint('admin_routes', __name__,
-                         url_prefix=f'/{ADMIN_SECRET_PATH}')
+                         url_prefix=f'/sys-mgmt-{ADMIN_SECRET_PATH}')
 
 # [수정 또는 추가할 코드 시작]
 # 강화된 관리자 권한 확인 데코레이터 (DB 필드 확인 방식으로 변경)

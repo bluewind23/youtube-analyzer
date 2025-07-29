@@ -93,64 +93,7 @@ def google_callback():
 @auth_routes.route('/mypage', methods=['GET', 'POST'])
 @login_required
 def mypage():
-    form = AddApiKeyForm()
-    if form.validate_on_submit():
-        new_key_value = form.youtube_api_key.data
-
-        existing_key = ApiKey.query.filter(
-            ApiKey.user_id == current_user.id).all()
-        is_duplicate = any(k.key == new_key_value for k in existing_key)
-
-        if is_duplicate:
-            flash('이미 등록된 API 키입니다.', 'danger')
-        else:
-            new_api_key = ApiKey(user=current_user)
-            new_api_key.key = new_key_value
-            db.session.add(new_api_key)
-            db.session.commit()
-            flash('새 API 키가 성공적으로 추가되었습니다!', 'success')
-        return redirect(url_for('auth_routes.mypage'))
-
-    user_api_keys = current_user.api_keys
-
-    video_page = request.args.get('video_page', 1, type=int)
-    channel_page = request.args.get('channel_page', 1, type=int)
-    query_page = request.args.get('query_page', 1, type=int)
-
-    per_page = 10
-
-    saved_queries = SavedItem.query.filter_by(
-        user_id=current_user.id, item_type='query'
-    ).order_by(SavedItem.saved_at.desc()).paginate(
-        page=query_page, per_page=per_page, error_out=False
-    )
-
-    saved_channels = SavedItem.query.filter_by(
-        user_id=current_user.id, item_type='channel'
-    ).order_by(SavedItem.saved_at.desc()).paginate(
-        page=channel_page, per_page=per_page, error_out=False
-    )
-
-    saved_videos = SavedVideo.query.filter_by(
-        user_id=current_user.id
-    ).order_by(SavedVideo.saved_at.desc()).paginate(
-        page=video_page, per_page=per_page, error_out=False
-    )
-
-    video_categories = SavedVideoCategory.query.filter_by(
-        user_id=current_user.id).order_by(SavedVideoCategory.name).all()
-    channel_categories = SavedChannelCategory.query.filter_by(
-        user_id=current_user.id).order_by(SavedChannelCategory.name).all()
-
-    return render_template('mypage.html',
-                           form=form,
-                           api_keys=user_api_keys,
-                           title="마이페이지",
-                           saved_queries=saved_queries,
-                           saved_channels=saved_channels,
-                           saved_videos=saved_videos,
-                           video_categories=video_categories,
-                           channel_categories=channel_categories)
+    return f"<h1>마이페이지 테스트</h1><p>사용자: {current_user.username}</p><p>이메일: {current_user.email}</p>"
 
 
 @auth_routes.route('/delete_key/<int:key_id>', methods=['POST'])
