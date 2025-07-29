@@ -16,7 +16,10 @@ google-api-core==2.25.1
 google-api-python-client==2.175.0
 google-auth==2.40.3
 google-auth-httplib2==0.2.0
-googleapis-common-protos==1.70.0
+googleapis-common-protos==1.70.1
+# [수정 또는 추가할 코드 시작]
+gunicorn
+# [수정 또는 추가할 코드 끝]
 httplib2==0.22.0
 idna==3.10
 itsdangerous==2.2.0
