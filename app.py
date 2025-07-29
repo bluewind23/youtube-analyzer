@@ -30,6 +30,9 @@ app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
 # [수정 또는 추가할 코드 끝]
 
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "your-secret-key")
+# 세션 설정 추가 (HTTPS 환경 대응)
+app.config['SESSION_COOKIE_SECURE'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'None'
 
 # 숫자를 사람이 읽기 쉬운 형태로 변환하는 필터
 

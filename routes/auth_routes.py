@@ -86,7 +86,7 @@ def google_callback():
         'username': user.username,
         'is_admin': user.is_admin
     }
-
+    session.modified = True  # ✅ 명시적으로 세션 갱신
     return redirect(url_for("main_routes.index"))
 
 
