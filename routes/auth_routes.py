@@ -91,11 +91,27 @@ def google_callback():
 
 
 @auth_routes.route('/mypage', methods=['GET', 'POST'])
-# @login_required  # 임시 주석
+# @login_required  # 여전히 주석
 def mypage():
     from flask import session
+    from models.user import User
+
+    # 강제로 사용자 로드 시도
+    user_id = session.get('_user_id')
+    if user_id:
+        try:
+            user = User.query.get(int(user_id))
+            print(f"[DEBUG] Manual user load: {user}")
+            # 강제 로그인
+            from flask_login import login_user
+            login_user(user, remember=True)
+            print(
+                f"[DEBUG] After manual login_user: {current_user.is_authenticated}")
+        except Exception as e:
+            print(f"[DEBUG] Manual login error: {e}")
+
     return f"""
-    <h1>로그인 디버그</h1>
+    <h1>로그인 디버그 v2</h1>
     <p>current_user.is_authenticated: {current_user.is_authenticated}</p>
     <p>current_user: {current_user}</p>
     <p>session user: {session.get('user', 'No user in session')}</p>

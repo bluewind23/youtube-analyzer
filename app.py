@@ -75,9 +75,13 @@ login_manager.login_message_category = 'info'
 @login_manager.user_loader
 def load_user(user_id):
     print(f"[DEBUG] load_user called with user_id: {user_id}")
-    user = User.query.get(int(user_id))
-    print(f"[DEBUG] User found: {user}")
-    return user
+    try:
+        user = User.query.get(int(user_id))
+        print(f"[DEBUG] User found: {user}")
+        return user
+    except Exception as e:
+        print(f"[DEBUG] Error in load_user: {e}")
+        return None
 
 
 # 블루프린트 등록
