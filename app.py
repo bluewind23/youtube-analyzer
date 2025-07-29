@@ -115,6 +115,29 @@ def debug_session():
     }
 
 
+@app.route('/debug/routes')
+def debug_routes():
+    import urllib
+    output = []
+    for rule in app.url_map.iter_rules():
+        methods = ','.join(rule.methods)
+        line = urllib.parse.unquote(
+            f"{rule.endpoint:50s} {methods:20s} {rule}")
+        output.append(line)
+
+    # 환경변수도 함께 확인
+    env_vars = {
+        'ADMIN_SECRET_PATH': os.environ.get('ADMIN_SECRET_PATH', 'NOT_SET'),
+        'ADMIN_EMAIL': os.environ.get('ADMIN_EMAIL', 'NOT_SET')
+    }
+
+    return {
+        'routes': sorted(output),
+        'environment_variables': env_vars,
+        'total_routes': len(output)
+    }
+
+
 # 앱 실행
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8000, debug=False)
