@@ -9,6 +9,7 @@ from models.search_history import SearchHistory
 from models.saved_item import SavedItem
 from models.saved_video import SavedVideo, SavedVideoCategory
 from models.saved_channel import SavedChannelCategory
+import os
 
 auth_routes = Blueprint('auth_routes', __name__)
 google_bp = make_google_blueprint(
@@ -33,7 +34,10 @@ def logout():
     return redirect(url_for("main_routes.index"))
 
 
-@auth_routes.route("/login/google/callback")
+# [수정 또는 추가할 코드 시작]
+# 주소를 라이브러리 기본값인 /authorized 로 변경합니다.
+@auth_routes.route("/login/google/authorized")
+# [수정 또는 추가할 코드 끝]
 def google_login_callback():
     if not google.authorized:
         flash("로그인에 실패했습니다.", "danger")
@@ -54,11 +58,8 @@ def google_login_callback():
     if not user:
         user = User(email=user_email, username=user_info.get(
             "name"), profile_pic=user_info.get("picture"))
-        # [수정 또는 추가할 코드 시작]
-        # 최초 가입 시 이메일이 관리자 이메일과 같으면 is_admin 플래그 설정
         if user_email == os.environ.get('ADMIN_EMAIL'):
              user.is_admin = True
-        # [수정 또는 추가할 코드 끝]
         db.session.add(user)
         db.session.commit()
         flash("가입이 완료되었습니다!", "success")
@@ -94,15 +95,10 @@ def mypage():
 
     user_api_keys = current_user.api_keys
 
-    # [수정 또는 추가할 코드 시작]
-    # 사용자 활동 데이터 조회 (페이지네이션 적용)
-    
-    # 각 목록의 페이지 번호를 URL 쿼리 파라미터에서 가져옵니다.
     video_page = request.args.get('video_page', 1, type=int)
     channel_page = request.args.get('channel_page', 1, type=int)
     query_page = request.args.get('query_page', 1, type=int)
     
-    # 한 페이지에 표시할 항목 수
     per_page = 10
 
     saved_queries = SavedItem.query.filter_by(
@@ -122,7 +118,6 @@ def mypage():
     ).order_by(SavedVideo.saved_at.desc()).paginate(
         page=video_page, per_page=per_page, error_out=False
     )
-    # [수정 또는 추가할 코드 끝]
     
     video_categories = SavedVideoCategory.query.filter_by(user_id=current_user.id).order_by(SavedVideoCategory.name).all()
     channel_categories = SavedChannelCategory.query.filter_by(user_id=current_user.id).order_by(SavedChannelCategory.name).all()
