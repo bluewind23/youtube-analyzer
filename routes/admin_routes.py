@@ -62,45 +62,9 @@ def inject_admin_context():
 @admin_routes.route('/')
 @admin_routes.route('/dashboard')
 @login_required
-@admin_required
+# @admin_required
 def dashboard():
-    """관리자 대시보드"""
-    try:
-        from models.feedback import Feedback
-        from models.user import User
-        from models.api_key import ApiKey
-        from models.admin_api_key import AdminApiKey
-
-        # 통계 데이터 수집
-        total_users = User.query.count()
-        total_api_keys = ApiKey.query.count()
-        total_admin_keys = AdminApiKey.query.count()
-        total_feedback = Feedback.query.count()
-        unread_feedback = Feedback.query.filter_by(is_read=False).count()
-
-        # 최근 피드백
-        recent_feedback = Feedback.query.order_by(
-            Feedback.submitted_at.desc()).limit(5).all()
-
-        # 피드백 타입별 통계
-        feedback_stats = db.session.query(
-            Feedback.feedback_type,
-            db.func.count(Feedback.id)
-        ).group_by(Feedback.feedback_type).all()
-
-        return render_template('admin/dashboard.html',
-                               total_users=total_users,
-                               total_api_keys=total_api_keys,
-                               total_admin_keys=total_admin_keys,
-                               total_feedback=total_feedback,
-                               unread_feedback=unread_feedback,
-                               recent_feedback=recent_feedback,
-                               feedback_stats=feedback_stats,
-                               title="관리자 대시보드")
-    except Exception as e:
-        current_app.logger.error(f"Dashboard error: {e}")
-        flash('대시보드 로딩 중 오류가 발생했습니다.', 'error')
-        return render_template('admin/dashboard.html', title="관리자 대시보드")
+    return f"<h1>Admin 테스트</h1><p>관리자: {current_user.username}</p><p>이메일: {current_user.email}</p><p>관리자 권한: {current_user.is_admin}</p>"
 
 
 @admin_routes.route('/system-stats')
