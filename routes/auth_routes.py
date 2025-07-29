@@ -93,7 +93,14 @@ def google_callback():
 @auth_routes.route('/mypage', methods=['GET', 'POST'])
 @login_required
 def mypage():
-    return f"<h1>마이페이지 테스트</h1><p>사용자: {current_user.username}</p><p>이메일: {current_user.email}</p>"
+    user_api_keys = current_user.api_keys
+    return f"""
+    <h1>마이페이지 테스트</h1>
+    <p>사용자: {current_user.username}</p>
+    <p>이메일: {current_user.email}</p>
+    <p>등록된 API 키 개수: {len(user_api_keys)}</p>
+    <p>API 키들: {[key.key[:10] + '...' for key in user_api_keys]}</p>
+    """
 
 
 @auth_routes.route('/delete_key/<int:key_id>', methods=['POST'])
