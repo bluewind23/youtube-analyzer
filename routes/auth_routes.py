@@ -1,3 +1,4 @@
+# 복사 버튼을 눌러 전체 코드를 복사하세요
 from flask import redirect, url_for, flash, Blueprint, render_template, request
 from flask_login import login_user, logout_user, current_user, login_required
 from flask_dance.contrib.google import make_google_blueprint, google
@@ -12,9 +13,12 @@ from models.saved_channel import SavedChannelCategory
 import os
 
 auth_routes = Blueprint('auth_routes', __name__)
+
+# Flask-Dance 블루프린트를 생성합니다.
 google_bp = make_google_blueprint(
     scope=["openid", "https://www.googleapis.com/auth/userinfo.email",
            "https://www.googleapis.com/auth/userinfo.profile"],
+    # 로그인이 성공하면 여기로 지정된 'auth_routes.google_login_callback' 함수로 리디렉션됩니다.
     redirect_to='auth_routes.google_login_callback'
 )
 
@@ -23,6 +27,7 @@ google_bp = make_google_blueprint(
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('main_routes.index'))
+    # Flask-Dance가 생성한 로그인 URL(/login/google)로 리디렉션합니다.
     return redirect(url_for("google.login"))
 
 
@@ -34,10 +39,10 @@ def logout():
     return redirect(url_for("main_routes.index"))
 
 
-# [수정 또는 추가할 코드 시작]
-# 주소를 라이브러리 기본값인 /authorized 로 변경합니다.
-@auth_routes.route("/login/google/authorized")
-# [수정 또는 추가할 코드 끝]
+# [수정된 부분]
+# 라이브러리와의 주소 충돌을 피하기 위해 콜백 URL을 고유하게 변경합니다.
+# 이전: @auth_routes.route("/login/google/authorized")
+@auth_routes.route("/google/callback")
 def google_login_callback():
     if not google.authorized:
         flash("로그인에 실패했습니다.", "danger")
@@ -58,12 +63,14 @@ def google_login_callback():
     if not user:
         user = User(email=user_email, username=user_info.get(
             "name"), profile_pic=user_info.get("picture"))
+        # 환경 변수에 설정된 관리자 이메일과 동일한 경우 is_admin 플래그를 True로 설정합니다.
         if user_email == os.environ.get('ADMIN_EMAIL'):
-             user.is_admin = True
+            user.is_admin = True
         db.session.add(user)
         db.session.commit()
         flash("가입이 완료되었습니다!", "success")
     else:
+        # 기존 사용자의 정보(이름, 프로필 사진)를 최신 정보로 업데이트합니다.
         user.username = user_info.get("name")
         user.profile_pic = user_info.get("picture")
         db.session.commit()
@@ -98,7 +105,7 @@ def mypage():
     video_page = request.args.get('video_page', 1, type=int)
     channel_page = request.args.get('channel_page', 1, type=int)
     query_page = request.args.get('query_page', 1, type=int)
-    
+
     per_page = 10
 
     saved_queries = SavedItem.query.filter_by(
@@ -106,21 +113,23 @@ def mypage():
     ).order_by(SavedItem.saved_at.desc()).paginate(
         page=query_page, per_page=per_page, error_out=False
     )
-    
+
     saved_channels = SavedItem.query.filter_by(
         user_id=current_user.id, item_type='channel'
     ).order_by(SavedItem.saved_at.desc()).paginate(
         page=channel_page, per_page=per_page, error_out=False
     )
-    
+
     saved_videos = SavedVideo.query.filter_by(
         user_id=current_user.id
     ).order_by(SavedVideo.saved_at.desc()).paginate(
         page=video_page, per_page=per_page, error_out=False
     )
-    
-    video_categories = SavedVideoCategory.query.filter_by(user_id=current_user.id).order_by(SavedVideoCategory.name).all()
-    channel_categories = SavedChannelCategory.query.filter_by(user_id=current_user.id).order_by(SavedChannelCategory.name).all()
+
+    video_categories = SavedVideoCategory.query.filter_by(
+        user_id=current_user.id).order_by(SavedVideoCategory.name).all()
+    channel_categories = SavedChannelCategory.query.filter_by(
+        user_id=current_user.id).order_by(SavedChannelCategory.name).all()
 
     return render_template('mypage.html',
                            form=form,
