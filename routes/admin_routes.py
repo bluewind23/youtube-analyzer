@@ -62,9 +62,32 @@ def inject_admin_context():
 @admin_routes.route('/')
 @admin_routes.route('/dashboard')
 @login_required
-# @admin_required
+@admin_required  # 이제 다시 활성화
 def dashboard():
-    return f"<h1>Admin 테스트</h1><p>관리자: {current_user.username}</p><p>이메일: {current_user.email}</p><p>관리자 권한: {current_user.is_admin}</p>"
+    """관리자 대시보드"""
+    try:
+        # 1단계: 기본 데이터만 수집
+        from models.user import User
+        from models.api_key import ApiKey
+        from models.admin_api_key import AdminApiKey
+
+        total_users = User.query.count()
+        total_api_keys = ApiKey.query.count()
+        total_admin_keys = AdminApiKey.query.count()
+
+        # 2단계: Feedback 모델 없이 기본 템플릿 렌더링
+        return render_template('admin/dashboard.html',
+                               total_users=total_users,
+                               total_api_keys=total_api_keys,
+                               total_admin_keys=total_admin_keys,
+                               total_feedback=0,  # 임시값
+                               unread_feedback=0,  # 임시값
+                               recent_feedback=[],  # 빈 리스트
+                               feedback_stats=[],  # 빈 리스트
+                               title="관리자 대시보드")
+
+    except Exception as e:
+        return f"<h1>Dashboard 오류</h1><p>오류 내용: {str(e)}</p>"
 
 
 @admin_routes.route('/system-stats')
