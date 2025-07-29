@@ -16,6 +16,9 @@ import os
 # [수정 또는 추가할 코드 시작]
 # ProxyFix 임포트
 from werkzeug.middleware.proxy_fix import ProxyFix
+# 환경변수 로드 (개발환경용, 프로덕션에서는 시스템 환경변수 사용)
+from dotenv import load_dotenv
+load_dotenv()  # .env 파일이 없어도 에러가 발생하지 않음
 # [수정 또는 추가할 코드 끝]
 
 app = Flask(__name__)

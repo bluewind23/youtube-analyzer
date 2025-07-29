@@ -18,8 +18,8 @@ auth_routes = Blueprint('auth_routes', __name__)
 google_bp = make_google_blueprint(
     scope=["openid", "https://www.googleapis.com/auth/userinfo.email",
            "https://www.googleapis.com/auth/userinfo.profile"],
-    # 로그인이 성공하면 여기로 지정된 'auth_routes.google_login_callback' 함수로 리디렉션됩니다.
-    redirect_to='auth_routes.google_login_callback'
+    # 로그인이 성공하면 여기로 지정된 'auth_routes.google_callback' 함수로 리디렉션됩니다.
+    redirect_to='auth_routes.google_callback'
 )
 
 
@@ -43,7 +43,7 @@ def logout():
 # 라이브러리와의 주소 충돌을 피하기 위해 콜백 URL을 고유하게 변경합니다.
 # 이전: @auth_routes.route("/login/google/authorized")
 @auth_routes.route("/google/callback")
-def google_login_callback():
+def google_callback():
     if not google.authorized:
         flash("로그인에 실패했습니다.", "danger")
         return redirect(url_for("main_routes.index"))
