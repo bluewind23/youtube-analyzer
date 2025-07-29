@@ -1,4 +1,5 @@
 # 복사 버튼을 눌러 전체 코드를 복사하세요
+from flask import session
 from flask import redirect, url_for, flash, Blueprint, render_template, request
 from flask_login import login_user, logout_user, current_user, login_required
 from flask_dance.contrib.google import make_google_blueprint, google
@@ -75,19 +76,19 @@ def google_callback():
         user.profile_pic = user_info.get("picture")
         db.session.commit()
 
-    # Flask-Login 로그인
-    login_user(user)
 
-    # 세션에 user 정보 추가 (중요!)
-    from flask import session
-    session['user'] = {
-        'id': user.id,
-        'email': user.email,
-        'username': user.username,
-        'is_admin': user.is_admin
-    }
-    session.modified = True  # ✅ 명시적으로 세션 갱신
-    return redirect(url_for("main_routes.index"))
+# Flask-Login 로그인
+login_user(user, remember=True)
+
+# 세션에 user 정보 추가 (중요!)
+session['user'] = {
+    'id': user.id,
+    'email': user.email,
+    'username': user.username,
+    'is_admin': user.is_admin
+}
+session.permanent = True
+session.modified = True
 
 
 @auth_routes.route('/mypage', methods=['GET', 'POST'])
