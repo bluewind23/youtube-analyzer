@@ -75,7 +75,18 @@ def google_callback():
         user.profile_pic = user_info.get("picture")
         db.session.commit()
 
+    # Flask-Login 로그인
     login_user(user)
+
+    # 세션에 user 정보 추가 (중요!)
+    from flask import session
+    session['user'] = {
+        'id': user.id,
+        'email': user.email,
+        'username': user.username,
+        'is_admin': user.is_admin
+    }
+
     return redirect(url_for("main_routes.index"))
 
 
