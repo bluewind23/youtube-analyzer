@@ -18,12 +18,18 @@ admin_routes = Blueprint('admin_routes', __name__, url_prefix=f'/sys-mgmt-{ADMIN
 def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        # is_authenticated: 로그인 여부 확인, is_admin: 관리자 플래그 확인
-        if not current_user.is_authenticated or not getattr(current_user, 'is_admin', False):
+        # 로그인 여부 확인
+        if not current_user.is_authenticated:
+            current_app.logger.warning(f"Admin access attempt without login from IP: {request.remote_addr}")
+            flash('관리자 페이지 접근을 위해 로그인이 필요합니다.', 'warning')
+            return redirect(url_for('auth_routes.login'))
+        
+        # 관리자 권한 확인
+        if not getattr(current_user, 'is_admin', False):
             current_app.logger.warning(
-                f"Unauthorized admin access attempt by user: {getattr(current_user, 'email', 'Anonymous')} from IP: {request.remote_addr}"
+                f"Unauthorized admin access attempt by user: {current_user.email} from IP: {request.remote_addr}"
             )
-            abort(404)  # 404로 위장하여 보안 강화
+            abort(404)  # 관리자가 아닌 경우 404로 위장
         
         current_app.logger.info(f"Admin access granted for: {current_user.email}")
         return f(*args, **kwargs)

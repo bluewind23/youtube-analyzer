@@ -64,6 +64,9 @@ migrate = Migrate(app, db, render_as_batch=True)
 # 로그인 매니저 설정
 login_manager = LoginManager()
 login_manager.init_app(app)
+login_manager.login_view = 'auth_routes.login'
+login_manager.login_message = '이 페이지에 접근하려면 로그인이 필요합니다.'
+login_manager.login_message_category = 'info'
 
 
 @login_manager.user_loader
@@ -96,6 +99,17 @@ def internal_error(error):
 @app.errorhandler(503)
 def service_unavailable(error):
     return render_template('errors/503.html'), 503
+
+
+@app.route('/debug/session')
+def debug_session():
+    return {
+        'session_data': dict(session),
+        'session_keys': list(session.keys()),
+        'user_in_session': 'user' in session,
+        'google_token': 'google_token' in session if 'google_token' in session else 'No google_token',
+        'session_id': request.cookies.get('session', 'No session cookie')
+    }
 
 
 # 앱 실행
