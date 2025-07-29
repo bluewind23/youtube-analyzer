@@ -6,6 +6,9 @@ from models.user import User
 from flask_login import LoginManager
 from jinja2.runtime import Undefined
 import os
+# [수정 또는 추가할 코드 시작]
+from werkzeug.middleware.proxy_fix import ProxyFix
+# [수정 또는 추가할 코드 끝]
 
 from extensions import cache
 
@@ -33,6 +36,11 @@ def human_format(num):
 
 app = Flask(__name__)
 
+# [수정 또는 추가할 코드 시작]
+# Render와 같은 리버스 프록시 환경에서 HTTPS를 올바르게 인식하도록 설정합니다.
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
+# [수정 또는 추가할 코드 끝]
+
 app.jinja_env.filters['human_format'] = human_format
 app.jinja_env.add_extension('jinja2.ext.do')
 app.config.from_object(Config)
@@ -41,8 +49,6 @@ app.config['CACHE_DEFAULT_TIMEOUT'] = 300
 cache.init_app(app)
 
 db.init_app(app)
-# [수정] render_as_batch=True 옵션을 추가하여 SQLite 등에서의 제약조건 오류를 방지합니다.
-# 이 옵션은 통합된 DB 초기화 방식과 함께 사용될 때 가장 효과적입니다.
 migrate = Migrate(app, db, render_as_batch=True)
 
 login_manager = LoginManager()
@@ -81,4 +87,4 @@ def service_unavailable(error):
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8000, debug=False)
+    app.run(host='0.0.0.0', port=8000, debug=True)
