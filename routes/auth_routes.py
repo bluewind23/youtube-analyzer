@@ -91,9 +91,16 @@ def google_callback():
 
 
 @auth_routes.route('/mypage', methods=['GET', 'POST'])
-@login_required
+# @login_required  # 임시 주석
 def mypage():
-    return f"<h1>마이페이지 테스트</h1><p>사용자: {current_user.username}</p><p>이메일: {current_user.email}</p>"
+    from flask import session
+    return f"""
+    <h1>로그인 디버그</h1>
+    <p>current_user.is_authenticated: {current_user.is_authenticated}</p>
+    <p>current_user: {current_user}</p>
+    <p>session user: {session.get('user', 'No user in session')}</p>
+    <p>session _user_id: {session.get('_user_id', 'No _user_id in session')}</p>
+    """
 
 
 @auth_routes.route('/delete_key/<int:key_id>', methods=['POST'])
