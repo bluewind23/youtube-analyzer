@@ -20,6 +20,7 @@ google-api-python-client==2.175.0
 google-auth==2.40.3
 google-auth-httplib2==0.2.0
 googleapis-common-protos==1.70.0
+google-auth-oauthlib>=1.0.0
 gunicorn
 httplib2==0.22.0
 idna==3.10

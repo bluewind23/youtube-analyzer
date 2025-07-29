@@ -21,3 +21,5 @@ visitor_log.csv
 
 # 환경 변수 파일
 .env
+
+client_secret.json
