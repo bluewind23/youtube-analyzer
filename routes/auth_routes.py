@@ -132,3 +132,10 @@ def delete_key(key_id):
     db.session.commit()
     flash('API 키가 삭제되었습니다.', 'info')
     return redirect(url_for('auth_routes.mypage'))
+
+
+@auth_routes.route('/clear-session')
+def clear_session():
+    from flask import session
+    session.clear()
+    return "세션이 클리어되었습니다. <a href='/login'>다시 로그인하세요</a>"
