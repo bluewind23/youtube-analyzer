@@ -1,0 +1,35 @@
+<div
+  class="flex items-center justify-center space-x-2 rounded-full bg-white px-4 py-2 shadow-lg ring-1 ring-black ring-opacity-5">
+
+  {# '이전' 버튼: page 파라미터가 2 이상일 때만 표시 #}
+  {% if pagination.page > 1 %}
+  {% set prev_params = pagination.params.copy() %}
+  {% do prev_params.update({'page': pagination.page - 1}) %}
+  {# 이전 페이지는 page_token이 없으므로 제거합니다. #}
+  {% do prev_params.pop('page_token', None) %}
+  <a href="{{ url_for(request.endpoint, **prev_params) }}"
+    class="flex items-center justify-center h-8 w-8 rounded-full text-sm font-medium text-gray-500 hover:bg-gray-100">
+    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+    </svg>
+  </a>
+  {% endif %}
+
+  {# 현재 페이지 번호 #}
+  <span class="text-sm font-semibold text-gray-700">
+    Page {{ pagination.page }}
+  </span>
+
+  {# '다음' 버튼: next_page_token이 있을 때만 표시 #}
+  {% if pagination.next_page_token %}
+  {% set next_params = pagination.params.copy() %}
+  {% do next_params.update({'page': pagination.page + 1, 'page_token': pagination.next_page_token}) %}
+  <a href="{{ url_for(request.endpoint, **next_params) }}"
+    class="flex items-center justify-center h-8 w-8 rounded-full text-sm font-medium text-gray-500 hover:bg-gray-100">
+    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+    </svg>
+  </a>
+  {% endif %}
+
+</div>

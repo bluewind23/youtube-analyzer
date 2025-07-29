@@ -1,0 +1,144 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block admin_content %}
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-800 mb-2">{{ title }}</h1>
+        <p class="text-gray-500">시스템의 공용 API 키를 관리합니다.</p>
+    </div>
+
+    <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100 mb-8">
+        <h2 class="text-lg font-semibold mb-4 text-gray-700">새 공용 키 추가</h2>
+        <form method="POST" action="">
+            {{ form.hidden_tag() }}
+            <div class="flex items-center gap-4">
+                <div class="flex-grow">
+                    {{ form.admin_api_key.label(class="sr-only") }}
+                    {# [수정] px-4 py-2 클래스가 이미 있지만, 다른 페이지와 통일성을 위해 px-3 py-2 로 조정합니다. #}
+                    {{ form.admin_api_key(class="w-full px-3 py-2 text-gray-700 bg-gray-50 border border-gray-300
+                    rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500", placeholder="AIzaSy... 형식의 YouTube
+                    API 키를 입력하세요") }}
+                    {% for error in form.admin_api_key.errors %}
+                    <p class="text-red-500 text-xs italic mt-2">{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {{ form.submit(class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg
+                focus:outline-none focus:shadow-outline transition-colors") }}
+            </div>
+        </form>
+    </div>
+
+    <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
+        <div class="border-b border-gray-200 mb-4">
+            <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+                <a href="#"
+                    class="border-blue-500 text-blue-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                    전체 키 ({{ keys|length }})
+                </a>
+            </nav>
+        </div>
+
+        <div class="hidden sm:grid grid-cols-12 gap-4 px-4 py-2 text-xs font-medium text-gray-500 uppercase">
+            <span class="col-span-1"># ID</span>
+            <span class="col-span-5">API Key (부분)</span>
+            <span class="col-span-2">상태</span>
+            <span class="col-span-3">마지막 사용</span>
+            <span class="col-span-1 text-right">Action</span>
+        </div>
+
+        <div class="flow-root">
+            <div class="divide-y divide-gray-200">
+                {% for key in keys %}
+                <div class="grid grid-cols-12 gap-4 items-center px-4 py-4 hover:bg-gray-50 rounded-lg">
+                    <div class="col-span-1 text-sm font-medium text-gray-500">#{{ key.id }}</div>
+                    <div class="col-span-5 flex items-center">
+                        <span class="flex-shrink-0 h-10 w-10 flex items-center justify-center bg-gray-100 rounded-full">
+                            <svg class="w-6 h-6 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
+                            </svg>
+                        </span>
+                        <div class="ml-4 font-mono text-sm text-gray-900">{{ key.key[:4] }}...{{ key.key[-4:] }}</div>
+                    </div>
+                    <div class="col-span-2">
+                        {% if key.is_active %}
+                        <span
+                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            <svg class="-ml-0.5 mr-1.5 h-2 w-2 text-green-400" fill="currentColor" viewBox="0 0 8 8">
+                                <circle cx="4" cy="4" r="3" />
+                            </svg>
+                            활성
+                        </span>
+                        {% else %}
+                        <span
+                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                            <svg class="-ml-0.5 mr-1.5 h-2 w-2 text-red-400" fill="currentColor" viewBox="0 0 8 8">
+                                <circle cx="4" cy="4" r="3" />
+                            </svg>
+                            비활성
+                        </span>
+                        {% endif %}
+                    </div>
+                    <div class="col-span-3 text-sm text-gray-500">
+                        {{ key.last_used.strftime('%Y-%m-%d %H:%M') if key.last_used else '사용 안 함' }}
+                        {% if not key.is_active and key.quota_exceeded_at %}
+                        <span class="text-xs block">({{ key.quota_exceeded_at.strftime('%y-%m-%d') }}에 비활성화)</span>
+                        {% endif %}
+                    </div>
+                    <div class="col-span-1 text-right relative">
+                        <button type="button"
+                            class="action-button p-2 text-gray-500 hover:text-gray-700 rounded-full hover:bg-gray-100"
+                            data-key-id="{{ key.id }}">
+                            <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                                fill="currentColor">
+                                <path
+                                    d="M10 3a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM10 8.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM11.5 15.5a1.5 1.5 0 10-3 0 1.5 1.5 0 003 0z" />
+                            </svg>
+                        </button>
+                        <div id="action-menu-{{ key.id }}"
+                            class="action-menu hidden absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+                            role="menu">
+                            <div class="py-1">
+                                <form method="POST" action="{{ url_for('admin_routes.delete_key', key_id=key.id) }}"
+                                    onsubmit="return confirm('정말로 이 키를 삭제하시겠습니까?');" class="w-full">
+                                    <button type="submit"
+                                        class="w-full text-left text-red-700 block px-4 py-2 text-sm hover:bg-gray-100"
+                                        role="menuitem">
+                                        삭제
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="text-center py-12 text-gray-500">
+                    <p>등록된 공용 키가 없습니다.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+<script>
+    document.addEventListener('click', function (e) {
+        const isActionButton = e.target.closest('.action-button');
+
+        document.querySelectorAll('.action-menu').forEach(menu => {
+            if (!isActionButton || !menu.id.includes(isActionButton.dataset.keyId)) {
+                menu.classList.add('hidden');
+            }
+        });
+
+        if (isActionButton) {
+            const keyId = isActionButton.dataset.keyId;
+            const menu = document.getElementById(`action-menu-${keyId}`);
+            if (menu) {
+                menu.classList.toggle('hidden');
+            }
+        }
+    });
+</script>
+{% endblock %}

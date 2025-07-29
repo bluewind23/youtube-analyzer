@@ -1,4 +1,4 @@
-#!/Users/wonjin/Documents/GitHub/youtube-analyzer/venv/bin/python3
+#!/Users/wonjin/Documents/GitHub/youtube-analyzer_v2/venv/bin/python3.13
 # -*- coding: utf-8 -*-
 import re
 import sys

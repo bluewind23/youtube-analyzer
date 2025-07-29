@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+
+{% if channel_info %}
+  {% set channel_title = channel_info.snippet.title %}
+  {% set channel_description = channel_info.snippet.description %}
+  {% set channel_thumbnail = channel_info.snippet.thumbnails.high.url if channel_info.snippet.thumbnails.high else channel_info.snippet.thumbnails.default.url %}
+  {% set subscriber_count = channel_info.statistics.subscriberCount if channel_info.statistics else 0 %}
+  {% set video_count = channel_info.statistics.videoCount if channel_info.statistics else 0 %}
+{% endif %}
+
+{% block title %}
+  {%- if channel_info -%}
+    {{ channel_title }} 채널 분석 - YouTube 분석기
+  {%- else -%}
+    채널 분석 준비 중 - YouTube 분석기
+  {%- endif -%}
+{% endblock %}
+
+{% block description %}
+  {%- if channel_info -%}
+    {{ channel_title }} 채널의 상세 분석 페이지입니다. 구독자 {{ subscriber_count|human_format }}명, 동영상 {{ video_count|human_format }}개. {{ channel_description[:100] }}...
+  {%- else -%}
+    YouTube 채널 분석 기능을 준비 중입니다. 구독자 증감, 영상 업로드 패턴, 조회수 트렌드 등 다양한 분석 기능을 곧 만나보세요.
+  {%- endif -%}
+{% endblock %}
+
+{% block keywords %}
+  {%- if channel_info -%}
+    {{ channel_title }}, YouTube 채널 분석, 구독자 분석, 영상 분석, {{ channel_title }} 통계, YouTube 데이터
+  {%- else -%}
+    YouTube 채널 분석, 구독자 분석, 영상 분석, YouTube 통계, 채널 데이터 분석
+  {%- endif -%}
+{% endblock %}
+
+{% block og_title %}
+  {%- if channel_info -%}
+    {{ channel_title }} 채널 분석
+  {%- else -%}
+    채널 분석 준비 중
+  {%- endif -%}
+{% endblock %}
+
+{% block og_description %}
+  {%- if channel_info -%}
+    {{ channel_title }} 채널의 상세 분석 데이터를 확인하세요. 구독자 {{ subscriber_count|human_format }}명, 동영상 {{ video_count|human_format }}개의 성과를 분석합니다.
+  {%- else -%}
+    YouTube 채널 분석 기능을 개발 중입니다. 더 나은 서비스를 위해 데이터를 수집하고 있어요!
+  {%- endif -%}
+{% endblock %}
+
+{% block og_type %}profile{% endblock %}
+
+{% block og_image %}
+  {%- if channel_info and channel_thumbnail -%}
+    {{ channel_thumbnail }}
+  {%- else -%}
+    {{ url_for('static', filename='images/og-channel-default.jpg', _external=True) }}
+  {%- endif -%}
+{% endblock %}
+
+{% block twitter_card %}summary{% endblock %}
+
+{% block robots %}
+  {%- if channel_info -%}
+    index, follow
+  {%- else -%}
+    noindex, follow
+  {%- endif -%}
+{% endblock %}
+
+{% block content %}
+<div class="bg-gray-50 min-h-screen flex items-center justify-center">
+    <div class="max-w-2xl mx-auto px-4 text-center">
+        
+        <!-- Construction Icon -->
+        <div class="mb-8">
+            <div class="inline-flex items-center justify-center w-24 h-24 bg-yellow-100 rounded-full">
+                <span class="text-4xl">🚧</span>
+            </div>
+        </div>
+        
+        {% if channel_info %}
+        <!-- 채널 정보 표시 -->
+        <div class="mb-8">
+            <div class="flex items-center justify-center mb-4">
+                <img src="{{ channel_thumbnail }}" alt="{{ channel_title }}" 
+                     class="w-20 h-20 rounded-full object-cover border-4 border-white shadow-lg">
+            </div>
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">{{ channel_title }}</h1>
+            <div class="flex items-center justify-center gap-4 text-sm text-gray-600 mb-4">
+                <span>구독자 {{ subscriber_count|human_format }}명</span>
+                <span>•</span>
+                <span>동영상 {{ video_count|human_format }}개</span>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Main Message -->
+        <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
+            {% if channel_info %}{{ channel_title }} 채널{% endif %} 분석 기능 준비 중입니다
+        </h2>
+        
+        <p class="text-lg text-gray-600 mb-6 leading-relaxed">
+            더 정확하고 유용한 채널 분석을 제공하기 위해<br>
+            지속적으로 데이터를 수집하고 있습니다.
+        </p>
+        
+        <!-- Features Coming Soon -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8 text-left">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4 text-center">곧 만나볼 수 있는 기능들</h2>
+            <div class="grid md:grid-cols-2 gap-4">
+                <div class="flex items-start space-x-3">
+                    <span class="text-blue-500 mt-1">📈</span>
+                    <div>
+                        <h3 class="font-medium text-gray-900">구독자 증감 추이</h3>
+                        <p class="text-sm text-gray-600">일별 구독자 변화량 그래프</p>
+                    </div>
+                </div>
+                <div class="flex items-start space-x-3">
+                    <span class="text-green-500 mt-1">🎬</span>
+                    <div>
+                        <h3 class="font-medium text-gray-900">영상 업로드 패턴</h3>
+                        <p class="text-sm text-gray-600">업로드 빈도와 성과 분석</p>
+                    </div>
+                </div>
+                <div class="flex items-start space-x-3">
+                    <span class="text-purple-500 mt-1">👀</span>
+                    <div>
+                        <h3 class="font-medium text-gray-900">조회수 트렌드</h3>
+                        <p class="text-sm text-gray-600">채널 전체 조회수 변화</p>
+                    </div>
+                </div>
+                <div class="flex items-start space-x-3">
+                    <span class="text-orange-500 mt-1">🏆</span>
+                    <div>
+                        <h3 class="font-medium text-gray-900">인기 콘텐츠 분석</h3>
+                        <p class="text-sm text-gray-600">높은 성과를 낸 영상 패턴</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Progress Info -->
+        <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-8">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <span class="text-blue-400">ℹ️</span>
+                </div>
+                <div class="ml-3 text-left">
+                    <p class="text-sm text-blue-700">
+                        <strong>현재 진행상황:</strong> 채널 통계 데이터를 지속적으로 수집하여 
+                        더욱 정확한 분석을 위한 기반을 구축하고 있습니다.
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="space-y-4 sm:space-y-0 sm:space-x-4 sm:flex sm:justify-center">
+            <a href="{{ url_for('main_routes.index') }}" 
+               class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                메인 페이지로 돌아가기
+            </a>
+            
+            <button onclick="history.back()" 
+                    class="inline-flex items-center px-6 py-3 border border-gray-300 shadow-sm text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+                이전 페이지
+            </button>
+        </div>
+        
+        <!-- Footer Note -->
+        <div class="mt-12 text-center">
+            <p class="text-sm text-gray-500">
+                업데이트 소식이 궁금하시다면 페이지를 즐겨찾기에 추가하세요! 📌
+            </p>
+        </div>
+        
+    </div>
+</div>
+{% endblock %}

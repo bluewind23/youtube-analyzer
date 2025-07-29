@@ -1,0 +1,29 @@
+<header class="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-200">
+  <div class="container mx-auto px-4">
+    <div class="flex items-center justify-between h-16">
+      {# [수정] text-xl을 text-lg로 변경하여 글자 크기를 줄입니다. #}
+      <a href="{{ url_for('main_routes.index') }}" class="text-lg font-bold text-gray-800">
+        🚀 YouTube 상승 키워드 분석기
+      </a>
+
+      <nav class="flex items-center space-x-4">
+        {% if current_user.is_authenticated %}
+          {# --- 로그인된 경우 --- #}
+          <span class="text-sm text-gray-600">환영합니다, {{ current_user.username or current_user.email }}님!</span>
+          
+          <a href="{{ url_for('auth_routes.mypage') }}" class="text-sm font-medium text-gray-500 hover:text-gray-900">마이페이지</a>
+          
+          <a href="{{ url_for('auth_routes.logout') }}" class="text-sm font-medium text-gray-700 bg-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors">
+            로그아웃
+          </a>
+        
+        {% else %}
+          {# --- 로그인되지 않은 경우 --- #}
+          <a href="{{ url_for('auth_routes.login') }}" class="text-sm font-medium text-white bg-blue-600 px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+            Google 계정으로 로그인
+          </a>
+        {% endif %}
+      </nav>
+    </div>
+  </div>
+</header>

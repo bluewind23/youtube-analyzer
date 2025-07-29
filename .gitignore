@@ -1,0 +1,23 @@
+# 가상 환경 폴더
+venv/
+**/venv/
+
+# 파이썬 캐시 파일
+__pycache__/
+*.pyc
+*.pyo
+
+# 설정 파일 (API 키 등 민감 정보 포함)
+setting.json
+
+# 로그 파일
+*.log
+visitor_log.csv
+
+# IDE 및 OS 관련 파일
+.idea/
+.vscode/
+.DS_Store
+
+# 환경 변수 파일
+.env

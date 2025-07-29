@@ -1,0 +1,28 @@
+<form id="searchForm" action="/" method="GET" class="relative">
+    <div class="relative flex items-center">
+        <span class="absolute left-4 pointer-events-none">
+            <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                fill="currentColor">
+                <path fill-rule="evenodd"
+                    d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z"
+                    clip-rule="evenodd" />
+            </svg>
+        </span>
+
+        <input type="text" id="searchInput" name="query"
+            class="w-full text-base pl-12 pr-28 py-3 border rounded-lg transition-shadow 
+                   {% if not can_search %} bg-gray-100 cursor-not-allowed {% else %} focus:outline-none focus:ring-2 focus:ring-blue-500 {% endif %}"
+            placeholder="{% if can_search %}분석하고 싶은 채널 또는 키워드를 입력하세요{% else %}로그인 후 API 키를 등록해주세요{% endif %}"
+            value="{{ request.args.get('query', '') }}" autocomplete="off" {% if not can_search %} disabled {% endif
+            %} />
+
+        <button id="searchButton" type="submit" class="absolute right-2.5 py-2.5 px-6 text-sm font-semibold text-white rounded-md shadow-md transition-all
+                   {% if can_search %} bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500
+                   {% else %} bg-gray-400 cursor-not-allowed {% endif %}" {% if not can_search %} disabled {% endif %}>
+            검색
+        </button>
+    </div>
+    <div id="suggestions-list"
+        class="hidden absolute mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg z-20">
+    </div>
+</form>

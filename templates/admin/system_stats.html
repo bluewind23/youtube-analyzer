@@ -1,0 +1,84 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block admin_content %}
+    <!-- 헤더 섹션 -->
+    <div class="mb-8">
+        <h1 class="text-2xl font-bold text-gray-900">시스템 통계</h1>
+        <p class="mt-1 text-sm text-gray-600">시스템 성능 및 사용량 통계를 확인하세요.</p>
+    </div>
+
+    <!-- 개발 중 안내 -->
+    <div class="bg-white rounded-lg border border-gray-200 shadow-sm">
+        <div class="px-6 py-12 text-center">
+            <div class="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-6">
+                <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 00-2-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                </svg>
+            </div>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">시스템 통계 개발 중</h3>
+            <p class="text-sm text-gray-500 mb-6">현재 시스템 통계 기능을 개발하고 있습니다. 곧 다음과 같은 정보를 제공할 예정입니다:</p>
+            
+            <div class="max-w-2xl mx-auto">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                        <h4 class="font-medium text-blue-900 mb-2">📊 사용량 통계</h4>
+                        <ul class="text-sm text-blue-700 space-y-1">
+                            <li>• 일일/월간 검색량</li>
+                            <li>• API 호출 통계</li>
+                            <li>• 인기 검색어</li>
+                            <li>• 사용자 활동량</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-green-50 p-4 rounded-lg">
+                        <h4 class="font-medium text-green-900 mb-2">⚡ 성능 지표</h4>
+                        <ul class="text-sm text-green-700 space-y-1">
+                            <li>• 응답 시간 분석</li>
+                            <li>• 에러율 모니터링</li>
+                            <li>• 서버 리소스 사용량</li>
+                            <li>• 캐시 효율성</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-purple-50 p-4 rounded-lg">
+                        <h4 class="font-medium text-purple-900 mb-2">🔗 API 현황</h4>
+                        <ul class="text-sm text-purple-700 space-y-1">
+                            <li>• YouTube API 할당량</li>
+                            <li>• 키별 사용량</li>
+                            <li>• 성공/실패율</li>
+                            <li>• 응답 시간 분포</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-orange-50 p-4 rounded-lg">
+                        <h4 class="font-medium text-orange-900 mb-2">👥 사용자 현황</h4>
+                        <ul class="text-sm text-orange-700 space-y-1">
+                            <li>• 활성 사용자 수</li>
+                            <li>• 신규 가입자</li>
+                            <li>• 지역별 분포</li>
+                            <li>• 접속 디바이스</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="mt-8 p-4 bg-gray-50 rounded-lg">
+                    <p class="text-sm text-gray-600">
+                        <strong>예상 완료:</strong> 시스템 데이터 수집이 충분히 축적되면 상세한 통계 페이지를 제공할 예정입니다.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="mt-8">
+                <a href="{{ url_for('admin_routes.dashboard') }}" 
+                   class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
+                    대시보드로 돌아가기
+                </a>
+            </div>
+        </div>
+    </div>
+{% endblock %}

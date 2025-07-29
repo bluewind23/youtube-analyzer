@@ -1,0 +1,27 @@
+<div class="flex justify-end">
+        <div class="flex items-center gap-3">
+            <div>
+                <label for="dateFilter" class="block text-xs font-semibold text-gray-700 mb-1.5">업로드 기간</label>
+                {# --- [수정] w-32 클래스로 너비를 고정합니다. --- #}
+                <select id="dateFilter" name="date" onchange="this.form.submit()"
+                        class="w-32 bg-gray-50 border border-gray-300 text-gray-700 py-1.5 px-2 rounded-md leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow text-xs">
+                    <option value="">전체</option>
+                    {% for option in ["1일 전", "3일 전", "5일 전", "7일 전", "10일 전", "15일 전", "30일 전"] %}
+                    <option value="{{ option }}" {% if request.args.get('date') == option %}selected{% endif %}>{{ option }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label for="countFilter" class="block text-xs font-semibold text-gray-700 mb-1.5">결과 개수</label>
+                {# --- [수정] w-24 클래스로 너비를 고정합니다. --- #}
+                <select id="countFilter" name="count" onchange="this.form.submit()"
+                        class="w-24 bg-gray-50 border border-gray-300 text-gray-700 py-1.5 px-2 rounded-md leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow text-xs">
+                    {% for option in ["10", "20", "30", "50"] %}
+                    <option value="{{ option }}" {% if request.args.get('count', '10') == option %}selected{% endif %}>{{ option }}개</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </div>
+</div>

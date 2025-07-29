@@ -1,0 +1,17 @@
+<div class="flex justify-start">
+    <div class="flex flex-wrap gap-0 bg-white rounded-lg p-1 shadow-sm border border-gray-200">
+        {% set categories = [
+            ('0', '전체'), ('10', '음악'), ('22', '인물/블로그'), ('23', '코미디'),
+            ('24', '엔터테인먼트'), ('25', '뉴스/정치'), ('26', '노하우/스타일'),
+            ('27', '교육'), ('28', '과학'), ('1', '영화/애니'), ('2', '자동차'),
+            ('17', '스포츠'), ('19', '여행'), ('20', '게임'), ('15', '반려동물')
+        ] %}
+        {% for category_id, category_name in categories %}
+        <a href="{{ url_for('main_routes.index', category=category_id, view=request.args.get('view', 'grid')) }}" 
+           class="category-tab px-3 py-1.5 text-sm font-medium rounded-md transition-colors duration-200 
+                  {% if active_category == category_id %}bg-blue-500 text-white{% else %}text-gray-600 hover:bg-gray-100{% endif %}">
+            {{ category_name }}
+        </a>
+        {% endfor %}
+    </div>
+</div>

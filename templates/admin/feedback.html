@@ -1,0 +1,184 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block admin_content %}
+        <!-- 헤더 섹션 -->
+        <div class="mb-8">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">피드백 관리</h1>
+                    <p class="mt-1 text-sm text-gray-600">사용자가 보낸 피드백을 확인하고 관리하세요.</p>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="bg-white px-4 py-2 rounded-lg border border-gray-200">
+                        <span class="text-sm text-gray-600">총 피드백: </span>
+                        <span class="font-semibold text-gray-900">{{ total_feedback }}</span>
+                    </div>
+                    <div class="bg-red-50 px-4 py-2 rounded-lg border border-red-200">
+                        <span class="text-sm text-red-600">읽지 않음: </span>
+                        <span class="font-semibold text-red-800">{{ unread_count }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 필터 섹션 -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
+            <div class="px-6 py-4">
+                <form method="GET" class="flex flex-wrap gap-4 items-end">
+                    <div>
+                        <label for="type" class="block text-sm font-medium text-gray-700 mb-1">피드백 유형</label>
+                        <select name="type" id="type" class="px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-blue-500 focus:border-blue-500">
+                            <option value="all" {% if current_filter_type == 'all' or not current_filter_type %}selected{% endif %}>전체</option>
+                            <option value="suggestion" {% if current_filter_type == 'suggestion' %}selected{% endif %}>제안</option>
+                            <option value="bug" {% if current_filter_type == 'bug' %}selected{% endif %}>버그 신고</option>
+                            <option value="feature" {% if current_filter_type == 'feature' %}selected{% endif %}>기능 요청</option>
+                            <option value="general" {% if current_filter_type == 'general' %}selected{% endif %}>일반 의견</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="status" class="block text-sm font-medium text-gray-700 mb-1">읽음 상태</label>
+                        <select name="status" id="status" class="px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-blue-500 focus:border-blue-500">
+                            <option value="all" {% if current_filter_status == 'all' or not current_filter_status %}selected{% endif %}>전체</option>
+                            <option value="unread" {% if current_filter_status == 'unread' %}selected{% endif %}>읽지 않음</option>
+                            <option value="read" {% if current_filter_status == 'read' %}selected{% endif %}>읽음</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors">
+                        필터 적용
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- 피드백 목록 -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+            {% if feedback_list.items %}
+                {% for feedback in feedback_list.items %}
+                <div class="border-b border-gray-200 {% if not feedback.is_read %}bg-blue-50{% endif %}">
+                    <div class="px-6 py-4">
+                        <div class="flex justify-between items-start mb-3">
+                            <div class="flex items-center gap-3">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                    {% if feedback.feedback_type == 'bug' %}bg-red-100 text-red-800
+                                    {% elif feedback.feedback_type == 'feature' %}bg-green-100 text-green-800
+                                    {% elif feedback.feedback_type == 'suggestion' %}bg-blue-100 text-blue-800
+                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                    {{ feedback.get_type_display(feedback.feedback_type) }}
+                                </span>
+                                {% if not feedback.is_read %}
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                        NEW
+                                    </span>
+                                {% endif %}
+                                <span class="text-sm text-gray-500">
+                                    {{ feedback.submitted_at.strftime('%Y-%m-%d %H:%M') }}
+                                </span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                {% if not feedback.is_read %}
+                                    <form method="POST" action="{{ url_for('admin_routes.mark_feedback_read', feedback_id=feedback.id) }}" class="inline">
+                                        <button type="submit" class="text-xs text-blue-600 hover:text-blue-800 font-medium">
+                                            읽음 표시
+                                        </button>
+                                    </form>
+                                {% endif %}
+                                <form method="POST" action="{{ url_for('admin_routes.delete_feedback', feedback_id=feedback.id) }}" 
+                                      onsubmit="return confirm('정말로 이 피드백을 삭제하시겠습니까?')" class="inline">
+                                    <button type="submit" class="text-xs text-red-600 hover:text-red-800 font-medium">
+                                        삭제
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <p class="text-gray-900 whitespace-pre-wrap">{{ feedback.message }}</p>
+                        </div>
+                        
+                        {% if feedback.admin_notes %}
+                            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-3 mb-3">
+                                <div class="flex">
+                                    <div class="ml-3">
+                                        <p class="text-sm text-yellow-800">
+                                            <strong>관리자 노트:</strong> {{ feedback.admin_notes }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                        
+                        <div class="flex justify-between items-center">
+                            <div class="text-xs text-gray-500">
+                                ID: {{ feedback.id }}
+                                {% if feedback.user_ip %}
+                                    | IP: {{ feedback.user_ip }}
+                                {% endif %}
+                            </div>
+                            
+                            <!-- 관리자 노트 추가 폼 -->
+                            <details class="relative">
+                                <summary class="cursor-pointer text-xs text-gray-600 hover:text-gray-800">관리자 노트 {% if feedback.admin_notes %}수정{% else %}추가{% endif %}</summary>
+                                <div class="absolute right-0 top-full mt-2 w-80 bg-white border border-gray-200 rounded-lg shadow-lg p-4 z-10">
+                                    <form method="POST" action="{{ url_for('admin_routes.add_feedback_note', feedback_id=feedback.id) }}">
+                                        <textarea name="admin_note" rows="3" 
+                                                  class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-blue-500 focus:border-blue-500"
+                                                  placeholder="관리자 노트를 입력하세요...">{{ feedback.admin_notes or '' }}</textarea>
+                                        <div class="mt-2 flex justify-end">
+                                            <button type="submit" class="px-3 py-1 bg-blue-600 text-white text-xs font-medium rounded hover:bg-blue-700">
+                                                {% if feedback.admin_notes %}수정{% else %}추가{% endif %}
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </details>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                
+                <!-- 페이지네이션 -->
+                {% if feedback_list.pages > 1 %}
+                <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
+                    <div class="flex justify-center">
+                        <nav class="flex space-x-2">
+                            {% if feedback_list.has_prev %}
+                                <a href="{{ url_for('admin_routes.view_feedback', page=feedback_list.prev_num, type=current_filter_type, status=current_filter_status) }}" 
+                                   class="px-3 py-2 text-sm text-gray-500 hover:text-gray-700">이전</a>
+                            {% endif %}
+                            
+                            {% for page_num in feedback_list.iter_pages() %}
+                                {% if page_num %}
+                                    {% if page_num != feedback_list.page %}
+                                        <a href="{{ url_for('admin_routes.view_feedback', page=page_num, type=current_filter_type, status=current_filter_status) }}" 
+                                           class="px-3 py-2 text-sm text-gray-500 hover:text-gray-700">{{ page_num }}</a>
+                                    {% else %}
+                                        <span class="px-3 py-2 text-sm text-blue-600 font-medium">{{ page_num }}</span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="px-3 py-2 text-sm text-gray-400">...</span>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if feedback_list.has_next %}
+                                <a href="{{ url_for('admin_routes.view_feedback', page=feedback_list.next_num, type=current_filter_type, status=current_filter_status) }}" 
+                                   class="px-3 py-2 text-sm text-gray-500 hover:text-gray-700">다음</a>
+                            {% endif %}
+                        </nav>
+                    </div>
+                </div>
+                {% endif %}
+            {% else %}
+                <div class="px-6 py-12 text-center">
+                    <div class="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                        <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">피드백이 없습니다</h3>
+                    <p class="text-sm text-gray-500">아직 받은 피드백이 없습니다. 사용자들의 소중한 의견을 기다리고 있어요!</p>
+                </div>
+            {% endif %}
+        </div>
+{% endblock %}

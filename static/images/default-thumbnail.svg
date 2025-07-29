@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="180" viewBox="0 0 320 180" fill="none">
+  <rect width="320" height="180" fill="#f3f4f6"/>
+  <rect x="80" y="50" width="160" height="80" rx="8" fill="#d1d5db"/>
+  <circle cx="120" cy="75" r="8" fill="#9ca3af"/>
+  <polygon points="140,65 140,95 165,80" fill="#9ca3af"/>
+  <text x="160" y="145" font-family="Arial, sans-serif" font-size="12" fill="#6b7280" text-anchor="middle">썸네일 없음</text>
+</svg>

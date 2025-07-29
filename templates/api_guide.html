@@ -1,0 +1,341 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block description %}YouTube API 키 등록 및 설정 가이드. 단계별 상세 설명으로 쉽게 API 키를 생성하고 등록할 수 있습니다.{% endblock %}
+
+{% block keywords %}YouTube API 키, API 설정, Google Cloud Console, YouTube Data API v3, API 키 등록{% endblock %}
+
+{% block content %}
+<div class="bg-gray-50 min-h-screen py-8">
+    <div class="max-w-4xl mx-auto px-4">
+        
+        <!-- 헤더 섹션 -->
+        <div class="text-center mb-12">
+            <div class="mb-6">
+                <span class="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full">
+                    <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-3.586l6.879-6.879A6 6 0 0121 9z"></path>
+                    </svg>
+                </span>
+            </div>
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">YouTube API 키 설정 가이드</h1>
+            <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                YouTube 분석 서비스를 이용하기 위한 API 키 생성부터 등록까지 단계별로 안내해드립니다.
+            </p>
+        </div>
+
+        <!-- 빠른 시작 안내 -->
+        <div class="bg-blue-50 border-l-4 border-blue-400 p-6 mb-8 rounded-r-lg">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm text-blue-700">
+                        <strong>소요 시간:</strong> 약 5-10분 | 
+                        <strong>필요한 것:</strong> 구글 계정 | 
+                        <strong>비용:</strong> 무료
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 단계별 가이드 -->
+        <div class="space-y-8">
+            
+            <!-- 1단계 -->
+            <div class="bg-white rounded-lg shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <span class="flex-shrink-0 w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-lg">1</span>
+                    <h2 class="ml-4 text-2xl font-bold text-gray-900">Google Cloud Console 접속</h2>
+                </div>
+                
+                <div class="space-y-4">
+                    <p class="text-gray-700">구글 클라우드 콘솔에 접속하여 새 프로젝트를 생성합니다.</p>
+                    
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <p class="font-semibold text-gray-800 mb-2">🔗 접속 링크:</p>
+                        <a href="https://console.cloud.google.com/" target="_blank" 
+                           class="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium">
+                            https://console.cloud.google.com/
+                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                            </svg>
+                        </a>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <h4 class="font-semibold text-gray-800 mb-2">✅ 체크포인트:</h4>
+                            <ul class="text-sm text-gray-600 space-y-1">
+                                <li>• 구글 계정으로 로그인 완료</li>
+                                <li>• Google Cloud Console 대시보드 표시</li>
+                                <li>• 프로젝트 선택 드롭다운 확인</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-800 mb-2">💡 팁:</h4>
+                            <p class="text-sm text-gray-600">
+                                처음 접속하시는 경우 서비스 약관 동의가 필요할 수 있습니다.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2단계 -->
+            <div class="bg-white rounded-lg shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <span class="flex-shrink-0 w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-lg">2</span>
+                    <h2 class="ml-4 text-2xl font-bold text-gray-900">새 프로젝트 생성</h2>
+                </div>
+                
+                <div class="space-y-4">
+                    <p class="text-gray-700">YouTube API 키를 위한 새로운 프로젝트를 생성합니다.</p>
+                    
+                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r-lg">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-yellow-700">
+                                    <strong>주의사항:</strong> 기존 프로젝트가 있다면 새로 만들거나 기존 프로젝트를 사용할 수 있습니다.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <h4 class="font-semibold text-gray-800">📋 단계별 진행:</h4>
+                        <ol class="list-decimal list-inside space-y-2 text-gray-700">
+                            <li>화면 상단의 <strong>"프로젝트 선택"</strong> 드롭다운 클릭</li>
+                            <li><strong>"새 프로젝트"</strong> 버튼 클릭</li>
+                            <li>프로젝트 이름 입력 (예: "YouTube-Analyzer")</li>
+                            <li><strong>"만들기"</strong> 버튼 클릭</li>
+                            <li>프로젝트 생성 완료까지 잠시 대기</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3단계 -->
+            <div class="bg-white rounded-lg shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <span class="flex-shrink-0 w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-lg">3</span>
+                    <h2 class="ml-4 text-2xl font-bold text-gray-900">YouTube Data API v3 활성화</h2>
+                </div>
+                
+                <div class="space-y-4">
+                    <p class="text-gray-700">생성된 프로젝트에서 YouTube Data API v3를 활성화합니다.</p>
+                    
+                    <div class="bg-green-50 p-4 rounded-lg">
+                        <p class="font-semibold text-green-800 mb-2">🚀 빠른 링크:</p>
+                        <a href="https://console.cloud.google.com/apis/library/youtube.googleapis.com" target="_blank" 
+                           class="inline-flex items-center text-green-600 hover:text-green-800 font-medium">
+                            YouTube Data API v3 페이지로 바로 이동
+                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                            </svg>
+                        </a>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <h4 class="font-semibold text-gray-800">📋 단계별 진행:</h4>
+                        <ol class="list-decimal list-inside space-y-2 text-gray-700">
+                            <li>왼쪽 메뉴에서 <strong>"API 및 서비스"</strong> → <strong>"라이브러리"</strong> 클릭</li>
+                            <li>검색창에 <strong>"YouTube Data API v3"</strong> 입력</li>
+                            <li>검색 결과에서 <strong>"YouTube Data API v3"</strong> 클릭</li>
+                            <li><strong>"사용 설정"</strong> 버튼 클릭</li>
+                            <li>API 활성화 완료까지 잠시 대기</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4단계 -->
+            <div class="bg-white rounded-lg shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <span class="flex-shrink-0 w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-lg">4</span>
+                    <h2 class="ml-4 text-2xl font-bold text-gray-900">API 키 생성</h2>
+                </div>
+                
+                <div class="space-y-4">
+                    <p class="text-gray-700">YouTube API에 접근하기 위한 API 키를 생성합니다.</p>
+                    
+                    <div class="space-y-3">
+                        <h4 class="font-semibold text-gray-800">📋 단계별 진행:</h4>
+                        <ol class="list-decimal list-inside space-y-2 text-gray-700">
+                            <li>왼쪽 메뉴에서 <strong>"API 및 서비스"</strong> → <strong>"사용자 인증 정보"</strong> 클릭</li>
+                            <li>상단의 <strong>"+ 사용자 인증 정보 만들기"</strong> 클릭</li>
+                            <li><strong>"API 키"</strong> 선택</li>
+                            <li>API 키가 자동으로 생성됩니다</li>
+                            <li><strong>"키 제한"</strong> 버튼을 클릭하여 보안 설정 (권장)</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="bg-red-50 border-l-4 border-red-400 p-4 rounded-r-lg">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-red-700">
+                                    <strong>보안 주의:</strong> API 키는 절대 다른 사람과 공유하지 마세요. 
+                                    이 키로 YouTube API를 사용하면 요금이 발생할 수 있습니다.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5단계 -->
+            <div class="bg-white rounded-lg shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <span class="flex-shrink-0 w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-lg">5</span>
+                    <h2 class="ml-4 text-2xl font-bold text-gray-900">API 키 제한 설정 (권장)</h2>
+                </div>
+                
+                <div class="space-y-4">
+                    <p class="text-gray-700">보안을 위해 API 키 사용 범위를 제한합니다.</p>
+                    
+                    <div class="space-y-3">
+                        <h4 class="font-semibold text-gray-800">📋 API 제한 설정:</h4>
+                        <ol class="list-decimal list-inside space-y-2 text-gray-700">
+                            <li><strong>"API 제한"</strong> 섹션에서 <strong>"키 제한"</strong> 선택</li>
+                            <li><strong>"YouTube Data API v3"</strong> 체크박스 선택</li>
+                            <li>다른 API는 모두 해제</li>
+                            <li><strong>"저장"</strong> 버튼 클릭</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                        <h4 class="font-semibold text-blue-800 mb-2">💡 선택사항 - 애플리케이션 제한:</h4>
+                        <p class="text-blue-700 text-sm">
+                            더 높은 보안을 원한다면 "애플리케이션 제한" 섹션에서 
+                            "HTTP 리퍼러(웹사이트)"를 선택하고 사용할 도메인을 추가할 수 있습니다.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6단계 -->
+            <div class="bg-white rounded-lg shadow-md p-8">
+                <div class="flex items-center mb-6">
+                    <span class="flex-shrink-0 w-10 h-10 bg-green-600 text-white rounded-full flex items-center justify-center font-bold text-lg">6</span>
+                    <h2 class="ml-4 text-2xl font-bold text-gray-900">API 키 등록</h2>
+                </div>
+                
+                <div class="space-y-4">
+                    <p class="text-gray-700">생성된 API 키를 YouTube 분석 서비스에 등록합니다.</p>
+                    
+                    <div class="space-y-3">
+                        <h4 class="font-semibold text-gray-800">📋 등록 방법:</h4>
+                        <ol class="list-decimal list-inside space-y-2 text-gray-700">
+                            <li>Google Cloud Console에서 생성된 API 키 복사</li>
+                            <li>{% if current_user.is_authenticated %}<a href="{{ url_for('auth_routes.mypage') }}" class="text-blue-600 hover:text-blue-800 font-medium">마이페이지</a>{% else %}<a href="{{ url_for('auth_routes.login') }}" class="text-blue-600 hover:text-blue-800 font-medium">로그인 후 마이페이지</a>{% endif %}로 이동</li>
+                            <li><strong>"API 키 관리"</strong> 섹션에서 <strong>"새 API 키 추가"</strong> 클릭</li>
+                            <li>복사한 API 키를 입력란에 붙여넣기</li>
+                            <li><strong>"추가"</strong> 버튼 클릭</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="flex items-center p-4 bg-green-50 border border-green-200 rounded-lg">
+                        <svg class="w-6 h-6 text-green-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <div>
+                            <p class="text-green-800 font-medium">축하합니다! 설정이 완료되었습니다.</p>
+                            <p class="text-green-700 text-sm">이제 YouTube 분석 서비스를 자유롭게 이용하실 수 있습니다.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- FAQ 섹션 -->
+        <div class="mt-12 bg-white rounded-lg shadow-md p-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">자주 묻는 질문 (FAQ)</h2>
+            <div class="space-y-6">
+                
+                <div class="border-l-4 border-blue-400 pl-4">
+                    <h3 class="font-semibold text-gray-800 mb-2">Q. API 키 사용에 비용이 발생하나요?</h3>
+                    <p class="text-gray-600 text-sm">
+                        YouTube Data API v3는 일일 할당량 내에서 무료로 사용할 수 있습니다. 
+                        기본 할당량은 일반적인 사용에 충분하며, 초과 시에만 요금이 발생합니다.
+                    </p>
+                </div>
+                
+                <div class="border-l-4 border-blue-400 pl-4">
+                    <h3 class="font-semibold text-gray-800 mb-2">Q. API 키가 작동하지 않아요.</h3>
+                    <p class="text-gray-600 text-sm">
+                        API 키 생성 후 활성화까지 몇 분이 소요될 수 있습니다. 
+                        잠시 기다린 후 다시 시도해보시고, 여전히 문제가 있다면 API 키 제한 설정을 확인해주세요.
+                    </p>
+                </div>
+                
+                <div class="border-l-4 border-blue-400 pl-4">
+                    <h3 class="font-semibold text-gray-800 mb-2">Q. 여러 개의 API 키를 등록할 수 있나요?</h3>
+                    <p class="text-gray-600 text-sm">
+                        네, 여러 개의 API 키를 등록할 수 있습니다. 
+                        시스템이 자동으로 사용 가능한 키를 선택하여 안정적인 서비스를 제공합니다.
+                    </p>
+                </div>
+                
+                <div class="border-l-4 border-blue-400 pl-4">
+                    <h3 class="font-semibold text-gray-800 mb-2">Q. API 키를 잘못 입력했어요.</h3>
+                    <p class="text-gray-600 text-sm">
+                        마이페이지에서 등록된 API 키를 삭제하고 새로운 키를 다시 등록할 수 있습니다. 
+                        또는 Google Cloud Console에서 새 API 키를 생성하여 등록하세요.
+                    </p>
+                </div>
+                
+            </div>
+        </div>
+
+        <!-- 행동 유도 섹션 -->
+        <div class="mt-12 text-center">
+            <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg p-8 text-white">
+                <h2 class="text-2xl font-bold mb-4">이제 YouTube 분석을 시작해보세요!</h2>
+                <p class="text-blue-100 mb-6">API 키 설정이 완료되면 강력한 분석 도구를 사용할 수 있습니다.</p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="{{ url_for('main_routes.index') }}" 
+                       class="inline-flex items-center px-6 py-3 bg-white text-blue-600 font-semibold rounded-md hover:bg-gray-100 transition-colors">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                        </svg>
+                        홈으로 돌아가기
+                    </a>
+                    {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('auth_routes.mypage') }}" 
+                       class="inline-flex items-center px-6 py-3 bg-blue-700 text-white font-semibold rounded-md hover:bg-blue-800 transition-colors">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-3.586l6.879-6.879A6 6 0 0121 9z"></path>
+                        </svg>
+                        API 키 등록하기
+                    </a>
+                    {% else %}
+                    <a href="{{ url_for('auth_routes.login') }}" 
+                       class="inline-flex items-center px-6 py-3 bg-blue-700 text-white font-semibold rounded-md hover:bg-blue-800 transition-colors">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
+                        </svg>
+                        로그인하기
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

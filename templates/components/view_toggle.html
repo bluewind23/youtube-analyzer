@@ -1,0 +1,87 @@
+{# View Toggle Component - Grid/List View Switch (Icon Only) #}
+<div class="flex bg-gray-50 rounded-lg p-1">
+    <!-- Grid View Button -->
+    <button id="grid-view-btn" 
+            class="view-toggle-btn flex items-center justify-center p-2 rounded-md transition-colors duration-200
+                   {% if view_mode != 'list' %}
+                       bg-white text-gray-500 shadow-sm
+                   {% else %}
+                       text-gray-400 hover:text-gray-500
+                   {% endif %}"
+            data-view="grid"
+            title="그리드 보기">
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
+        </svg>
+    </button>
+    
+    <!-- List View Button -->
+    <button id="list-view-btn" 
+            class="view-toggle-btn flex items-center justify-center p-2 rounded-md transition-colors duration-200
+                   {% if view_mode == 'list' %}
+                       bg-white text-gray-500 shadow-sm
+                   {% else %}
+                       text-gray-400 hover:text-gray-500
+                   {% endif %}"
+            data-view="list"
+            title="리스트 보기">
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path>
+        </svg>
+    </button>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const gridBtn = document.getElementById('grid-view-btn');
+    const listBtn = document.getElementById('list-view-btn');
+    const gridView = document.getElementById('grid-view');
+    const listView = document.getElementById('list-view');
+    
+    function switchView(viewMode) {
+        // Update button states
+        if (viewMode === 'grid') {
+            gridBtn.classList.add('bg-white', 'text-gray-500', 'shadow-sm');
+            gridBtn.classList.remove('text-gray-400', 'hover:text-gray-500');
+            listBtn.classList.remove('bg-white', 'text-gray-500', 'shadow-sm');
+            listBtn.classList.add('text-gray-400', 'hover:text-gray-500');
+            
+            // Show/hide views
+            if (gridView) gridView.classList.remove('hidden');
+            if (listView) listView.classList.add('hidden');
+        } else {
+            listBtn.classList.add('bg-white', 'text-gray-500', 'shadow-sm');
+            listBtn.classList.remove('text-gray-400', 'hover:text-gray-500');
+            gridBtn.classList.remove('bg-white', 'text-gray-500', 'shadow-sm');
+            gridBtn.classList.add('text-gray-400', 'hover:text-gray-500');
+            
+            // Show/hide views
+            if (listView) listView.classList.remove('hidden');
+            if (gridView) gridView.classList.add('hidden');
+        }
+        
+        // Update URL
+        const url = new URL(window.location);
+        url.searchParams.set('view', viewMode);
+        window.history.replaceState({}, '', url);
+        
+        // Re-render videos for new view
+        if (window.videoManager && window.videoManager.renderVideos) {
+            window.videoManager.renderVideos();
+        }
+        
+        // Re-setup tooltips for new view
+        if (window.setupChannelTooltips) {
+            setTimeout(() => window.setupChannelTooltips(), 100);
+        }
+    }
+    
+    // Event listeners
+    if (gridBtn) {
+        gridBtn.addEventListener('click', () => switchView('grid'));
+    }
+    if (listBtn) {
+        listBtn.addEventListener('click', () => switchView('list'));
+    }
+});
+</script>
