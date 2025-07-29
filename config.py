@@ -23,5 +23,5 @@ class Config:
     GOOGLE_OAUTH_CLIENT_SECRET = os.getenv("GOOGLE_OAUTH_CLIENT_SECRET")
 
     # 커스텀 도메인 환경에서 세션 쿠키가 올바르게 작동하도록 설정합니다.
-    SESSION_COOKIE_DOMAIN = '.tube-analytics.com'
+    SESSION_COOKIE_DOMAIN = os.getenv('SESSION_COOKIE_DOMAIN', None)
     SESSION_COOKIE_SECURE = True
