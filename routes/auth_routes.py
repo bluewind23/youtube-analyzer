@@ -43,7 +43,7 @@ def logout():
 # [수정된 부분]
 # 라이브러리와의 주소 충돌을 피하기 위해 콜백 URL을 고유하게 변경합니다.
 # 이전: @auth_routes.route("/login/google/authorized")
-@auth_routes.route("/login/google/authorized")  # 다시 원래대로 변경
+@auth_routes.route("/login/google/authorized")
 def google_callback():
     if not google.authorized:
         flash("로그인에 실패했습니다.", "danger")
@@ -64,31 +64,30 @@ def google_callback():
     if not user:
         user = User(email=user_email, username=user_info.get(
             "name"), profile_pic=user_info.get("picture"))
-        # 환경 변수에 설정된 관리자 이메일과 동일한 경우 is_admin 플래그를 True로 설정합니다.
         if user_email == os.environ.get('ADMIN_EMAIL'):
             user.is_admin = True
         db.session.add(user)
         db.session.commit()
         flash("가입이 완료되었습니다!", "success")
     else:
-        # 기존 사용자의 정보(이름, 프로필 사진)를 최신 정보로 업데이트합니다.
         user.username = user_info.get("name")
         user.profile_pic = user_info.get("picture")
         db.session.commit()
 
+    # 여기를 수정하세요!
+    login_user(user, remember=True)
 
-# Flask-Login 로그인
-login_user(user, remember=True)
+    from flask import session
+    session['user'] = {
+        'id': user.id,
+        'email': user.email,
+        'username': user.username,
+        'is_admin': user.is_admin
+    }
+    session.permanent = True
+    session.modified = True
 
-# 세션에 user 정보 추가 (중요!)
-session['user'] = {
-    'id': user.id,
-    'email': user.email,
-    'username': user.username,
-    'is_admin': user.is_admin
-}
-session.permanent = True
-session.modified = True
+    return redirect(url_for("main_routes.index"))
 
 
 @auth_routes.route('/mypage', methods=['GET', 'POST'])
