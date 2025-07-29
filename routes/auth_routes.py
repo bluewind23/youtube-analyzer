@@ -42,7 +42,7 @@ def logout():
 # [수정된 부분]
 # 라이브러리와의 주소 충돌을 피하기 위해 콜백 URL을 고유하게 변경합니다.
 # 이전: @auth_routes.route("/login/google/authorized")
-@auth_routes.route("/google/callback")
+@auth_routes.route("/login/google/authorized")  # 다시 원래대로 변경
 def google_callback():
     if not google.authorized:
         flash("로그인에 실패했습니다.", "danger")
