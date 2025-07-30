@@ -59,6 +59,7 @@ def get_video_data_api():
     page_token = request.args.get("page_token")
     can_search = current_user.is_authenticated and bool(current_user.api_keys)
 
+    # [수정 또는 추가할 코드 시작]
     # 검색과 인기동영상을 구분하여 캐시 키 생성
     if query and query.strip():
         # 검색의 경우
@@ -70,6 +71,7 @@ def get_video_data_api():
     cached_data = cache.get(cache_key)
     if cached_data:
         return jsonify(cached_data)
+    # [수정 또는 추가할 코드 끝]
 
     max_results = int(request.args.get("max_results", 50))
 
@@ -126,8 +128,10 @@ def get_video_data_api():
                 'recommended_tags': recommended_tags,
                 'next_page_token': next_page_token_for_loop,
             }
+            # [수정 또는 추가할 코드 시작]
             cache.set(cache_key, result, timeout=1800)  # 검색 결과는 30분 캐시
             return jsonify(result)
+            # [수정 또는 추가할 코드 끝]
 
         else:
             raw_videos, _, youtube_service = get_trending_videos(
@@ -147,9 +151,11 @@ def get_video_data_api():
                 'recommended_tags': recommended_tags,
                 'next_page_token': None,
             }
+            # [수정 또는 추가할 코드 시작]
             # 인기동영상은 3시간 캐시 (GitHub Actions 갱신 주기와 맞춤)
             cache.set(cache_key, result, timeout=10800)
             return jsonify(result)
+            # [수정 또는 추가할 코드 끝]
 
     except Exception as e:
         current_app.logger.error(f"Error in get_video_data_api: {e}")
