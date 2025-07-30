@@ -84,7 +84,7 @@ def handle_api_error(e, api_key_instance):
     return False
 
 
-@cache.memoize(timeout=21600)  # 6시간 캐시 (하루 4번 갱신)
+# [수정] @cache.memoize(timeout=21600) 데코레이터를 삭제합니다.
 def get_trending_videos(max_results=50, category_id='0'):
     """공용 키를 사용하여 인기 동영상을 가져옵니다."""
     max_retries = 3
@@ -106,8 +106,9 @@ def get_trending_videos(max_results=50, category_id='0'):
             return processed_items, None, youtube
         except HttpError as e:
             handle_api_error(e, api_key)
-            cache.delete_memoized(get_trending_videos,
-                                  max_results, category_id)
+            # [수정] memoize 캐시를 삭제하는 로직도 함께 제거합니다.
+            # cache.delete_memoized(get_trending_videos,
+            #                       max_results, category_id)
     return [], None, None
 
 
@@ -134,7 +135,7 @@ def search_videos_by_keyword(query, max_results=100, page_token=None, date_filte
                 params['publishedAfter'] = (datetime.datetime.now(
                     datetime.timezone.utc) - datetime.timedelta(days=days)).isoformat("T") + "Z"
 
-            search_response = youtube.search().list(**params).execute()
+            search_response = Youtube().list(**params).execute()
             video_ids = [item['id']['videoId'] for item in search_response.get(
                 "items", []) if item.get('id', {}).get('videoId')]
             if not video_ids:

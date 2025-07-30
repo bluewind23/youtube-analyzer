@@ -59,7 +59,6 @@ def get_video_data_api():
     page_token = request.args.get("page_token")
     can_search = current_user.is_authenticated and bool(current_user.api_keys)
 
-    # [수정 또는 추가할 코드 시작]
     # 검색과 인기동영상을 구분하여 캐시 키 생성
     if query and query.strip():
         # 검색의 경우
@@ -71,7 +70,6 @@ def get_video_data_api():
     cached_data = cache.get(cache_key)
     if cached_data:
         return jsonify(cached_data)
-    # [수정 또는 추가할 코드 끝]
 
     max_results = int(request.args.get("max_results", 50))
 
@@ -128,10 +126,8 @@ def get_video_data_api():
                 'recommended_tags': recommended_tags,
                 'next_page_token': next_page_token_for_loop,
             }
-            # [수정 또는 추가할 코드 시작]
             cache.set(cache_key, result, timeout=1800)  # 검색 결과는 30분 캐시
             return jsonify(result)
-            # [수정 또는 추가할 코드 끝]
 
         else:
             raw_videos, _, youtube_service = get_trending_videos(
@@ -142,7 +138,7 @@ def get_video_data_api():
                 return jsonify({'success': False, 'error': '사용 가능한 공용 YouTube API 키가 없습니다. 관리자에게 문의하세요.'}), 500
 
             processed_videos, recommended_tags = process_videos(
-                youtube_service, raw_videos, query, "전체", "publishedAt", "desc", "all"
+                youtube_service, raw_videos, "", "전체", "publishedAt", "desc", "all"
             )
 
             result = {
@@ -151,11 +147,9 @@ def get_video_data_api():
                 'recommended_tags': recommended_tags,
                 'next_page_token': None,
             }
-            # [수정 또는 추가할 코드 시작]
             # 인기동영상은 3시간 캐시 (GitHub Actions 갱신 주기와 맞춤)
             cache.set(cache_key, result, timeout=10800)
             return jsonify(result)
-            # [수정 또는 추가할 코드 끝]
 
     except Exception as e:
         current_app.logger.error(f"Error in get_video_data_api: {e}")
@@ -380,48 +374,55 @@ def api_guide():
 @main_routes.route('/api/warm-cache', methods=['POST'])
 def warm_cache_api():
     """캐시 워밍을 위한 API 엔드포인트 (GitHub Actions용)"""
-    # 보안을 위한 토큰 확인
     auth_header = request.headers.get('Authorization')
     if not auth_header or not auth_header.startswith('Bearer '):
         return jsonify({"success": False, "error": "인증이 필요합니다."}), 401
 
     token = auth_header.split(' ')[1]
-    # 환경변수에서 설정한 토큰과 비교
     expected_token = current_app.config.get('CACHE_WARM_TOKEN')
     if not expected_token or token != expected_token:
         return jsonify({"success": False, "error": "잘못된 토큰입니다."}), 403
 
     try:
-        # 기존 캐시 먼저 지우기
-        from extensions import cache
-
-        # 주요 카테고리 목록
         popular_categories = ['0', '1', '2', '10', '15', '17',
                               '19', '20', '22', '23', '24', '25', '26', '27', '28']
-
-        # 기존 인기동영상 캐시 삭제
-        for category_id in popular_categories:
-            cache_key = f"trending:{category_id}:50"
-            cache.delete(cache_key)
-
-        # get_trending_videos 함수의 memoize 캐시도 강제 삭제
-        cache.delete_memoized(get_trending_videos)
-
         success_count = 0
         error_count = 0
 
         for category_id in popular_categories:
             try:
-                videos, _, service = get_trending_videos(
+                # [수정 또는 추가할 코드 시작]
+                # 1. API를 통해 원본 비디오 데이터 가져오기
+                raw_videos, _, youtube_service = get_trending_videos(
                     max_results=50, category_id=category_id)
-                if videos:
-                    success_count += 1
-                    current_app.logger.info(
-                        f"Cache warmed for category {category_id}: {len(videos)} videos")
-                else:
-                    error_count += 1
+
+                if not youtube_service or not raw_videos:
                     current_app.logger.warning(
                         f"No videos found for category {category_id}")
+                    error_count += 1
+                    continue
+
+                # 2. /api/videos 와 동일하게 데이터 가공
+                processed_videos, recommended_tags = process_videos(
+                    youtube_service, raw_videos, "", "전체", "publishedAt", "desc", "all"
+                )
+
+                # 3. /api/videos 와 동일한 형식으로 결과 데이터 구성
+                result = {
+                    'success': True,
+                    'videos': processed_videos,
+                    'recommended_tags': recommended_tags,
+                    'next_page_token': None,
+                }
+
+                # 4. /api/videos 와 동일한 키 형식으로 캐시 저장
+                cache_key = f"trending:{category_id}:50"
+                cache.set(cache_key, result, timeout=10800)
+
+                success_count += 1
+                current_app.logger.info(
+                    f"Cache warmed for category {category_id}: {len(raw_videos)} videos")
+                # [수정 또는 추가할 코드 끝]
             except Exception as e:
                 error_count += 1
                 current_app.logger.error(
@@ -445,7 +446,6 @@ def warm_cache_api():
 @main_routes.route('/api/clear-cache', methods=['POST'])
 def clear_cache_api():
     """캐시 강제 삭제 API (관리자용)"""
-    # 보안을 위한 토큰 확인
     auth_header = request.headers.get('Authorization')
     if not auth_header or not auth_header.startswith('Bearer '):
         return jsonify({"success": False, "error": "인증이 필요합니다."}), 401
@@ -456,7 +456,6 @@ def clear_cache_api():
         return jsonify({"success": False, "error": "잘못된 토큰입니다."}), 403
 
     try:
-        # 모든 캐시 삭제
         cache.clear()
         current_app.logger.info("All cache cleared manually")
 
