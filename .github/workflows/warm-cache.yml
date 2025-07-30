@@ -1,23 +1,29 @@
 name: Warm Trending Cache
 
 on:
+  # [수정 또는 추가할 코드 시작]
+  # 3시간마다 자동으로 실행되도록 스케줄 추가
   schedule:
-    # 3시간마다 실행 (UTC 기준: 0시, 3시, 6시, 9시, 12시, 15시, 18시, 21시)
-    - cron: '0 */3 * * *'
-  workflow_dispatch: # 수동 실행도 가능
+    - cron: '0 */3 * * *' # UTC 기준, 매 3시간마다 0분에 실행
+  
+  # [유지] 코드를 푸시할 때도 테스트 목적으로 실행
   push:
-    branches: [ main ]  # 테스트용: main 브랜치에 push할 때마다 실행
+    branches:
+      - main
+  
+  # [추가] GitHub Actions 페이지에서 수동으로 실행할 수 있는 버튼 추가
+  workflow_dispatch:
+  # [수정 또는 추가할 코드 끝]
 
 jobs:
   warm-cache:
     runs-on: ubuntu-latest
-    
     steps:
-    - name: Warm trending videos cache
-      run: |
-        # 배포된 앱의 캐시 워밍 엔드포인트 호출
-        curl -X POST "${{ secrets.APP_URL }}/api/warm-cache" \
-             -H "Authorization: Bearer ${{ secrets.CACHE_WARM_TOKEN }}" \
-             -H "Content-Type: application/json" \
-             --max-time 300 \
-             --retry 2
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Warm the trending cache
+        run: |
+          curl -X POST "${{ secrets.APP_URL }}/api/warm-cache" \
+            -H "Authorization: Bearer ${{ secrets.CACHE_WARM_TOKEN }}" \
+            -H "Content-Type: application/json"

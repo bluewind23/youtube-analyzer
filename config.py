@@ -3,6 +3,7 @@ import os
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
+
 class Config:
     SECRET_KEY = os.getenv('SECRET_KEY', 'a_default_secret_key')
     ENCRYPTION_KEY = os.getenv('ENCRYPTION_KEY')
@@ -16,6 +17,19 @@ class Config:
     GOOGLE_OAUTH_CLIENT_SECRET = os.getenv("GOOGLE_OAUTH_CLIENT_SECRET")
 
     SERVER_NAME = os.getenv('SERVER_NAME', None)
+
+    # [수정 또는 추가할 코드 시작]
+    # Redis 캐시 설정
+    REDIS_URL = os.getenv('REDIS_URL')
+    if REDIS_URL:
+        CACHE_TYPE = 'RedisCache'
+        CACHE_REDIS_URL = REDIS_URL
+        CACHE_DEFAULT_TIMEOUT = 3600  # 기본 캐시 시간 1시간
+    else:
+        # Redis가 없을 경우 메모리 캐시 사용
+        CACHE_TYPE = 'SimpleCache'
+        CACHE_DEFAULT_TIMEOUT = 300
+    # [수정 또는 추가할 코드 끝]
 
     # [이 줄을 삭제하세요]
     # SESSION_COOKIE_DOMAIN = os.getenv('SESSION_COOKIE_DOMAIN', None)
