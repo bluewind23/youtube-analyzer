@@ -5,6 +5,8 @@ on:
     # 3시간마다 실행 (UTC 기준: 0시, 3시, 6시, 9시, 12시, 15시, 18시, 21시)
     - cron: '0 */3 * * *'
   workflow_dispatch: # 수동 실행도 가능
+  push:
+    branches: [ main ]  # 테스트용: main 브랜치에 push할 때마다 실행
 
 jobs:
   warm-cache:

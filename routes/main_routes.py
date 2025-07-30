@@ -59,7 +59,13 @@ def get_video_data_api():
     page_token = request.args.get("page_token")
     can_search = current_user.is_authenticated and bool(current_user.api_keys)
 
-    cache_key = f"videos:{query}:{request.args.get('category', '0')}:{page_token or ''}:{request.args.get('max_results', '50')}"
+    # 검색과 인기동영상을 구분하여 캐시 키 생성
+    if query and query.strip():
+        # 검색의 경우
+        cache_key = f"search:{query}:{page_token or ''}:{request.args.get('max_results', '50')}"
+    else:
+        # 인기동영상의 경우 - 카테고리별로 캐시
+        cache_key = f"trending:{request.args.get('category', '0')}:{request.args.get('max_results', '50')}"
 
     cached_data = cache.get(cache_key)
     if cached_data:
@@ -120,7 +126,7 @@ def get_video_data_api():
                 'recommended_tags': recommended_tags,
                 'next_page_token': next_page_token_for_loop,
             }
-            cache.set(cache_key, result, timeout=1800)
+            cache.set(cache_key, result, timeout=1800)  # 검색 결과는 30분 캐시
             return jsonify(result)
 
         else: 
@@ -140,7 +146,7 @@ def get_video_data_api():
                 'recommended_tags': recommended_tags,
                 'next_page_token': None,
             }
-            cache.set(cache_key, result, timeout=1800)
+            cache.set(cache_key, result, timeout=10800)  # 인기동영상은 3시간 캐시 (GitHub Actions 갱신 주기와 맞춤)
             return jsonify(result)
 
     except Exception as e:
@@ -372,8 +378,19 @@ def warm_cache_api():
         return jsonify({"success": False, "error": "잘못된 토큰입니다."}), 403
     
     try:
+        # 기존 캐시 먼저 지우기
+        from extensions import cache
+        
         # 주요 카테고리 목록
         popular_categories = ['0', '1', '2', '10', '15', '17', '19', '20', '22', '23', '24', '25', '26', '27', '28']
+        
+        # 기존 인기동영상 캐시 삭제
+        for category_id in popular_categories:
+            cache_key = f"trending:{category_id}:50"
+            cache.delete(cache_key)
+            
+        # get_trending_videos 함수의 memoize 캐시도 강제 삭제
+        cache.delete_memoized(get_trending_videos)
         
         success_count = 0
         error_count = 0
@@ -404,3 +421,31 @@ def warm_cache_api():
     except Exception as e:
         current_app.logger.error(f"Cache warming failed: {e}")
         return jsonify({"success": False, "error": "캐시 워밍 중 오류 발생"}), 500
+
+
+@main_routes.route('/api/clear-cache', methods=['POST'])
+def clear_cache_api():
+    """캐시 강제 삭제 API (관리자용)"""
+    # 보안을 위한 토큰 확인
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({"success": False, "error": "인증이 필요합니다."}), 401
+    
+    token = auth_header.split(' ')[1]
+    expected_token = current_app.config.get('CACHE_WARM_TOKEN')
+    if not expected_token or token != expected_token:
+        return jsonify({"success": False, "error": "잘못된 토큰입니다."}), 403
+    
+    try:
+        # 모든 캐시 삭제
+        cache.clear()
+        current_app.logger.info("All cache cleared manually")
+        
+        return jsonify({
+            "success": True,
+            "message": "모든 캐시가 삭제되었습니다."
+        })
+        
+    except Exception as e:
+        current_app.logger.error(f"Cache clearing failed: {e}")
+        return jsonify({"success": False, "error": "캐시 삭제 중 오류 발생"}), 500
