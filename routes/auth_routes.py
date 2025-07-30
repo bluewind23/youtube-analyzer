@@ -91,31 +91,28 @@ def google_callback():
 
 
 @auth_routes.route('/mypage', methods=['GET', 'POST'])
-# @login_required  # 여전히 주석
 def mypage():
     from flask import session
     from models.user import User
+    import flask_login
 
-    # 강제로 사용자 로드 시도
+    # Flask-Login 상태 체크
     user_id = session.get('_user_id')
+    manual_user = None
+
     if user_id:
-        try:
-            user = User.query.get(int(user_id))
-            print(f"[DEBUG] Manual user load: {user}")
-            # 강제 로그인
-            from flask_login import login_user
-            login_user(user, remember=True)
-            print(
-                f"[DEBUG] After manual login_user: {current_user.is_authenticated}")
-        except Exception as e:
-            print(f"[DEBUG] Manual login error: {e}")
+        manual_user = User.query.get(int(user_id))
+        # 강제로 current_user 설정 시도
+        flask_login.login_user(manual_user, remember=True)
 
     return f"""
-    <h1>로그인 디버그 v2</h1>
+    <h1>완전 디버그</h1>
     <p>current_user.is_authenticated: {current_user.is_authenticated}</p>
     <p>current_user: {current_user}</p>
-    <p>session user: {session.get('user', 'No user in session')}</p>
-    <p>session _user_id: {session.get('_user_id', 'No _user_id in session')}</p>
+    <p>session _user_id: {session.get('_user_id')}</p>
+    <p>manual_user: {manual_user}</p>
+    <p>manual_user.is_authenticated: {getattr(manual_user, 'is_authenticated', 'N/A') if manual_user else 'None'}</p>
+    <p>Flask-Login version: {flask_login.__version__ if hasattr(flask_login, '__version__') else 'Unknown'}</p>
     """
 
 
