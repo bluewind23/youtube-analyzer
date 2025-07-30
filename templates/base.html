@@ -1,74 +1,102 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}YouTube 분석기{% endblock %}</title>
-  
+
   <!-- SEO Meta Tags -->
-  <meta name="description" content="{% block description %}YouTube 비디오 분석, 검색, 트렌드 분석을 위한 전문 도구. 키워드 검색, 채널 분석, 성과 지표 분석 등 다양한 기능을 제공합니다.{% endblock %}">
+  <meta name="description"
+    content="{% block description %}YouTube 비디오 분석, 검색, 트렌드 분석을 위한 전문 도구. 키워드 검색, 채널 분석, 성과 지표 분석 등 다양한 기능을 제공합니다.{% endblock %}">
   <meta name="keywords" content="{% block keywords %}YouTube 분석, 비디오 검색, 트렌드 분석, 채널 분석, 키워드 검색, 성과 지표{% endblock %}">
   <meta name="author" content="YouTube Analyzer">
   <meta name="robots" content="{% block robots %}index, follow{% endblock %}">
-  
+
   <!-- Open Graph Meta Tags -->
   <meta property="og:title" content="{% block og_title %}YouTube 분석기{% endblock %}">
-  <meta property="og:description" content="{% block og_description %}YouTube 비디오 분석, 검색, 트렌드 분석을 위한 전문 도구. 키워드 검색, 채널 분석, 성과 지표 분석 등 다양한 기능을 제공합니다.{% endblock %}">
+  <meta property="og:description"
+    content="{% block og_description %}YouTube 비디오 분석, 검색, 트렌드 분석을 위한 전문 도구. 키워드 검색, 채널 분석, 성과 지표 분석 등 다양한 기능을 제공합니다.{% endblock %}">
   <meta property="og:type" content="{% block og_type %}website{% endblock %}">
   <meta property="og:url" content="{% block og_url %}{{ request.url }}{% endblock %}">
-  <meta property="og:image" content="{% block og_image %}{{ url_for('static', filename='images/og-default.jpg', _external=True) }}{% endblock %}">
+  <meta property="og:image"
+    content="{% block og_image %}{{ url_for('static', filename='images/og-default.jpg', _external=True) }}{% endblock %}">
   <meta property="og:image:width" content="{% block og_image_width %}1200{% endblock %}">
   <meta property="og:image:height" content="{% block og_image_height %}630{% endblock %}">
   <meta property="og:site_name" content="YouTube 분석기">
   <meta property="og:locale" content="ko_KR">
-  
+
   <!-- Twitter Card Meta Tags -->
   <meta name="twitter:card" content="{% block twitter_card %}summary_large_image{% endblock %}">
   <meta name="twitter:title" content="{% block twitter_title %}YouTube 분석기{% endblock %}">
-  <meta name="twitter:description" content="{% block twitter_description %}YouTube 비디오 분석, 검색, 트렌드 분석을 위한 전문 도구. 키워드 검색, 채널 분석, 성과 지표 분석 등 다양한 기능을 제공합니다.{% endblock %}">
-  <meta name="twitter:image" content="{% block twitter_image %}{{ url_for('static', filename='images/og-default.jpg', _external=True) }}{% endblock %}">
-  
+  <meta name="twitter:description"
+    content="{% block twitter_description %}YouTube 비디오 분석, 검색, 트렌드 분석을 위한 전문 도구. 키워드 검색, 채널 분석, 성과 지표 분석 등 다양한 기능을 제공합니다.{% endblock %}">
+  <meta name="twitter:image"
+    content="{% block twitter_image %}{{ url_for('static', filename='images/og-default.jpg', _external=True) }}{% endblock %}">
+
   <!-- Additional Meta Tags -->
   <meta name="theme-color" content="#3b82f6">
   <meta name="msapplication-TileColor" content="#3b82f6">
   <link rel="canonical" href="{% block canonical %}{{ request.url }}{% endblock %}">
-  
+
   <!-- Favicon - Analytics/Chart Icon -->
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%233b82f6'%3E%3Cpath d='M3 13h2v3H3v-3zm0-3h2v1H3v-1zm0-3h2v1H3V7zm4 9h2v-5H7v5zm0-8h2v1H7V9zm0-3h2v1H7V6zm4 11h2V8h-2v8zm0-11h2v1h-2V5zm4 11h2V4h-2v12zm0-15h2v1h-2V1z'/%3E%3C/svg%3E">
-  <link rel="shortcut icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%233b82f6'%3E%3Cpath d='M3 13h2v3H3v-3zm0-3h2v1H3v-1zm0-3h2v1H3V7zm4 9h2v-5H7v5zm0-8h2v1H7V9zm0-3h2v1H7V6zm4 11h2V8h-2v8zm0-11h2v1h-2V5zm4 11h2V4h-2v12zm0-15h2v1h-2V1z'/%3E%3C/svg%3E">
-  
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%233b82f6'%3E%3Cpath d='M3 13h2v3H3v-3zm0-3h2v1H3v-1zm0-3h2v1H3V7zm4 9h2v-5H7v5zm0-8h2v1H7V9zm0-3h2v1H7V6zm4 11h2V8h-2v8zm0-11h2v1h-2V5zm4 11h2V4h-2v12zm0-15h2v1h-2V1z'/%3E%3C/svg%3E">
+  <link rel="shortcut icon"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%233b82f6'%3E%3Cpath d='M3 13h2v3H3v-3zm0-3h2v1H3v-1zm0-3h2v1H3V7zm4 9h2v-5H7v5zm0-8h2v1H7V9zm0-3h2v1H7V6zm4 11h2V8h-2v8zm0-11h2v1h-2V5zm4 11h2V4h-2v12zm0-15h2v1h-2V1z'/%3E%3C/svg%3E">
+
   <!-- Google AdSense -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5809883478660758"
-     crossorigin="anonymous"></script>
-  
+    crossorigin="anonymous"></script>
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-4H7KG58CFN"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'G-4H7KG58CFN');
+  </script>
+
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet" />
 </head>
+
 <body class="bg-gray-50 font-pretendard">
 
-  <div id="custom-alert-overlay" class="hidden fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
-    <div id="custom-alert-box" class="bg-white rounded-lg shadow-xl p-6 w-full max-w-sm mx-4 transform transition-all opacity-0 scale-95">
-        <h3 class="text-lg font-medium leading-6 text-gray-900" id="custom-alert-title">알림</h3>
-        <div class="mt-2">
-            <p class="text-sm text-gray-600" id="custom-alert-message">
-                메시지가 여기에 표시됩니다.
-            </p>
-        </div>
-        <div class="mt-5 text-right">
-            <button type="button" id="custom-alert-close-btn" class="inline-flex justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                확인
-            </button>
-        </div>
+  <div id="custom-alert-overlay"
+    class="hidden fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
+    <div id="custom-alert-box"
+      class="bg-white rounded-lg shadow-xl p-6 w-full max-w-sm mx-4 transform transition-all opacity-0 scale-95">
+      <h3 class="text-lg font-medium leading-6 text-gray-900" id="custom-alert-title">알림</h3>
+      <div class="mt-2">
+        <p class="text-sm text-gray-600" id="custom-alert-message">
+          메시지가 여기에 표시됩니다.
+        </p>
+      </div>
+      <div class="mt-5 text-right">
+        <button type="button" id="custom-alert-close-btn"
+          class="inline-flex justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+          확인
+        </button>
+      </div>
     </div>
   </div>
 
-  <div id="loading-overlay" class="hidden fixed inset-0 z-[9999] flex items-center justify-center bg-gray-900/30 backdrop-blur-sm">
+  <div id="loading-overlay"
+    class="hidden fixed inset-0 z-[9999] flex items-center justify-center bg-gray-900/30 backdrop-blur-sm">
     <div class="flex flex-col items-center p-8 bg-white rounded-2xl shadow-2xl border border-gray-100 max-w-sm mx-4">
       <div class="relative">
         <div class="w-20 h-20 border-4 border-gray-200 rounded-full animate-pulse"></div>
-        <div class="absolute top-0 left-0 w-20 h-20 border-4 border-transparent border-t-blue-500 border-r-purple-500 border-b-pink-500 border-l-indigo-500 rounded-full animate-spin"></div>
+        <div
+          class="absolute top-0 left-0 w-20 h-20 border-4 border-transparent border-t-blue-500 border-r-purple-500 border-b-pink-500 border-l-indigo-500 rounded-full animate-spin">
+        </div>
         <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-          <svg class="w-8 h-8 text-red-500 animate-pulse" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+          <svg class="w-8 h-8 text-red-500 animate-pulse" fill="currentColor" viewBox="0 0 24 24">
+            <path
+              d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+          </svg>
         </div>
       </div>
       <div class="mt-6 text-center">
@@ -86,7 +114,8 @@
   <div id="notification-container" class="fixed bottom-5 right-5 z-[999] w-full max-w-xs space-y-2"></div>
 
   <!-- Feedback Modal -->
-  <div id="feedback-modal" class="hidden fixed inset-0 z-[10000] flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
+  <div id="feedback-modal"
+    class="hidden fixed inset-0 z-[10000] flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
     <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-4 transform transition-all">
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-lg font-semibold text-gray-900">피드백 보내기</h3>
@@ -96,32 +125,33 @@
           </svg>
         </button>
       </div>
-      
+
       <form id="feedback-form">
         <div class="mb-4">
           <label for="feedback-type" class="block text-sm font-medium text-gray-700 mb-2">피드백 유형</label>
-          <select id="feedback-type" name="feedback_type" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <select id="feedback-type" name="feedback_type"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
             <option value="suggestion">제안</option>
             <option value="bug">버그 신고</option>
             <option value="feature">기능 요청</option>
             <option value="general">일반 의견</option>
           </select>
         </div>
-        
+
         <div class="mb-4">
           <label for="feedback-message" class="block text-sm font-medium text-gray-700 mb-2">내용</label>
-          <textarea id="feedback-message" name="message" rows="4" 
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="피드백을 자세히 작성해 주세요..." required></textarea>
+          <textarea id="feedback-message" name="message" rows="4"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="피드백을 자세히 작성해 주세요..." required></textarea>
         </div>
-        
+
         <div class="flex justify-end gap-3">
-          <button type="button" id="feedback-cancel-btn" 
-                  class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors">
+          <button type="button" id="feedback-cancel-btn"
+            class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors">
             취소
           </button>
-          <button type="submit" 
-                  class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors">
+          <button type="submit"
+            class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors">
             보내기
           </button>
         </div>
@@ -134,4 +164,5 @@
   <script src="{{ url_for('static', filename='js/user_actions.js') }}"></script>
   <script src="{{ url_for('static', filename='js/search_suggestions.js') }}"></script>
 </body>
+
 </html>
