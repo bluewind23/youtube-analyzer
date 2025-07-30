@@ -29,8 +29,8 @@ app = Flask(__name__)
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
 # [수정 또는 추가할 코드 끝]
 
-app.secret_key = os.environ.get("FLASK_SECRET_KEY", "your-secret-key")
-# 세션 설정 추가 (HTTPS 환경 대응)
+app.config['SECRET_KEY'] = os.environ.get(
+    "SECRET_KEY", "your-secret-key")  # 세션 설정 추가 (HTTPS 환경 대응)
 app.config['SESSION_COOKIE_SECURE'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'None'
 
