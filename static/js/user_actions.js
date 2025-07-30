@@ -1134,3 +1134,28 @@ async function saveChannel() {
         showCustomAlert('채널 저장 중 오류가 발생했습니다.');
     }
 }
+
+// CSV 다운로드 알림 기능
+document.addEventListener('DOMContentLoaded', function() {
+    // CSV 다운로드 버튼 클릭 시 알림 처리
+    document.body.addEventListener('click', function(e) {
+        const csvDownloadBtn = e.target.closest('#download-csv-btn');
+        if (csvDownloadBtn) {
+            e.preventDefault();
+            
+            // "CSV 다운로드 준비 중입니다" 알림 표시
+            showStackedNotification('CSV 다운로드 준비 중입니다...', 'info');
+            
+            // 실제 다운로드 URL로 이동
+            const downloadUrl = csvDownloadBtn.href;
+            
+            // 다운로드 시작 시뮬레이션 (1초 후 "다운로드 시작" 알림)
+            setTimeout(() => {
+                showStackedNotification('다운로드 시작됩니다.', 'success');
+                
+                // 실제 다운로드 실행
+                window.location.href = downloadUrl;
+            }, 1000);
+        }
+    });
+});
