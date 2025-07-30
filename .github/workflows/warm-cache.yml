@@ -1,0 +1,21 @@
+name: Warm Trending Cache
+
+on:
+  schedule:
+    # 3시간마다 실행 (UTC 기준: 0시, 3시, 6시, 9시, 12시, 15시, 18시, 21시)
+    - cron: '0 */3 * * *'
+  workflow_dispatch: # 수동 실행도 가능
+
+jobs:
+  warm-cache:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Warm trending videos cache
+      run: |
+        # 배포된 앱의 캐시 워밍 엔드포인트 호출
+        curl -X POST "${{ secrets.APP_URL }}/api/warm-cache" \
+             -H "Authorization: Bearer ${{ secrets.CACHE_WARM_TOKEN }}" \
+             -H "Content-Type: application/json" \
+             --max-time 300 \
+             --retry 2

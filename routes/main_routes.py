@@ -355,3 +355,52 @@ def submit_feedback():
 def api_guide():
     """YouTube API 키 등록 가이드 페이지"""
     return render_template('api_guide.html', title="YouTube API 키 설정 가이드")
+
+
+@main_routes.route('/api/warm-cache', methods=['POST'])
+def warm_cache_api():
+    """캐시 워밍을 위한 API 엔드포인트 (GitHub Actions용)"""
+    # 보안을 위한 토큰 확인
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({"success": False, "error": "인증이 필요합니다."}), 401
+    
+    token = auth_header.split(' ')[1]
+    # 환경변수에서 설정한 토큰과 비교
+    expected_token = current_app.config.get('CACHE_WARM_TOKEN')
+    if not expected_token or token != expected_token:
+        return jsonify({"success": False, "error": "잘못된 토큰입니다."}), 403
+    
+    try:
+        # 주요 카테고리 목록
+        popular_categories = ['0', '1', '2', '10', '15', '17', '19', '20', '22', '23', '24', '25', '26', '27', '28']
+        
+        success_count = 0
+        error_count = 0
+        
+        for category_id in popular_categories:
+            try:
+                videos, _, service = get_trending_videos(max_results=50, category_id=category_id)
+                if videos:
+                    success_count += 1
+                    current_app.logger.info(f"Cache warmed for category {category_id}: {len(videos)} videos")
+                else:
+                    error_count += 1
+                    current_app.logger.warning(f"No videos found for category {category_id}")
+            except Exception as e:
+                error_count += 1
+                current_app.logger.error(f"Failed to warm cache for category {category_id}: {e}")
+        
+        return jsonify({
+            "success": True,
+            "message": f"캐시 워밍 완료: {success_count}개 성공, {error_count}개 실패",
+            "details": {
+                "success_count": success_count,
+                "error_count": error_count,
+                "total_categories": len(popular_categories)
+            }
+        })
+        
+    except Exception as e:
+        current_app.logger.error(f"Cache warming failed: {e}")
+        return jsonify({"success": False, "error": "캐시 워밍 중 오류 발생"}), 500
