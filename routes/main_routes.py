@@ -449,3 +449,14 @@ def clear_cache_api():
     except Exception as e:
         current_app.logger.error(f"Cache clearing failed: {e}")
         return jsonify({"success": False, "error": "캐시 삭제 중 오류 발생"}), 500
+
+@main_routes.route('/api/debug-token', methods=['GET'])
+  def debug_token():
+      """토큰 디버깅용 임시 엔드포인트"""
+      expected_token = current_app.config.get('CACHE_WARM_TOKEN')
+      return jsonify({
+          "has_token": bool(expected_token),
+          "token_length": len(expected_token) if expected_token
+  else 0,
+          "config_keys": list(current_app.config.keys())
+      })
