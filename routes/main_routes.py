@@ -28,7 +28,7 @@ def index():
         saved_channels = SavedItem.query.filter_by(
             user_id=current_user.id, item_type='channel').all()
         saved_channel_ids = [item.item_value for item in saved_channels]
-        
+
         if query:
             existing_saved_query = SavedItem.query.filter_by(
                 user_id=current_user.id,
@@ -98,7 +98,7 @@ def get_video_data_api():
                 results_per_page = min(50, max_results - len(all_raw_videos))
                 if results_per_page <= 0:
                     break
-                
+
                 raw_videos_page, page_token_from_service, service = search_videos_by_keyword(
                     query=query, max_results=results_per_page, page_token=next_page_token_for_loop,
                     date_filter=None, type_filter='all'
@@ -106,10 +106,10 @@ def get_video_data_api():
 
                 if service and not youtube_service:
                     youtube_service = service
-                
+
                 all_raw_videos.extend(raw_videos_page)
                 next_page_token_for_loop = page_token_from_service
-                
+
                 if not next_page_token_for_loop:
                     break
 
@@ -129,9 +129,10 @@ def get_video_data_api():
             cache.set(cache_key, result, timeout=1800)  # 검색 결과는 30분 캐시
             return jsonify(result)
 
-        else: 
+        else:
             raw_videos, _, youtube_service = get_trending_videos(
-                max_results=max_results, category_id=request.args.get("category", "0")
+                max_results=max_results, category_id=request.args.get(
+                    "category", "0")
             )
             if not youtube_service:
                 return jsonify({'success': False, 'error': '사용 가능한 공용 YouTube API 키가 없습니다. 관리자에게 문의하세요.'}), 500
@@ -146,7 +147,8 @@ def get_video_data_api():
                 'recommended_tags': recommended_tags,
                 'next_page_token': None,
             }
-            cache.set(cache_key, result, timeout=10800)  # 인기동영상은 3시간 캐시 (GitHub Actions 갱신 주기와 맞춤)
+            # 인기동영상은 3시간 캐시 (GitHub Actions 갱신 주기와 맞춤)
+            cache.set(cache_key, result, timeout=10800)
             return jsonify(result)
 
     except Exception as e:
@@ -212,7 +214,8 @@ def download_csv():
                 break
             next_page_token = page_token
     else:
-        raw_videos, _, service = get_trending_videos(max_results=100, category_id=category_id)
+        raw_videos, _, service = get_trending_videos(
+            max_results=100, category_id=category_id)
         if service and not youtube_service:
             youtube_service = service
         all_raw_videos.extend(raw_videos)
@@ -291,7 +294,7 @@ def channel_tooltip(channel_id):
         # [수정] get_channels_details_batch는 딕셔너리를 반환하므로, 잘못된 인덱싱 로직[0]을 제거
         channel_details = get_channels_details_batch(
             youtube, tuple([channel_id]))
-        
+
         if not channel_details or channel_id not in channel_details:
             return jsonify({"success": False, "error": "채널 정보를 찾을 수 없습니다."}), 404
 
@@ -312,7 +315,8 @@ def channel_tooltip(channel_id):
         avg_views_per_video = 0
         video_count = channel.get('videoCount', 0)
         if video_count > 0:
-            avg_views_per_video = channel.get('channelViewCount', 0) / video_count
+            avg_views_per_video = channel.get(
+                'channelViewCount', 0) / video_count
 
         return jsonify({
             "success": True,
@@ -323,7 +327,8 @@ def channel_tooltip(channel_id):
             }
         })
     except Exception as e:
-        current_app.logger.error(f"Error fetching channel tooltip data for {channel_id}: {e}")
+        current_app.logger.error(
+            f"Error fetching channel tooltip data for {channel_id}: {e}")
         return jsonify({"success": False, "error": "서버 오류가 발생했습니다."}), 500
 
 
@@ -332,25 +337,28 @@ def submit_feedback():
     """사용자 피드백 제출"""
     try:
         from models.feedback import Feedback
-        
+
         data = request.get_json()
         if not data or not data.get('message'):
             return jsonify({"success": False, "error": "메시지가 필요합니다."}), 400
-        
+
         feedback = Feedback(
             feedback_type=data.get('feedback_type', 'general'),
             message=data.get('message'),
-            user_ip=request.environ.get('HTTP_X_FORWARDED_FOR', request.remote_addr),
-            user_agent=request.headers.get('User-Agent', '')[:500]  # Limit length
+            user_ip=request.environ.get(
+                'HTTP_X_FORWARDED_FOR', request.remote_addr),
+            user_agent=request.headers.get(
+                'User-Agent', '')[:500]  # Limit length
         )
-        
+
         db.session.add(feedback)
         db.session.commit()
-        
-        current_app.logger.info(f"New feedback submitted: {feedback.feedback_type} - {len(feedback.message)} chars")
-        
+
+        current_app.logger.info(
+            f"New feedback submitted: {feedback.feedback_type} - {len(feedback.message)} chars")
+
         return jsonify({"success": True, "message": "피드백이 성공적으로 전송되었습니다."})
-        
+
     except Exception as e:
         db.session.rollback()
         current_app.logger.error(f"Error submitting feedback: {e}")
@@ -370,44 +378,49 @@ def warm_cache_api():
     auth_header = request.headers.get('Authorization')
     if not auth_header or not auth_header.startswith('Bearer '):
         return jsonify({"success": False, "error": "인증이 필요합니다."}), 401
-    
+
     token = auth_header.split(' ')[1]
     # 환경변수에서 설정한 토큰과 비교
     expected_token = current_app.config.get('CACHE_WARM_TOKEN')
     if not expected_token or token != expected_token:
         return jsonify({"success": False, "error": "잘못된 토큰입니다."}), 403
-    
+
     try:
         # 기존 캐시 먼저 지우기
         from extensions import cache
-        
+
         # 주요 카테고리 목록
-        popular_categories = ['0', '1', '2', '10', '15', '17', '19', '20', '22', '23', '24', '25', '26', '27', '28']
-        
+        popular_categories = ['0', '1', '2', '10', '15', '17',
+                              '19', '20', '22', '23', '24', '25', '26', '27', '28']
+
         # 기존 인기동영상 캐시 삭제
         for category_id in popular_categories:
             cache_key = f"trending:{category_id}:50"
             cache.delete(cache_key)
-            
+
         # get_trending_videos 함수의 memoize 캐시도 강제 삭제
         cache.delete_memoized(get_trending_videos)
-        
+
         success_count = 0
         error_count = 0
-        
+
         for category_id in popular_categories:
             try:
-                videos, _, service = get_trending_videos(max_results=50, category_id=category_id)
+                videos, _, service = get_trending_videos(
+                    max_results=50, category_id=category_id)
                 if videos:
                     success_count += 1
-                    current_app.logger.info(f"Cache warmed for category {category_id}: {len(videos)} videos")
+                    current_app.logger.info(
+                        f"Cache warmed for category {category_id}: {len(videos)} videos")
                 else:
                     error_count += 1
-                    current_app.logger.warning(f"No videos found for category {category_id}")
+                    current_app.logger.warning(
+                        f"No videos found for category {category_id}")
             except Exception as e:
                 error_count += 1
-                current_app.logger.error(f"Failed to warm cache for category {category_id}: {e}")
-        
+                current_app.logger.error(
+                    f"Failed to warm cache for category {category_id}: {e}")
+
         return jsonify({
             "success": True,
             "message": f"캐시 워밍 완료: {success_count}개 성공, {error_count}개 실패",
@@ -417,7 +430,7 @@ def warm_cache_api():
                 "total_categories": len(popular_categories)
             }
         })
-        
+
     except Exception as e:
         current_app.logger.error(f"Cache warming failed: {e}")
         return jsonify({"success": False, "error": "캐시 워밍 중 오류 발생"}), 500
@@ -430,33 +443,22 @@ def clear_cache_api():
     auth_header = request.headers.get('Authorization')
     if not auth_header or not auth_header.startswith('Bearer '):
         return jsonify({"success": False, "error": "인증이 필요합니다."}), 401
-    
+
     token = auth_header.split(' ')[1]
     expected_token = current_app.config.get('CACHE_WARM_TOKEN')
     if not expected_token or token != expected_token:
         return jsonify({"success": False, "error": "잘못된 토큰입니다."}), 403
-    
+
     try:
         # 모든 캐시 삭제
         cache.clear()
         current_app.logger.info("All cache cleared manually")
-        
+
         return jsonify({
             "success": True,
             "message": "모든 캐시가 삭제되었습니다."
         })
-        
+
     except Exception as e:
         current_app.logger.error(f"Cache clearing failed: {e}")
         return jsonify({"success": False, "error": "캐시 삭제 중 오류 발생"}), 500
-
-@main_routes.route('/api/debug-token', methods=['GET'])
-  def debug_token():
-      """토큰 디버깅용 임시 엔드포인트"""
-      expected_token = current_app.config.get('CACHE_WARM_TOKEN')
-      return jsonify({
-          "has_token": bool(expected_token),
-          "token_length": len(expected_token) if expected_token
-  else 0,
-          "config_keys": list(current_app.config.keys())
-      })
