@@ -6,6 +6,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a YouTube video analysis web application built with Flask that allows users to analyze YouTube content through keyword searches and trending video analysis. The application provides insights into video performance metrics, channel statistics, and content trends for Korean YouTube market analysis.
 
+**Tech Stack:**
+- Backend: Flask 3.1.0+ with SQLAlchemy ORM
+- Frontend: Server-side Jinja2 templates with TailwindCSS 4.x and HTMX
+- Database: SQLite (dev) / MySQL/PostgreSQL (prod) with Flask-Migrate
+- API: YouTube Data API v3 with intelligent quota management
+- Authentication: Flask-Login with Google OAuth 2.0
+- Caching: Flask-Caching with Redis support
+
 ## Development Commands
 
 ### Setup and Installation
@@ -31,8 +39,8 @@ flask db upgrade
 # Development server
 python app.py  # Runs on http://localhost:8000
 
-# Production with gunicorn
-gunicorn -w 4 -b 0.0.0.0:8000 app:app
+# Production with gunicorn (Note: app.py now uses create_app factory pattern)
+gunicorn -w 4 -b 0.0.0.0:8000 "app:create_app()"
 ```
 
 ### Database Management
@@ -59,9 +67,11 @@ flask db downgrade
 ### Key Components
 
 #### Core Application (`app.py`)
-- Flask app initialization with extensions (SQLAlchemy, Migrate, Login Manager, Cache)
-- Blueprint registration for modular routing
+- Flask application factory pattern with `create_app()` function
+- Automatic extension initialization (SQLAlchemy, Migrate, Login Manager, Cache)
+- Blueprint registration with app context for circular import prevention
 - Custom Jinja2 filters (e.g., `human_format` for Korean number formatting)
+- Built-in error handlers for 404, 500, and 503 responses
 
 #### Database Models (`models/`)
 - **User**: User accounts with Google OAuth integration
@@ -208,3 +218,11 @@ Before going live:
 4. Set up background job cron jobs (see PRODUCTION_SETUP.md)
 5. Test API functionality with actual keys
 6. Configure web server (nginx + gunicorn recommended)
+7. Update gunicorn command to use factory pattern: `"app:create_app()"`
+
+## Additional Documentation
+
+- **PRODUCTION_SETUP.md**: Detailed production deployment, security, and background job configuration
+- **QUICK_START.md**: Getting started guide with feature overview
+- **PERFORMANCE_IMPROVEMENTS.md**: Performance optimization recommendations
+- **GOOGLE_ADS_SETUP.md**: Google Ads integration setup guide

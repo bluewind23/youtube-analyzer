@@ -20,5 +20,6 @@ class Config:
     # [이 줄을 삭제하세요]
     # SESSION_COOKIE_DOMAIN = os.getenv('SESSION_COOKIE_DOMAIN', None)
 
-    SESSION_COOKIE_SAMESITE = 'None'
-    SESSION_COOKIE_SECURE = True
+    # 개발 환경에서는 HTTP를 사용하므로 SECURE를 False로 설정
+    SESSION_COOKIE_SAMESITE = 'Lax'
+    SESSION_COOKIE_SECURE = False

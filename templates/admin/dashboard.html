@@ -3,209 +3,229 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block admin_content %}
-    <!-- 통계 카드 섹션 -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <!-- 총 사용자 -->
-        <div class="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
-            <div class="flex items-center">
-                <div class="flex-shrink-0">
-                    <div class="w-8 h-8 bg-blue-100 rounded-md flex items-center justify-center">
-                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-2.239"></path>
-                        </svg>
-                    </div>
-                </div>
-                <div class="ml-4">
-                    <h3 class="text-sm font-medium text-gray-500">총 사용자</h3>
-                    <p class="text-2xl font-bold text-gray-900">{{ total_users or 0 }}</p>
+<!-- 통계 카드 섹션 -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <!-- 총 사용자 -->
+    <div class="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+        <div class="flex items-center">
+            <div class="flex-shrink-0">
+                <div class="w-8 h-8 bg-blue-100 rounded-md flex items-center justify-center">
+                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-2.239"></path>
+                    </svg>
                 </div>
             </div>
-        </div>
-
-        <!-- API 키 -->
-        <div class="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
-            <div class="flex items-center">
-                <div class="flex-shrink-0">
-                    <div class="w-8 h-8 bg-yellow-100 rounded-md flex items-center justify-center">
-                        <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-3.586l6.879-6.879A6 6 0 0121 9z"></path>
-                        </svg>
-                    </div>
-                </div>
-                <div class="ml-4">
-                    <h3 class="text-sm font-medium text-gray-500">API 키</h3>
-                    <p class="text-2xl font-bold text-gray-900">{{ (total_api_keys or 0) + (total_admin_keys or 0) }}</p>
-                    <p class="text-xs text-gray-400">사용자: {{ total_api_keys or 0 }} / 관리자: {{ total_admin_keys or 0 }}</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- 총 피드백 -->
-        <div class="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
-            <div class="flex items-center">
-                <div class="flex-shrink-0">
-                    <div class="w-8 h-8 bg-green-100 rounded-md flex items-center justify-center">
-                        <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
-                        </svg>
-                    </div>
-                </div>
-                <div class="ml-4">
-                    <h3 class="text-sm font-medium text-gray-500">총 피드백</h3>
-                    <p class="text-2xl font-bold text-gray-900">{{ total_feedback or 0 }}</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- 읽지 않은 피드백 -->
-        <div class="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
-            <div class="flex items-center">
-                <div class="flex-shrink-0">
-                    <div class="w-8 h-8 bg-red-100 rounded-md flex items-center justify-center">
-                        <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-                        </svg>
-                    </div>
-                </div>
-                <div class="ml-4">
-                    <h3 class="text-sm font-medium text-gray-500">읽지 않은 피드백</h3>
-                    <p class="text-2xl font-bold text-gray-900">{{ unread_feedback or 0 }}</p>
-                </div>
+            <div class="ml-4">
+                <h3 class="text-sm font-medium text-gray-500">총 사용자</h3>
+                <p class="text-2xl font-bold text-gray-900">{{ total_users or 0 }}</p>
             </div>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <!-- 최근 피드백 -->
-        <div class="bg-white rounded-lg border border-gray-200 shadow-sm">
-            <div class="px-6 py-4 border-b border-gray-200">
-                <h3 class="text-lg font-semibold text-gray-900">최근 피드백</h3>
+    <!-- API 키 -->
+    <div class="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+        <div class="flex items-center">
+            <div class="flex-shrink-0">
+                <div class="w-8 h-8 bg-yellow-100 rounded-md flex items-center justify-center">
+                    <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-3.586l6.879-6.879A6 6 0 0121 9z">
+                        </path>
+                    </svg>
+                </div>
             </div>
-            <div class="p-6">
-                {% if recent_feedback %}
-                    <div class="space-y-4">
-                        {% for feedback in recent_feedback %}
-                            <div class="flex items-start space-x-3 {% if not feedback.is_read %}bg-blue-50 p-3 rounded-lg{% endif %}">
-                                <div class="flex-shrink-0">
-                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium
+            <div class="ml-4">
+                <h3 class="text-sm font-medium text-gray-500">API 키</h3>
+                <p class="text-2xl font-bold text-gray-900">{{ (total_api_keys or 0) + (total_admin_keys or 0) }}</p>
+                <p class="text-xs text-gray-400">사용자: {{ total_api_keys or 0 }} / 관리자: {{ total_admin_keys or 0 }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 총 피드백 -->
+    <div class="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+        <div class="flex items-center">
+            <div class="flex-shrink-0">
+                <div class="w-8 h-8 bg-green-100 rounded-md flex items-center justify-center">
+                    <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z">
+                        </path>
+                    </svg>
+                </div>
+            </div>
+            <div class="ml-4">
+                <h3 class="text-sm font-medium text-gray-500">총 피드백</h3>
+                <p class="text-2xl font-bold text-gray-900">{{ total_feedback or 0 }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 읽지 않은 피드백 -->
+    <div class="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+        <div class="flex items-center">
+            <div class="flex-shrink-0">
+                <div class="w-8 h-8 bg-red-100 rounded-md flex items-center justify-center">
+                    <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z">
+                        </path>
+                    </svg>
+                </div>
+            </div>
+            <div class="ml-4">
+                <h3 class="text-sm font-medium text-gray-500">읽지 않은 피드백</h3>
+                <p class="text-2xl font-bold text-gray-900">{{ unread_feedback or 0 }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <!-- 최근 피드백 -->
+    <div class="bg-white rounded-lg border border-gray-200 shadow-sm">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900">최근 피드백</h3>
+        </div>
+        <div class="p-6">
+            {% if recent_feedback %}
+            <div class="space-y-4">
+                {% for feedback in recent_feedback %}
+                <div
+                    class="flex items-start space-x-3 {% if not feedback.is_read %}bg-blue-50 p-3 rounded-lg{% endif %}">
+                    <div class="flex-shrink-0">
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium
                                         {% if feedback.feedback_type == 'bug' %}bg-red-100 text-red-800
                                         {% elif feedback.feedback_type == 'feature' %}bg-green-100 text-green-800
                                         {% elif feedback.feedback_type == 'suggestion' %}bg-blue-100 text-blue-800
                                         {% else %}bg-gray-100 text-gray-800{% endif %}">
-                                        {{ feedback.get_type_display(feedback.feedback_type) }}
-                                    </span>
-                                </div>
-                                <div class="flex-1 min-w-0">
-                                    <p class="text-sm text-gray-900 truncate">{{ feedback.message[:100] }}{% if feedback.message|length > 100 %}...{% endif %}</p>
-                                    <p class="text-xs text-gray-500 mt-1">{{ feedback.submitted_at.strftime('%Y-%m-%d %H:%M') }}</p>
-                                </div>
-                                {% if not feedback.is_read %}
-                                    <div class="flex-shrink-0">
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                            NEW
-                                        </span>
-                                    </div>
-                                {% endif %}
-                            </div>
-                        {% endfor %}
+                            {{ feedback.get_type_display(feedback.feedback_type) }}
+                        </span>
                     </div>
-                    <div class="mt-4">
-                        <a href="{{ url_for('admin_routes.view_feedback') }}" 
-                           class="text-sm text-blue-600 hover:text-blue-800 font-medium">
-                            모든 피드백 보기 →
-                        </a>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm text-gray-900 truncate">{{ feedback.message[:100] }}{% if
+                            feedback.message|length > 100 %}...{% endif %}</p>
+                        <p class="text-xs text-gray-500 mt-1">{{ feedback.submitted_at.strftime('%Y-%m-%d %H:%M') }}</p>
                     </div>
-                {% else %}
-                    <div class="text-center py-8">
-                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
-                        </svg>
-                        <p class="mt-2 text-sm text-gray-500">아직 피드백이 없습니다</p>
+                    {% if not feedback.is_read %}
+                    <div class="flex-shrink-0">
+                        <span
+                            class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                            NEW
+                        </span>
                     </div>
-                {% endif %}
+                    {% endif %}
+                </div>
+                {% endfor %}
             </div>
+            <div class="mt-4">
+                <a href="{{ url_for('admin_routes.view_feedback') }}"
+                    class="text-sm text-blue-600 hover:text-blue-800 font-medium">
+                    모든 피드백 보기 →
+                </a>
+            </div>
+            {% else %}
+            <div class="text-center py-8">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z">
+                    </path>
+                </svg>
+                <p class="mt-2 text-sm text-gray-500">아직 피드백이 없습니다</p>
+            </div>
+            {% endif %}
         </div>
+    </div>
 
-        <!-- 피드백 타입별 통계 -->
-        <div class="bg-white rounded-lg border border-gray-200 shadow-sm">
-            <div class="px-6 py-4 border-b border-gray-200">
-                <h3 class="text-lg font-semibold text-gray-900">피드백 타입별 통계</h3>
-            </div>
-            <div class="p-6">
-                {% if feedback_stats %}
-                    <div class="space-y-4">
-                        {% for type, count in feedback_stats %}
-                            <div class="flex justify-between items-center">
-                                <div class="flex items-center">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+    <!-- 피드백 타입별 통계 -->
+    <div class="bg-white rounded-lg border border-gray-200 shadow-sm">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900">피드백 타입별 통계</h3>
+        </div>
+        <div class="p-6">
+            {% if feedback_stats %}
+            <div class="space-y-4">
+                {% for type, count in feedback_stats %}
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
                                         {% if type == 'bug' %}bg-red-100 text-red-800
                                         {% elif type == 'feature' %}bg-green-100 text-green-800
                                         {% elif type == 'suggestion' %}bg-blue-100 text-blue-800
                                         {% else %}bg-gray-100 text-gray-800{% endif %}">
-                                        {% if type == 'bug' %}버그 신고
-                                        {% elif type == 'feature' %}기능 요청
-                                        {% elif type == 'suggestion' %}제안
-                                        {% else %}일반 의견{% endif %}
-                                    </span>
-                                </div>
-                                <span class="text-sm font-medium text-gray-900">{{ count }}</span>
-                            </div>
-                        {% endfor %}
+                            {% if type == 'bug' %}버그 신고
+                            {% elif type == 'feature' %}기능 요청
+                            {% elif type == 'suggestion' %}제안
+                            {% else %}일반 의견{% endif %}
+                        </span>
                     </div>
-                {% else %}
-                    <div class="text-center py-8">
-                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 00-2-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                        </svg>
-                        <p class="mt-2 text-sm text-gray-500">통계 데이터가 없습니다</p>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-
-    <!-- 빠른 액션 -->
-    <div class="mt-8">
-        <div class="bg-white rounded-lg border border-gray-200 shadow-sm">
-            <div class="px-6 py-4 border-b border-gray-200">
-                <h3 class="text-lg font-semibold text-gray-900">빠른 액션</h3>
-            </div>
-            <div class="p-6">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <a href="{{ url_for('admin_routes.manage_keys') }}" 
-                       class="flex items-center p-4 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors">
-                        <svg class="w-6 h-6 text-blue-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-3.586l6.879-6.879A6 6 0 0121 9z"></path>
-                        </svg>
-                        <div>
-                            <h4 class="font-medium text-gray-900">API 키 관리</h4>
-                            <p class="text-sm text-gray-600">시스템 API 키 추가/관리</p>
-                        </div>
-                    </a>
-                    
-                    <a href="{{ url_for('admin_routes.view_feedback') }}" 
-                       class="flex items-center p-4 bg-green-50 hover:bg-green-100 rounded-lg transition-colors">
-                        <svg class="w-6 h-6 text-green-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
-                        </svg>
-                        <div>
-                            <h4 class="font-medium text-gray-900">피드백 관리</h4>
-                            <p class="text-sm text-gray-600">사용자 피드백 확인/관리</p>
-                        </div>
-                    </a>
-                    
-                    <a href="{{ url_for('admin_routes.system_stats') }}" 
-                       class="flex items-center p-4 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors">
-                        <svg class="w-6 h-6 text-purple-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 00-2-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                        </svg>
-                        <div>
-                            <h4 class="font-medium text-gray-900">시스템 통계</h4>
-                            <p class="text-sm text-gray-600">시스템 성능 및 통계</p>
-                        </div>
-                    </a>
+                    <span class="text-sm font-medium text-gray-900">{{ count }}</span>
                 </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-8">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 00-2-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
+                    </path>
+                </svg>
+                <p class="mt-2 text-sm text-gray-500">통계 데이터가 없습니다</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- 빠른 액션 -->
+<div class="mt-8">
+    <div class="bg-white rounded-lg border border-gray-200 shadow-sm">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900">빠른 액션</h3>
+        </div>
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <a href="{{ url_for('admin_routes.manage_keys') }}"
+                    class="flex items-center p-4 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors">
+                    <svg class="w-6 h-6 text-blue-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-3.586l6.879-6.879A6 6 0 0121 9z">
+                        </path>
+                    </svg>
+                    <div>
+                        <h4 class="font-medium text-gray-900">API 키 관리</h4>
+                        <p class="text-sm text-gray-600">시스템 API 키 추가/관리</p>
+                    </div>
+                </a>
+
+                <a href="{{ url_for('admin_routes.view_feedback') }}"
+                    class="flex items-center p-4 bg-green-50 hover:bg-green-100 rounded-lg transition-colors">
+                    <svg class="w-6 h-6 text-green-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z">
+                        </path>
+                    </svg>
+                    <div>
+                        <h4 class="font-medium text-gray-900">피드백 관리</h4>
+                        <p class="text-sm text-gray-600">사용자 피드백 확인/관리</p>
+                    </div>
+                </a>
+
+                <a href="{{ url_for('admin_routes.system_stats') }}"
+                    class="flex items-center p-4 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors">
+                    <svg class="w-6 h-6 text-purple-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 00-2-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
+                        </path>
+                    </svg>
+                    <div>
+                        <h4 class="font-medium text-gray-900">시스템 통계</h4>
+                        <p class="text-sm text-gray-600">시스템 성능 및 통계</p>
+                    </div>
+                </a>
             </div>
         </div>
     </div>
+</div>
 {% endblock %}

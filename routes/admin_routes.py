@@ -22,19 +22,12 @@ admin_routes = Blueprint('admin_routes', __name__,
 def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        # 로그인 여부 확인
-        if not current_user.is_authenticated:
+        # is_authenticated: 로그인 여부 확인, is_admin: 관리자 플래그 확인
+        if not current_user.is_authenticated or not getattr(current_user, 'is_admin', False):
             current_app.logger.warning(
-                f"Admin access attempt without login from IP: {request.remote_addr}")
-            flash('관리자 페이지 접근을 위해 로그인이 필요합니다.', 'warning')
-            return redirect(url_for('auth_routes.login'))
-
-        # 관리자 권한 확인
-        if not getattr(current_user, 'is_admin', False):
-            current_app.logger.warning(
-                f"Unauthorized admin access attempt by user: {current_user.email} from IP: {request.remote_addr}"
+                f"Unauthorized admin access attempt by user: {getattr(current_user, 'email', 'Anonymous')} from IP: {request.remote_addr}"
             )
-            abort(404)  # 관리자가 아닌 경우 404로 위장
+            abort(404)  # 404로 위장하여 보안 강화
 
         current_app.logger.info(
             f"Admin access granted for: {current_user.email}")
@@ -62,9 +55,45 @@ def inject_admin_context():
 @admin_routes.route('/')
 @admin_routes.route('/dashboard')
 @login_required
-# @admin_required
+@admin_required
 def dashboard():
-    return f"<h1>Admin 테스트</h1><p>관리자: {current_user.username}</p><p>이메일: {current_user.email}</p><p>관리자 권한: {current_user.is_admin}</p>"
+    """관리자 대시보드"""
+    try:
+        from models.feedback import Feedback
+        from models.user import User
+        from models.api_key import ApiKey
+        from models.admin_api_key import AdminApiKey
+
+        # 통계 데이터 수집
+        total_users = User.query.count()
+        total_api_keys = ApiKey.query.count()
+        total_admin_keys = AdminApiKey.query.count()
+        total_feedback = Feedback.query.count()
+        unread_feedback = Feedback.query.filter_by(is_read=False).count()
+
+        # 최근 피드백
+        recent_feedback = Feedback.query.order_by(
+            Feedback.submitted_at.desc()).limit(5).all()
+
+        # 피드백 타입별 통계
+        feedback_stats = db.session.query(
+            Feedback.feedback_type,
+            db.func.count(Feedback.id)
+        ).group_by(Feedback.feedback_type).all()
+
+        return render_template('admin/dashboard.html',
+                               total_users=total_users,
+                               total_api_keys=total_api_keys,
+                               total_admin_keys=total_admin_keys,
+                               total_feedback=total_feedback,
+                               unread_feedback=unread_feedback,
+                               recent_feedback=recent_feedback,
+                               feedback_stats=feedback_stats,
+                               title="관리자 대시보드")
+    except Exception as e:
+        current_app.logger.error(f"Dashboard error: {e}")
+        flash('대시보드 로딩 중 오류가 발생했습니다.', 'error')
+        return render_template('admin/dashboard.html', title="관리자 대시보드")
 
 
 @admin_routes.route('/system-stats')

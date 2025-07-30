@@ -1,8 +1,9 @@
-# 복사 버튼을 눌러 전체 코드를 복사하세요
-from flask import session
+from sqlalchemy.orm.exc import NoResultFound
+from flask_dance.consumer import oauth_authorized
 from flask import redirect, url_for, flash, Blueprint, render_template, request
 from flask_login import login_user, logout_user, current_user, login_required
 from flask_dance.contrib.google import make_google_blueprint, google
+from flask_dance.consumer.storage.sqla import OAuthConsumerMixin, SQLAlchemyStorage
 from extensions import db
 from models.user import User
 from models.api_key import ApiKey
@@ -14,21 +15,55 @@ from models.saved_channel import SavedChannelCategory
 import os
 
 auth_routes = Blueprint('auth_routes', __name__)
-
-# Flask-Dance 블루프린트를 생성합니다.
 google_bp = make_google_blueprint(
+    client_id=os.getenv("GOOGLE_OAUTH_CLIENT_ID"),
+    client_secret=os.getenv("GOOGLE_OAUTH_CLIENT_SECRET"),
     scope=["openid", "https://www.googleapis.com/auth/userinfo.email",
-           "https://www.googleapis.com/auth/userinfo.profile"],
-    # 로그인이 성공하면 여기로 지정된 'auth_routes.google_callback' 함수로 리디렉션됩니다.
-    redirect_to='auth_routes.google_callback'
+           "https://www.googleapis.com/auth/userinfo.profile"]
 )
+
+# Flask-Dance 시그널을 사용한 로그인 처리
+
+
+@oauth_authorized.connect_via(google_bp)
+def google_logged_in(blueprint, token):
+    if not token:
+        flash("로그인에 실패했습니다.", "danger")
+        return False
+
+    resp = blueprint.session.get("/oauth2/v2/userinfo")
+    if not resp.ok:
+        flash("사용자 정보를 가져오는 데 실패했습니다.", "danger")
+        return False
+
+    user_info = resp.json()
+    user_email = user_info.get("email")
+    if not user_email:
+        flash("구글 계정에서 이메일 정보를 가져올 수 없습니다.", "danger")
+        return False
+
+    user = User.query.filter_by(email=user_email).first()
+    if not user:
+        user = User(email=user_email, username=user_info.get("name"),
+                    profile_pic=user_info.get("picture"))
+        if user_email == os.environ.get('ADMIN_EMAIL'):
+            user.is_admin = True
+        db.session.add(user)
+        db.session.commit()
+        flash("가입이 완료되었습니다!", "success")
+    else:
+        user.username = user_info.get("name")
+        user.profile_pic = user_info.get("picture")
+        db.session.commit()
+
+    login_user(user)
+    return False  # Don't redirect automatically
 
 
 @auth_routes.route("/login")
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('main_routes.index'))
-    # Flask-Dance가 생성한 로그인 URL(/login/google)로 리디렉션합니다.
     return redirect(url_for("google.login"))
 
 
@@ -40,80 +75,73 @@ def logout():
     return redirect(url_for("main_routes.index"))
 
 
-# [수정된 부분]
-# 라이브러리와의 주소 충돌을 피하기 위해 콜백 URL을 고유하게 변경합니다.
-# 이전: @auth_routes.route("/login/google/authorized")
-@auth_routes.route("/login/google/authorized")
-def google_callback():
-    if not google.authorized:
-        flash("로그인에 실패했습니다.", "danger")
-        return redirect(url_for("main_routes.index"))
-
-    resp = google.get("/oauth2/v2/userinfo")
-    if not resp.ok:
-        flash("사용자 정보를 가져오는 데 실패했습니다.", "danger")
-        return redirect(url_for("main_routes.index"))
-
-    user_info = resp.json()
-    user_email = user_info.get("email")
-    if not user_email:
-        flash("구글 계정에서 이메일 정보를 가져올 수 없습니다.", "danger")
-        return redirect(url_for("main_routes.index"))
-
-    user = User.query.filter_by(email=user_email).first()
-    if not user:
-        user = User(email=user_email, username=user_info.get(
-            "name"), profile_pic=user_info.get("picture"))
-        if user_email == os.environ.get('ADMIN_EMAIL'):
-            user.is_admin = True
-        db.session.add(user)
-        db.session.commit()
-        flash("가입이 완료되었습니다!", "success")
-    else:
-        user.username = user_info.get("name")
-        user.profile_pic = user_info.get("picture")
-        db.session.commit()
-
-    # 여기를 수정하세요!
-    login_user(user, remember=True)
-
-    from flask import session
-    session['user'] = {
-        'id': user.id,
-        'email': user.email,
-        'username': user.username,
-        'is_admin': user.is_admin
-    }
-    session.permanent = True
-    session.modified = True
-
-    return redirect(url_for("main_routes.index"))
-
-
 @auth_routes.route('/mypage', methods=['GET', 'POST'])
+@login_required
 def mypage():
-    from flask import session
-    from models.user import User
-    import flask_login
+    form = AddApiKeyForm()
+    if form.validate_on_submit():
+        new_key_value = form.youtube_api_key.data
 
-    # Flask-Login 상태 체크
-    user_id = session.get('_user_id')
-    manual_user = None
+        existing_key = ApiKey.query.filter(
+            ApiKey.user_id == current_user.id).all()
+        is_duplicate = any(k.key == new_key_value for k in existing_key)
 
-    if user_id:
-        manual_user = User.query.get(int(user_id))
-        # 강제로 current_user 설정 시도
-        flask_login.login_user(manual_user, remember=True)
+        if is_duplicate:
+            flash('이미 등록된 API 키입니다.', 'danger')
+        else:
+            new_api_key = ApiKey(user=current_user)
+            new_api_key.key = new_key_value
+            db.session.add(new_api_key)
+            db.session.commit()
+            flash('새 API 키가 성공적으로 추가되었습니다!', 'success')
+        return redirect(url_for('auth_routes.mypage'))
 
-    return f"""
-    <h1>완전 디버그</h1>
-    <p>current_user.is_authenticated: {current_user.is_authenticated}</p>
-    <p>current_user: {current_user}</p>
-    <p>session _user_id: {session.get('_user_id')}</p>
-    <p>manual_user: {manual_user}</p>
-    <p>manual_user.is_authenticated: {getattr(manual_user, 'is_authenticated', 'N/A') if manual_user else 'None'}</p>
-    <p>Flask-Login version: {flask_login.__version__ if hasattr(flask_login, '__version__') else 'Unknown'}</p>
-    """
+    user_api_keys = current_user.api_keys
+
+    # [수정 또는 추가할 코드 시작]
+    # 사용자 활동 데이터 조회 (페이지네이션 적용)
+
+    # 각 목록의 페이지 번호를 URL 쿼리 파라미터에서 가져옵니다.
+    video_page = request.args.get('video_page', 1, type=int)
+    channel_page = request.args.get('channel_page', 1, type=int)
+    query_page = request.args.get('query_page', 1, type=int)
+
+    # 한 페이지에 표시할 항목 수
+    per_page = 10
+
+    saved_queries = SavedItem.query.filter_by(
+        user_id=current_user.id, item_type='query'
+    ).order_by(SavedItem.saved_at.desc()).paginate(
+        page=query_page, per_page=per_page, error_out=False
+    )
+
+    saved_channels = SavedItem.query.filter_by(
+        user_id=current_user.id, item_type='channel'
+    ).order_by(SavedItem.saved_at.desc()).paginate(
+        page=channel_page, per_page=per_page, error_out=False
+    )
+
+    saved_videos = SavedVideo.query.filter_by(
+        user_id=current_user.id
+    ).order_by(SavedVideo.saved_at.desc()).paginate(
+        page=video_page, per_page=per_page, error_out=False
+    )
+    # [수정 또는 추가할 코드 끝]
+
+    video_categories = SavedVideoCategory.query.filter_by(
+        user_id=current_user.id).order_by(SavedVideoCategory.name).all()
+    channel_categories = SavedChannelCategory.query.filter_by(
+        user_id=current_user.id).order_by(SavedChannelCategory.name).all()
+
+    return render_template('mypage.html',
+                           form=form,
+                           api_keys=user_api_keys,
+                           title="마이페이지",
+                           saved_queries=saved_queries,
+                           saved_channels=saved_channels,
+                           saved_videos=saved_videos,
+                           video_categories=video_categories,
+                           channel_categories=channel_categories)
 
 
 @auth_routes.route('/delete_key/<int:key_id>', methods=['POST'])
@@ -129,10 +157,3 @@ def delete_key(key_id):
     db.session.commit()
     flash('API 키가 삭제되었습니다.', 'info')
     return redirect(url_for('auth_routes.mypage'))
-
-
-@auth_routes.route('/clear-session')
-def clear_session():
-    from flask import session
-    session.clear()
-    return "세션이 클리어되었습니다. <a href='/login'>다시 로그인하세요</a>"

@@ -3,7 +3,7 @@
 {% block content %}
 <div class="bg-gray-50 min-h-screen">
     <div class="max-w-7xl mx-auto px-4 py-6">
-        
+
         <!-- 관리자 헤더 -->
         <div class="bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg p-6 mb-8 text-white">
             <div class="flex justify-between items-center">
@@ -14,10 +14,10 @@
                 <div class="flex items-center gap-4">
                     <div class="text-right">
                         <p class="text-sm text-blue-100">로그인: {{ current_user.email }}</p>
-                        <p class="text-xs text-blue-200">{{ moment().format('YYYY-MM-DD HH:mm') }}</p>
+                        <p class="text-xs text-blue-200">접속 시간</p>
                     </div>
-                    <a href="{{ url_for('auth_routes.logout') }}" 
-                       class="px-4 py-2 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-md text-sm font-medium transition-colors">
+                    <a href="{{ url_for('auth_routes.logout') }}"
+                        class="px-4 py-2 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-md text-sm font-medium transition-colors">
                         로그아웃
                     </a>
                 </div>
@@ -28,57 +28,62 @@
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-8">
             <nav class="px-6 py-4">
                 <div class="flex space-x-1">
-                    <a href="{{ url_for('admin_routes.dashboard') }}" 
-                       class="px-4 py-2 text-sm font-medium rounded-md transition-colors
+                    <a href="{{ url_for('admin_routes.dashboard') }}" class="px-4 py-2 text-sm font-medium rounded-md transition-colors
                               {% if request.endpoint == 'admin_routes.dashboard' %}
                                   text-blue-700 bg-blue-100
                               {% else %}
                                   text-gray-600 hover:text-gray-900 hover:bg-gray-100
                               {% endif %}">
                         <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5a2 2 0 012-2h4a2 2 0 012 2v2H8V5z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 5a2 2 0 012-2h4a2 2 0 012 2v2H8V5z"></path>
                         </svg>
                         대시보드
                     </a>
-                    <a href="{{ url_for('admin_routes.manage_keys') }}" 
-                       class="px-4 py-2 text-sm font-medium rounded-md transition-colors
+                    <a href="{{ url_for('admin_routes.manage_keys') }}" class="px-4 py-2 text-sm font-medium rounded-md transition-colors
                               {% if request.endpoint == 'admin_routes.manage_keys' %}
                                   text-blue-700 bg-blue-100
                               {% else %}
                                   text-gray-600 hover:text-gray-900 hover:bg-gray-100
                               {% endif %}">
                         <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-3.586l6.879-6.879A6 6 0 0121 9z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-3.586l6.879-6.879A6 6 0 0121 9z">
+                            </path>
                         </svg>
                         API 키 관리
                     </a>
-                    <a href="{{ url_for('admin_routes.view_feedback') }}" 
-                       class="px-4 py-2 text-sm font-medium rounded-md transition-colors
+                    <a href="{{ url_for('admin_routes.view_feedback') }}" class="px-4 py-2 text-sm font-medium rounded-md transition-colors
                               {% if request.endpoint == 'admin_routes.view_feedback' %}
                                   text-blue-700 bg-blue-100
                               {% else %}
                                   text-gray-600 hover:text-gray-900 hover:bg-gray-100
                               {% endif %}">
                         <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z">
+                            </path>
                         </svg>
                         피드백 관리
                         {% if unread_feedback_count > 0 %}
-                            <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                {{ unread_feedback_count }}
-                            </span>
+                        <span
+                            class="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                            {{ unread_feedback_count }}
+                        </span>
                         {% endif %}
                     </a>
-                    <a href="{{ url_for('admin_routes.system_stats') }}" 
-                       class="px-4 py-2 text-sm font-medium rounded-md transition-colors
+                    <a href="{{ url_for('admin_routes.system_stats') }}" class="px-4 py-2 text-sm font-medium rounded-md transition-colors
                               {% if request.endpoint == 'admin_routes.system_stats' %}
                                   text-blue-700 bg-blue-100
                               {% else %}
                                   text-gray-600 hover:text-gray-900 hover:bg-gray-100
                               {% endif %}">
                         <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 00-2-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 00-2-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
+                            </path>
                         </svg>
                         시스템 통계
                     </a>
