@@ -12,10 +12,13 @@ Usage:
 import sys
 import click
 from flask.cli import with_appcontext
-from app import app
+from app import create_app
 from services.channel_tracker import channel_tracker
 from services.youtube_service import get_trending_videos
 from extensions import cache
+
+# Create Flask app instance
+app = create_app()
 
 @click.group()
 def cli():
