@@ -220,9 +220,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 const result = await response.json();
                 if (result.success) {
-                    // 마이페이지에서는 페이지 새로고침으로 처리
+                    // 마이페이지에서는 현재 탭 유지하며 페이지 새로고침
                     if (window.location.pathname.includes('/mypage')) {
                         showStackedNotification('항목이 삭제되었습니다.', 'success');
+                        
+                        // 현재 활성 탭 저장
+                        const activeTab = document.querySelector('.tab-btn[aria-selected="true"]')?.dataset.tab || 'saved-videos';
+                        localStorage.setItem('activeTab', activeTab);
+                        
                         setTimeout(() => {
                             window.location.reload();
                         }, 1000);
@@ -260,9 +265,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 const result = await response.json();
                 if (result.success) {
-                    // 마이페이지에서는 페이지 새로고침으로 처리
+                    // 마이페이지에서는 현재 탭 유지하며 페이지 새로고침
                     if (window.location.pathname.includes('/mypage')) {
                         showStackedNotification('영상이 삭제되었습니다.', 'success');
+                        
+                        // 현재 활성 탭 저장
+                        const activeTab = document.querySelector('.tab-btn[aria-selected="true"]')?.dataset.tab || 'saved-videos';
+                        localStorage.setItem('activeTab', activeTab);
+                        
                         setTimeout(() => {
                             window.location.reload();
                         }, 1000);

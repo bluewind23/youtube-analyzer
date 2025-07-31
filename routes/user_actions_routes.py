@@ -653,3 +653,83 @@ def delete_channel_category(category_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'success': False, 'error': '카테고리 삭제 중 오류가 발생했습니다.'}), 500
+
+
+@user_actions_routes.route('/api/delete-category-items', methods=['POST'])
+@api_login_required
+def delete_category_items():
+    """카테고리의 모든 항목 삭제"""
+    data = request.json
+    category_id = data.get('category_id')
+    item_type = data.get('item_type')  # 'video' or 'channel'
+    
+    if not item_type or item_type not in ['video', 'channel']:
+        return jsonify({'success': False, 'error': '잘못된 항목 타입입니다.'}), 400
+    
+    try:
+        if item_type == 'video':
+            # 비디오 카테고리 삭제
+            deleted_videos = SavedVideo.query.filter_by(
+                user_id=current_user.id,
+                category_id=category_id
+            ).all()
+            
+            deleted_count = len(deleted_videos)
+            
+            for video in deleted_videos:
+                db.session.delete(video)
+                
+        else:  # channel
+            # 채널 카테고리 삭제
+            deleted_channels = SavedItem.query.filter_by(
+                user_id=current_user.id,
+                item_type='channel',
+                category_id=category_id
+            ).all()
+            
+            deleted_count = len(deleted_channels)
+            
+            for channel in deleted_channels:
+                db.session.delete(channel)
+        
+        db.session.commit()
+        return jsonify({'success': True, 'deleted_count': deleted_count})
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': '삭제 중 오류가 발생했습니다.'}), 500
+
+
+@user_actions_routes.route('/api/bulk-delete-saved-channels', methods=['POST'])
+@api_login_required
+def bulk_delete_saved_channels():
+    """저장된 채널 일괄 삭제"""
+    data = request.json
+    channel_ids = data.get('channel_ids', [])
+    
+    if not channel_ids or not isinstance(channel_ids, list):
+        return jsonify({'success': False, 'error': '삭제할 채널 ID 목록이 필요합니다.'}), 400
+    
+    try:
+        # 사용자의 저장된 채널들만 삭제
+        deleted_channels = SavedItem.query.filter(
+            SavedItem.id.in_(channel_ids),
+            SavedItem.user_id == current_user.id,
+            SavedItem.item_type == 'channel'
+        ).all()
+        
+        deleted_count = len(deleted_channels)
+        
+        for channel in deleted_channels:
+            db.session.delete(channel)
+        
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'deleted_count': deleted_count
+        })
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': '일괄 삭제 중 오류가 발생했습니다.'}), 500

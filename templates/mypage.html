@@ -105,36 +105,93 @@
                                     <button onclick="toggleBulkMode('videos')" id="bulk-videos-btn" class="text-xs text-gray-600 hover:text-gray-800 px-2 py-1 rounded hover:bg-gray-50" title="일괄 삭제 모드">
                                         <svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> 선택
                                     </button>
+                                    <select id="video-category-filter" class="text-xs border border-gray-300 rounded px-2 py-1">
+                                        <option value="">모든 카테고리</option>
+                                        {% for category in video_categories %}
+                                        <option value="{{ category.id }}">{{ category.name }} ({{ category.video_count }})</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div id="bulk-videos-actions" class="hidden flex items-center space-x-2">
+                                    <span id="selected-videos-count" class="text-xs text-gray-600">0개 선택됨</span>
+                                    <button onclick="selectAllVideos()" class="text-xs text-blue-600 hover:text-blue-800 px-2 py-1">전체선택</button>
+                                    <button onclick="deleteSelectedVideos()" class="text-xs text-red-600 hover:text-red-800 px-2 py-1 bg-red-50 rounded">선택 삭제</button>
+                                    <button onclick="toggleBulkMode('videos')" class="text-xs text-gray-600 hover:text-gray-800 px-2 py-1">취소</button>
                                 </div>
                             </div>
                             
-                            <div class="max-h-96 overflow-y-auto">
-                                <ul class="space-y-3">
-                                {% for video in saved_videos.items %}
-                                    {% set category = video_categories|selectattr('id', 'equalto', video.category_id)|first if video.category_id else None %}
-                                    <li>
-                                      <div class="flex items-start space-x-3">
-                                        <div class="flex-shrink-0">
-                                            <input type="checkbox" class="video-bulk-checkbox hidden mt-2 mr-2" data-video-id="{{ video.id }}">
-                                            <a href="https://www.youtube.com/watch?v={{ video.video_id }}" target="_blank">
-                                                <img class="w-12 h-9 object-cover rounded" src="{{ video.thumbnail_url }}" alt="{{ video.title }}" onerror="this.src='/static/images/default-thumbnail.svg'">
-                                            </a>
-                                        </div>
-                                        <div class="min-w-0 flex-1">
-                                            <div class="flex items-start justify-between">
-                                                <div class="min-w-0 flex-1">
-                                                    <a href="https://www.youtube.com/watch?v={{ video.video_id }}" target="_blank" class="text-xs font-medium text-gray-900 hover:text-blue-600 line-clamp-2 leading-tight">{{ video.title }}</a>
-                                                    <p class="text-xs text-gray-500 mt-1">{{ video.channel_title }}</p>
-                                                    {% if category %}<span class="text-xs text-blue-600 bg-blue-100 px-1.5 py-0.5 rounded-full mt-1 inline-block">{{ category.name }}</span>{% endif %}
-                                                </div>
-                                                <button class="delete-saved-video-btn ml-2 text-xs text-red-600 hover:text-red-800 px-1 py-0.5 rounded hover:bg-red-50" data-video-id="{{ video.id }}" title="영상 삭제">✕</button>
+                            <div class="max-h-96 overflow-y-auto" id="videos-container">
+                                {% if video_categories %}
+                                    {% for category in video_categories %}
+                                    <div class="category-group mb-4" data-category-id="{{ category.id if category else '' }}">
+                                        <div class="flex items-center justify-between mb-2 py-2 px-3 bg-gray-50 rounded-lg">
+                                            <div class="flex items-center space-x-2">
+                                                <button class="category-toggle text-gray-600 hover:text-gray-800" data-category="{{ category.id if category else 'uncategorized' }}">
+                                                    <svg class="w-4 h-4 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                                    </svg>
+                                                </button>
+                                                <h4 class="text-sm font-medium text-gray-900">{{ category.name if category else '기본 카테고리' }} ({{ category.video_count }})</h4>
                                             </div>
-                                            <div class="text-xs text-gray-400 mt-1">{{ video.saved_at.strftime('%m-%d %H:%M') }}</div>
+                                            <div class="flex items-center space-x-1">
+                                                <input type="checkbox" class="category-select-all hidden" data-category="{{ category.id if category else '' }}">
+                                                <button class="delete-category-btn text-xs text-red-600 hover:text-red-800 px-2 py-1 rounded hover:bg-red-100" data-category-id="{{ category.id if category else '' }}" title="카테고리 전체 삭제">
+                                                    카테고리 삭제
+                                                </button>
+                                            </div>
                                         </div>
-                                      </div>
-                                    </li>
-                                {% endfor %}
-                                </ul>
+                                        <ul class="space-y-3 category-videos" data-category="{{ category.id if category else 'uncategorized' }}">
+                                        {% for video in saved_videos.items if (video.category_id == category.id if category else not video.category_id) %}
+                                            <li class="video-item" data-video-id="{{ video.id }}" data-category-id="{{ video.category_id or '' }}">
+                                              <div class="flex items-start space-x-3">
+                                                <div class="flex-shrink-0">
+                                                    <input type="checkbox" class="video-bulk-checkbox hidden mt-2 mr-2" data-video-id="{{ video.id }}">
+                                                    <a href="https://www.youtube.com/watch?v={{ video.video_id }}" target="_blank">
+                                                        <img class="w-12 h-9 object-cover rounded" src="{{ video.thumbnail_url }}" alt="{{ video.title }}" onerror="this.src='/static/images/default-thumbnail.svg'">
+                                                    </a>
+                                                </div>
+                                                <div class="min-w-0 flex-1">
+                                                    <div class="flex items-start justify-between">
+                                                        <div class="min-w-0 flex-1">
+                                                            <a href="https://www.youtube.com/watch?v={{ video.video_id }}" target="_blank" class="text-xs font-medium text-gray-900 hover:text-blue-600 line-clamp-2 leading-tight">{{ video.title }}</a>
+                                                            <p class="text-xs text-gray-500 mt-1">{{ video.channel_title }}</p>
+                                                        </div>
+                                                        <button class="delete-saved-video-btn ml-2 text-xs text-red-600 hover:text-red-800 px-1 py-0.5 rounded hover:bg-red-50" data-video-id="{{ video.id }}" title="영상 삭제">✕</button>
+                                                    </div>
+                                                    <div class="text-xs text-gray-400 mt-1">{{ video.saved_at.strftime('%m-%d %H:%M') }}</div>
+                                                </div>
+                                              </div>
+                                            </li>
+                                        {% endfor %}
+                                        </ul>
+                                    </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <ul class="space-y-3">
+                                    {% for video in saved_videos.items %}
+                                        <li class="video-item" data-video-id="{{ video.id }}" data-category-id="{{ video.category_id or '' }}">
+                                          <div class="flex items-start space-x-3">
+                                            <div class="flex-shrink-0">
+                                                <input type="checkbox" class="video-bulk-checkbox hidden mt-2 mr-2" data-video-id="{{ video.id }}">
+                                                <a href="https://www.youtube.com/watch?v={{ video.video_id }}" target="_blank">
+                                                    <img class="w-12 h-9 object-cover rounded" src="{{ video.thumbnail_url }}" alt="{{ video.title }}" onerror="this.src='/static/images/default-thumbnail.svg'">
+                                                </a>
+                                            </div>
+                                            <div class="min-w-0 flex-1">
+                                                <div class="flex items-start justify-between">
+                                                    <div class="min-w-0 flex-1">
+                                                        <a href="https://www.youtube.com/watch?v={{ video.video_id }}" target="_blank" class="text-xs font-medium text-gray-900 hover:text-blue-600 line-clamp-2 leading-tight">{{ video.title }}</a>
+                                                        <p class="text-xs text-gray-500 mt-1">{{ video.channel_title }}</p>
+                                                    </div>
+                                                    <button class="delete-saved-video-btn ml-2 text-xs text-red-600 hover:text-red-800 px-1 py-0.5 rounded hover:bg-red-50" data-video-id="{{ video.id }}" title="영상 삭제">✕</button>
+                                                </div>
+                                                <div class="text-xs text-gray-400 mt-1">{{ video.saved_at.strftime('%m-%d %H:%M') }}</div>
+                                            </div>
+                                          </div>
+                                        </li>
+                                    {% endfor %}
+                                    </ul>
+                                {% endif %}
                             </div>
                             
                             {# [수정 또는 추가할 코드 시작] #}
@@ -150,21 +207,84 @@
                     <div id="saved-channels" class="tab-content hidden" role="tabpanel">
                         <div class="px-6 py-4">
                             {% if saved_channels.items %}
-                            <button onclick="downloadChannelsCSV()" class="text-xs text-blue-600 hover:text-blue-800 px-2 py-1 rounded hover:bg-blue-50 mb-4" title="CSV 다운로드"><svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg> CSV</button>
-                            <div class="max-h-96 overflow-y-auto">
-                                <ul class="space-y-2">
-                                    {% for item in saved_channels.items %}
-                                    <li>
-                                        <div class="flex items-center justify-between py-1">
-                                            <div class="flex-1 mr-2"><span class="text-xs text-gray-700 truncate block">{{ item.item_display_name or item.item_value }}</span></div>
-                                            <div class="flex items-center gap-1">
-                                                <a href="https://www.youtube.com/channel/{{ item.item_value }}" target="_blank" class="text-xs text-blue-600 hover:text-blue-800 px-2 py-1 rounded hover:bg-blue-50" title="채널 열기">열기</a>
-                                                <button class="delete-saved-item-btn text-xs text-red-600 hover:text-red-800 px-2 py-1 rounded hover:bg-red-50" data-item-id="{{ item.id }}" title="채널 삭제">삭제</button>
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center space-x-2">
+                                    <button onclick="downloadChannelsCSV()" class="text-xs text-blue-600 hover:text-blue-800 px-2 py-1 rounded hover:bg-blue-50" title="CSV 다운로드">
+                                        <svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg> CSV
+                                    </button>
+                                    <button onclick="toggleBulkMode('channels')" id="bulk-channels-btn" class="text-xs text-gray-600 hover:text-gray-800 px-2 py-1 rounded hover:bg-gray-50" title="일괄 삭제 모드">
+                                        <svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> 선택
+                                    </button>
+                                    <select id="channel-category-filter" class="text-xs border border-gray-300 rounded px-2 py-1">
+                                        <option value="">모든 카테고리</option>
+                                        {% for category in channel_categories %}
+                                        <option value="{{ category.id }}">{{ category.name }} ({{ category.channel_count }})</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div id="bulk-channels-actions" class="hidden flex items-center space-x-2">
+                                    <span id="selected-channels-count" class="text-xs text-gray-600">0개 선택됨</span>
+                                    <button onclick="selectAllChannels()" class="text-xs text-blue-600 hover:text-blue-800 px-2 py-1">전체선택</button>
+                                    <button onclick="deleteSelectedChannels()" class="text-xs text-red-600 hover:text-red-800 px-2 py-1 bg-red-50 rounded">선택 삭제</button>
+                                    <button onclick="toggleBulkMode('channels')" class="text-xs text-gray-600 hover:text-gray-800 px-2 py-1">취소</button>
+                                </div>
+                            </div>
+                            <div class="max-h-96 overflow-y-auto" id="channels-container">
+                                {% if channel_categories %}
+                                    {% for category in channel_categories %}
+                                    <div class="category-group mb-4" data-category-id="{{ category.id if category else '' }}">
+                                        <div class="flex items-center justify-between mb-2 py-2 px-3 bg-gray-50 rounded-lg">
+                                            <div class="flex items-center space-x-2">
+                                                <button class="category-toggle text-gray-600 hover:text-gray-800" data-category="{{ category.id if category else 'uncategorized' }}">
+                                                    <svg class="w-4 h-4 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                                    </svg>
+                                                </button>
+                                                <h4 class="text-sm font-medium text-gray-900">{{ category.name if category else '기본 카테고리' }} ({{ category.channel_count }})</h4>
+                                            </div>
+                                            <div class="flex items-center space-x-1">
+                                                <input type="checkbox" class="category-select-all hidden" data-category="{{ category.id if category else '' }}">
+                                                <button class="delete-category-btn text-xs text-red-600 hover:text-red-800 px-2 py-1 rounded hover:bg-red-100" data-category-id="{{ category.id if category else '' }}" title="카테고리 전체 삭제">
+                                                    카테고리 삭제
+                                                </button>
                                             </div>
                                         </div>
-                                    </li>
+                                        <ul class="space-y-2 category-channels" data-category="{{ category.id if category else 'uncategorized' }}">
+                                        {% for item in saved_channels.items if (item.category_id == category.id if category else not item.category_id) %}
+                                            <li class="channel-item" data-channel-id="{{ item.id }}" data-category-id="{{ item.category_id or '' }}">
+                                                <div class="flex items-center justify-between py-1">
+                                                    <div class="flex items-center space-x-2">
+                                                        <input type="checkbox" class="channel-bulk-checkbox hidden" data-channel-id="{{ item.id }}">
+                                                        <span class="text-xs text-gray-700 truncate block flex-1">{{ item.item_display_name or item.item_value }}</span>
+                                                    </div>
+                                                    <div class="flex items-center gap-1">
+                                                        <a href="https://www.youtube.com/channel/{{ item.item_value }}" target="_blank" class="text-xs text-blue-600 hover:text-blue-800 px-2 py-1 rounded hover:bg-blue-50" title="채널 열기">열기</a>
+                                                        <button class="delete-saved-item-btn text-xs text-red-600 hover:text-red-800 px-2 py-1 rounded hover:bg-red-50" data-item-id="{{ item.id }}" title="채널 삭제">삭제</button>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        {% endfor %}
+                                        </ul>
+                                    </div>
                                     {% endfor %}
-                                </ul>
+                                {% else %}
+                                    <ul class="space-y-2">
+                                        {% for item in saved_channels.items %}
+                                        <li class="channel-item" data-channel-id="{{ item.id }}" data-category-id="{{ item.category_id or '' }}">
+                                            <div class="flex items-center justify-between py-1">
+                                                <div class="flex items-center space-x-2">
+                                                    <input type="checkbox" class="channel-bulk-checkbox hidden" data-channel-id="{{ item.id }}">
+                                                    <span class="text-xs text-gray-700 truncate block flex-1">{{ item.item_display_name or item.item_value }}</span>
+                                                </div>
+                                                <div class="flex items-center gap-1">
+                                                    <a href="https://www.youtube.com/channel/{{ item.item_value }}" target="_blank" class="text-xs text-blue-600 hover:text-blue-800 px-2 py-1 rounded hover:bg-blue-50" title="채널 열기">열기</a>
+                                                    <button class="delete-saved-item-btn text-xs text-red-600 hover:text-red-800 px-2 py-1 rounded hover:bg-red-50" data-item-id="{{ item.id }}" title="채널 삭제">삭제</button>
+                                                </div>
+                                            </div>
+                                        </li>
+                                        {% endfor %}
+                                    </ul>
+                                {% endif %}
                             </div>
                             {# [수정 또는 추가할 코드 시작] #}
                             {{ render_pagination(saved_channels, page_arg='channel_page', other_params={'video_page': saved_videos.page, 'query_page': saved_queries.page}) }}
@@ -217,25 +337,45 @@
 </div>
 <script>
 // 기존 스크립트와 동일
+// 페이지 로드 시 저장된 탭 복원
+document.addEventListener('DOMContentLoaded', function() {
+    const savedTab = localStorage.getItem('activeTab');
+    if (savedTab && document.getElementById(savedTab)) {
+        // 저장된 탭으로 전환
+        switchToTab(savedTab);
+        // 사용한 후 제거
+        localStorage.removeItem('activeTab');
+    }
+});
+
+function switchToTab(targetTab) {
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('border-blue-500', 'text-blue-600');
+        btn.classList.add('border-transparent', 'text-gray-500');
+        btn.setAttribute('aria-selected', 'false');
+    });
+    
+    const targetBtn = document.querySelector(`[data-tab="${targetTab}"]`);
+    if (targetBtn) {
+        targetBtn.classList.remove('border-transparent', 'text-gray-500');
+        targetBtn.classList.add('border-blue-500', 'text-blue-600');
+        targetBtn.setAttribute('aria-selected', 'true');
+    }
+    
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.add('hidden');
+    });
+    
+    const targetContent = document.getElementById(targetTab);
+    if (targetContent) {
+        targetContent.classList.remove('hidden');
+    }
+}
+
 document.addEventListener('click', function(e) {
     if (e.target.classList.contains('tab-btn')) {
         const targetTab = e.target.dataset.tab;
-        
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.classList.remove('border-blue-500', 'text-blue-600');
-            btn.classList.add('border-transparent', 'text-gray-500');
-            btn.setAttribute('aria-selected', 'false');
-        });
-        
-        e.target.classList.remove('border-transparent', 'text-gray-500');
-        e.target.classList.add('border-blue-500', 'text-blue-600');
-        e.target.setAttribute('aria-selected', 'true');
-        
-        document.querySelectorAll('.tab-content').forEach(content => {
-            content.classList.add('hidden');
-        });
-        
-        document.getElementById(targetTab).classList.remove('hidden');
+        switchToTab(targetTab);
     }
 });
 
@@ -260,6 +400,243 @@ function showCopyNotification(message = '복사되었습니다') {
         }, 3000);
     }
 }
+
+// 카테고리 접기/펼치기 기능
+document.addEventListener('click', function(e) {
+    if (e.target.closest('.category-toggle')) {
+        const toggle = e.target.closest('.category-toggle');
+        const category = toggle.dataset.category;
+        const categoryVideos = document.querySelector(`.category-videos[data-category="${category}"], .category-channels[data-category="${category}"]`);
+        const icon = toggle.querySelector('svg');
+        
+        if (categoryVideos.classList.contains('hidden')) {
+            categoryVideos.classList.remove('hidden');
+            icon.classList.remove('rotate-90');
+        } else {
+            categoryVideos.classList.add('hidden');
+            icon.classList.add('rotate-90');
+        }
+    }
+});
+
+// 카테고리 전체 삭제
+document.addEventListener('click', function(e) {
+    if (e.target.closest('.delete-category-btn')) {
+        const btn = e.target.closest('.delete-category-btn');
+        const categoryId = btn.dataset.categoryId;
+        
+        if (!confirm('이 카테고리의 모든 항목을 삭제하시겠습니까?')) return;
+        
+        const isVideo = btn.closest('#saved-videos') !== null;
+        const items = document.querySelectorAll(isVideo ? 
+            `.video-item[data-category-id="${categoryId}"]` : 
+            `.channel-item[data-category-id="${categoryId}"]`
+        );
+        
+        const itemIds = Array.from(items).map(item => 
+            isVideo ? item.dataset.videoId : item.dataset.channelId
+        );
+        
+        if (itemIds.length === 0) {
+            alert('삭제할 항목이 없습니다.');
+            return;
+        }
+        
+        // 새 API 사용
+        deleteCategoryItems(categoryId, isVideo ? 'video' : 'channel');
+    }
+});
+
+// 카테고리 필터링
+document.addEventListener('change', function(e) {
+    if (e.target.id === 'video-category-filter') {
+        const selectedCategory = e.target.value;
+        const categoryGroups = document.querySelectorAll('#videos-container .category-group');
+        
+        categoryGroups.forEach(group => {
+            const categoryId = group.dataset.categoryId;
+            if (!selectedCategory || categoryId === selectedCategory) {
+                group.style.display = 'block';
+            } else {
+                group.style.display = 'none';
+            }
+        });
+    } else if (e.target.id === 'channel-category-filter') {
+        const selectedCategory = e.target.value;
+        const categoryGroups = document.querySelectorAll('#channels-container .category-group');
+        
+        categoryGroups.forEach(group => {
+            const categoryId = group.dataset.categoryId;
+            if (!selectedCategory || categoryId === selectedCategory) {
+                group.style.display = 'block';
+            } else {
+                group.style.display = 'none';
+            }
+        });
+    }
+});
+
+// 일괄 삭제 모드 토글
+function toggleBulkMode(type) {
+    const checkboxes = document.querySelectorAll(type === 'videos' ? '.video-bulk-checkbox' : '.channel-bulk-checkbox');
+    const bulkBtn = document.getElementById(`bulk-${type}-btn`);
+    const bulkActions = document.getElementById(`bulk-${type}-actions`);
+    const categorySelectAll = document.querySelectorAll('.category-select-all');
+    
+    if (bulkActions.classList.contains('hidden')) {
+        // 일괄 모드 활성화
+        checkboxes.forEach(cb => cb.classList.remove('hidden'));
+        categorySelectAll.forEach(cb => cb.classList.remove('hidden'));
+        bulkActions.classList.remove('hidden');
+        bulkBtn.textContent = '취소';
+    } else {
+        // 일괄 모드 비활성화
+        checkboxes.forEach(cb => {
+            cb.classList.add('hidden');
+            cb.checked = false;
+        });
+        categorySelectAll.forEach(cb => {
+            cb.classList.add('hidden');
+            cb.checked = false;
+        });
+        bulkActions.classList.add('hidden');
+        bulkBtn.innerHTML = '<svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> 선택';
+        updateSelectedCount(type);
+    }
+}
+
+// 전체 선택
+function selectAllVideos() {
+    const checkboxes = document.querySelectorAll('.video-bulk-checkbox:not(.hidden)');
+    const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+    
+    checkboxes.forEach(cb => cb.checked = !allChecked);
+    updateSelectedCount('videos');
+}
+
+function selectAllChannels() {
+    const checkboxes = document.querySelectorAll('.channel-bulk-checkbox:not(.hidden)');
+    const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+    
+    checkboxes.forEach(cb => cb.checked = !allChecked);
+    updateSelectedCount('channels');
+}
+
+// 선택 수 업데이트
+function updateSelectedCount(type) {
+    const checkboxes = document.querySelectorAll(type === 'videos' ? '.video-bulk-checkbox:checked' : '.channel-bulk-checkbox:checked');
+    const countElement = document.getElementById(`selected-${type}-count`);
+    if (countElement) {
+        countElement.textContent = `${checkboxes.length}개 선택됨`;
+    }
+}
+
+// 체크박스 상태 변경 감지
+document.addEventListener('change', function(e) {
+    if (e.target.classList.contains('video-bulk-checkbox')) {
+        updateSelectedCount('videos');
+    } else if (e.target.classList.contains('channel-bulk-checkbox')) {
+        updateSelectedCount('channels');
+    }
+});
+
+// 선택된 항목 삭제
+async function deleteSelectedVideos() {
+    const checkedBoxes = document.querySelectorAll('.video-bulk-checkbox:checked');
+    const videoIds = Array.from(checkedBoxes).map(cb => cb.dataset.videoId);
+    
+    if (videoIds.length === 0) {
+        alert('삭제할 영상을 선택해주세요.');
+        return;
+    }
+    
+    if (!confirm(`선택한 ${videoIds.length}개의 영상을 삭제하시겠습니까?`)) return;
+    
+    await deleteVideosByIds(videoIds);
+}
+
+async function deleteSelectedChannels() {
+    const checkedBoxes = document.querySelectorAll('.channel-bulk-checkbox:checked');
+    const channelIds = Array.from(checkedBoxes).map(cb => cb.dataset.channelId);
+    
+    if (channelIds.length === 0) {
+        alert('삭제할 채널을 선택해주세요.');
+        return;
+    }
+    
+    if (!confirm(`선택한 ${channelIds.length}개의 채널을 삭제하시겠습니까?`)) return;
+    
+    await deleteChannelsByIds(channelIds);
+}
+
+// ID별 일괄 삭제 함수
+async function deleteVideosByIds(videoIds) {
+    try {
+        const response = await fetch('/api/bulk-delete-saved-videos', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ video_ids: videoIds })
+        });
+        
+        const result = await response.json();
+        if (result.success) {
+            alert(`${result.deleted_count}개의 영상이 삭제되었습니다.`);
+            window.location.reload();
+        } else {
+            alert(result.error || '삭제에 실패했습니다.');
+        }
+    } catch (error) {
+        console.error('삭제 중 오류:', error);
+        alert('삭제 중 오류가 발생했습니다.');
+    }
+}
+
+async function deleteChannelsByIds(channelIds) {
+    try {
+        const response = await fetch('/api/bulk-delete-saved-channels', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ channel_ids: channelIds })
+        });
+        
+        const result = await response.json();
+        if (result.success) {
+            alert(`${result.deleted_count}개의 채널이 삭제되었습니다.`);
+            window.location.reload();
+        } else {
+            alert(result.error || '삭제에 실패했습니다.');
+        }
+    } catch (error) {
+        console.error('삭제 중 오류:', error);
+        alert('삭제 중 오류가 발생했습니다.');
+    }
+}
+
+// 카테고리 전체 삭제
+async function deleteCategoryItems(categoryId, itemType) {
+    try {
+        const response = await fetch('/api/delete-category-items', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                category_id: categoryId || null,
+                item_type: itemType 
+            })
+        });
+        
+        const result = await response.json();
+        if (result.success) {
+            alert(`${result.deleted_count}개의 ${itemType === 'video' ? '영상' : '채널'}이 삭제되었습니다.`);
+            window.location.reload();
+        } else {
+            alert(result.error || '삭제에 실패했습니다.');
+        }
+    } catch (error) {
+        console.error('카테고리 삭제 중 오류:', error);
+        alert('카테고리 삭제 중 오류가 발생했습니다.');
+    }
+}
+
 async function downloadVideosCSV() {
     const res = await fetch('/api/export-saved-videos-csv');
     if (res.ok) {

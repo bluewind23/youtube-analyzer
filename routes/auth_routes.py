@@ -128,10 +128,49 @@ def mypage():
     )
     # [수정 또는 추가할 코드 끝]
 
-    video_categories = SavedVideoCategory.query.filter_by(
+    # 카테고리별 개수와 함께 비디오 카테고리 조회
+    video_categories = []
+    categories = SavedVideoCategory.query.filter_by(
         user_id=current_user.id).order_by(SavedVideoCategory.name).all()
-    channel_categories = SavedChannelCategory.query.filter_by(
+    
+    for category in categories:
+        video_count = SavedVideo.query.filter_by(
+            user_id=current_user.id, category_id=category.id).count()
+        category.video_count = video_count
+        video_categories.append(category)
+    
+    # 기본 카테고리 (카테고리 없는 비디오)
+    uncategorized_video_count = SavedVideo.query.filter_by(
+        user_id=current_user.id, category_id=None).count()
+    if uncategorized_video_count > 0:
+        from types import SimpleNamespace
+        uncategorized_category = SimpleNamespace()
+        uncategorized_category.id = None
+        uncategorized_category.name = '기본 카테고리'
+        uncategorized_category.video_count = uncategorized_video_count
+        video_categories.insert(0, uncategorized_category)
+    
+    # 카테고리별 개수와 함께 채널 카테고리 조회
+    channel_categories = []
+    categories = SavedChannelCategory.query.filter_by(
         user_id=current_user.id).order_by(SavedChannelCategory.name).all()
+    
+    for category in categories:
+        channel_count = SavedItem.query.filter_by(
+            user_id=current_user.id, item_type='channel', category_id=category.id).count()
+        category.channel_count = channel_count
+        channel_categories.append(category)
+    
+    # 기본 카테고리 (카테고리 없는 채널)
+    uncategorized_channel_count = SavedItem.query.filter_by(
+        user_id=current_user.id, item_type='channel', category_id=None).count()
+    if uncategorized_channel_count > 0:
+        from types import SimpleNamespace
+        uncategorized_category = SimpleNamespace()
+        uncategorized_category.id = None
+        uncategorized_category.name = '기본 카테고리'
+        uncategorized_category.channel_count = uncategorized_channel_count
+        channel_categories.insert(0, uncategorized_category)
 
     return render_template('mypage.html',
                            form=form,
