@@ -3,9 +3,10 @@ function showStackedNotification(message, type = 'success') {
     const container = document.getElementById('notification-container');
     if (!container) return;
 
-    // 1. 알림 요소 생성
+    // 1. 알림 요소 생성 (z-index를 최고값으로 설정)
     const notification = document.createElement('div');
     notification.className = 'flex items-center gap-3 bg-white text-gray-600 text-sm font-medium px-4 py-3 rounded-lg shadow-2xl border border-gray-200 w-full transform transition-all duration-300 ease-in-out opacity-0 translate-x-full';
+    notification.style.zIndex = '10002'; // 모달보다 위에 표시
     
     const iconHtml = type === 'success'
         ? `<svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`
@@ -39,6 +40,9 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('로그인 상태:', window.pageData?.isAuthenticated);
     console.log('현재 사용자:', window.pageData?.currentUser);
     console.log('페이지 데이터:', window.pageData);
+    
+    // 페이지 로드 시 저장된 상태 초기화
+    initializeSavedStates();
 
     document.body.addEventListener('click', async function(e) {
         
@@ -80,12 +84,18 @@ document.addEventListener('DOMContentLoaded', function() {
                     const result = await response.json();
 
                     if (result.success) {
-                        saveChannelBtn.classList.remove('is-saved');
-                        saveChannelBtn.classList.remove('text-blue-600');
-                        const icon = saveChannelBtn.querySelector('svg');
-                        const isSmallIcon = icon.classList.contains('w-4');
-                        const iconSizeClass = isSmallIcon ? 'w-4 h-4' : 'w-5 h-5';
-                        icon.outerHTML = `<svg class="${iconSizeClass}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>`;
+                        // 모든 같은 채널 ID를 가진 버튼 업데이트
+                        const allChannelButtons = document.querySelectorAll(`[data-channel-id="${channelId}"].save-channel-btn`);
+                        allChannelButtons.forEach(btn => {
+                            btn.classList.remove('is-saved');
+                            btn.classList.remove('text-blue-600');
+                            const icon = btn.querySelector('svg');
+                            if (icon) {
+                                const isSmallIcon = icon.classList.contains('w-4');
+                                const iconSizeClass = isSmallIcon ? 'w-4 h-4' : 'w-5 h-5';
+                                icon.outerHTML = `<svg class="${iconSizeClass}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>`;
+                            }
+                        });
                         showStackedNotification('채널 저장이 취소되었습니다.', 'info');
                     } else {
                         showCustomAlert(result.error || '요청에 실패했습니다.');
@@ -169,26 +179,27 @@ document.addEventListener('DOMContentLoaded', function() {
             const channelTitle = saveVideoBtn.dataset.channelTitle;
             const thumbnailUrl = saveVideoBtn.dataset.thumbnailUrl;
 
-            // 이미 저장된 영상인지 확인
-            checkVideoSavedStatus(videoId).then(isSaved => {
-                if (isSaved) {
-                    // 이미 저장된 경우 삭제 확인 후 토글
-                    if (confirm('이미 저장된 영상입니다. 저장을 취소하시겠습니까?')) {
-                        toggleVideoSave(videoId, videoTitle, channelId, channelTitle, thumbnailUrl, saveVideoBtn);
-                    }
-                } else {
-                    // 저장되지 않은 경우 카테고리 선택 모달 표시
-                    showVideoSaveModal({
-                        videoId,
-                        videoTitle,
-                        channelId,
-                        channelTitle,
-                        thumbnailUrl
-                    });
+            // 버튼의 현재 상태 확인 (UI 기반)
+            const isSaved = saveVideoBtn.classList.contains('saved') || saveVideoBtn.classList.contains('text-blue-600');
+            
+            if (isSaved) {
+                // 이미 저장된 경우 삭제 확인 후 토글
+                if (confirm('이미 저장된 영상입니다. 저장을 취소하시겠습니까?')) {
+                    toggleVideoSave(videoId, videoTitle, channelId, channelTitle, thumbnailUrl, saveVideoBtn);
                 }
-            });
+            } else {
+                // 저장되지 않은 경우 카테고리 선택 모달 표시
+                showVideoSaveModal({
+                    videoId,
+                    videoTitle,
+                    channelId,
+                    channelTitle,
+                    thumbnailUrl
+                });
+            }
         }
 
+        // 저장된 항목 삭제 (마이페이지용)
         const deleteBtn = e.target.closest('.delete-saved-item-btn');
         if (deleteBtn) {
             e.preventDefault();
@@ -209,12 +220,62 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 const result = await response.json();
                 if (result.success) {
-                    deleteBtn.closest('li').remove();
+                    // 마이페이지에서는 페이지 새로고침으로 처리
+                    if (window.location.pathname.includes('/mypage')) {
+                        showStackedNotification('항목이 삭제되었습니다.', 'success');
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000);
+                    } else {
+                        // 다른 페이지에서는 요소만 제거
+                        deleteBtn.closest('li').remove();
+                        showStackedNotification('항목이 삭제되었습니다.', 'success');
+                    }
                 } else {
                     showCustomAlert(result.error || '삭제에 실패했습니다.');
                 }
             } catch (error) {
                 console.error('Error deleting item:', error);
+                showCustomAlert('요청 중 오류가 발생했습니다.');
+            }
+        }
+
+        // 저장된 영상 삭제 (마이페이지용)
+        const deleteVideoBtn = e.target.closest('.delete-saved-video-btn');
+        if (deleteVideoBtn) {
+            e.preventDefault();
+            if (!confirm('정말로 이 영상을 삭제하시겠습니까?')) return;
+            const videoId = deleteVideoBtn.dataset.videoId;
+            try {
+                const response = await fetch('/api/delete-saved-video', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+                    body: JSON.stringify({ video_id: videoId })
+                });
+                
+                if (response.status === 401) {
+                    showCustomAlert('로그인 후에 이용할 수 있습니다.');
+                    return;
+                }
+                
+                const result = await response.json();
+                if (result.success) {
+                    // 마이페이지에서는 페이지 새로고침으로 처리
+                    if (window.location.pathname.includes('/mypage')) {
+                        showStackedNotification('영상이 삭제되었습니다.', 'success');
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000);
+                    } else {
+                        // 다른 페이지에서는 요소만 제거
+                        deleteVideoBtn.closest('li').remove();
+                        showStackedNotification('영상이 삭제되었습니다.', 'success');
+                    }
+                } else {
+                    showCustomAlert(result.error || '삭제에 실패했습니다.');
+                }
+            } catch (error) {
+                console.error('Error deleting video:', error);
                 showCustomAlert('요청 중 오류가 발생했습니다.');
             }
         }
@@ -641,10 +702,11 @@ async function saveVideo() {
             modal.classList.add('hidden');
             
             // 저장 버튼 UI 업데이트
-            const videoBtn = document.querySelector(`[data-video-id="${videoData.videoId}"]`);
-            if (videoBtn) {
-                updateVideoSaveButtonUI(videoBtn, result.action || 'saved');
-            }
+            // 모든 같은 비디오 ID를 가진 버튼 업데이트 (중복 방지)
+            const videoButtons = document.querySelectorAll(`[data-video-id="${videoData.videoId}"]`);
+            videoButtons.forEach(btn => {
+                updateVideoSaveButtonUI(btn, result.action || 'saved');
+            });
         } else {
             showCustomAlert(result.error || '영상 저장에 실패했습니다.');
         }
@@ -681,6 +743,42 @@ async function checkVideoSavedStatus(videoId) {
         console.error('저장 상태 확인 실패:', error);
         return false;
     }
+}
+
+// 페이지 로드 시 모든 저장된 상태 초기화
+async function initializeSavedStates() {
+    if (!window.pageData?.isAuthenticated) {
+        console.log('로그인되지 않음 - 저장 상태 초기화 건너뛰기');
+        return;
+    }
+    
+    // 영상 저장 상태 확인 및 업데이트
+    const videoButtons = document.querySelectorAll('.save-video-btn[data-video-id]');
+    const processedVideoIds = new Set();
+    
+    for (const btn of videoButtons) {
+        const videoId = btn.dataset.videoId;
+        if (processedVideoIds.has(videoId)) continue;
+        processedVideoIds.add(videoId);
+        
+        try {
+            const isSaved = await checkVideoSavedStatus(videoId);
+            const allVideoButtons = document.querySelectorAll(`[data-video-id="${videoId}"].save-video-btn`);
+            
+            allVideoButtons.forEach(button => {
+                if (isSaved) {
+                    updateVideoSaveButtonUI(button, 'saved');
+                } else {
+                    updateVideoSaveButtonUI(button, 'removed');
+                }
+            });
+        } catch (error) {
+            console.error(`영상 ${videoId} 상태 확인 실패:`, error);
+        }
+    }
+    
+    // 채널 저장 상태는 현재 API가 없으므로 UI 기반으로만 처리
+    console.log('저장된 상태 초기화 완료');
 }
 
 // 영상 저장/해제 토글
@@ -1116,16 +1214,18 @@ async function saveChannel() {
             showStackedNotification('채널이 저장되었습니다.', 'success');
             modal.classList.add('hidden');
             
-            // 저장 버튼 UI 업데이트
-            const channelBtn = document.querySelector(`[data-channel-id="${channelData.channelId}"]`);
-            if (channelBtn) {
-                channelBtn.classList.add('is-saved');
-                channelBtn.classList.add('text-blue-600');
-                const icon = channelBtn.querySelector('svg');
-                const isSmallIcon = icon.classList.contains('w-4');
-                const iconSizeClass = isSmallIcon ? 'w-4 h-4' : 'w-5 h-5';
-                icon.outerHTML = `<svg class="${iconSizeClass}" viewBox="0 0 24 24" fill="currentColor"><path d="M5 21V5q0-.825.588-1.413T7 3h10q.825 0 1.413.588T19 5v16l-7-3Z"/></svg>`;
-            }
+            // 모든 같은 채널 ID를 가진 버튼 업데이트 (중복 방지)
+            const channelButtons = document.querySelectorAll(`[data-channel-id="${channelData.channelId}"].save-channel-btn`);
+            channelButtons.forEach(btn => {
+                btn.classList.add('is-saved');
+                btn.classList.add('text-blue-600');
+                const icon = btn.querySelector('svg');
+                if (icon) {
+                    const isSmallIcon = icon.classList.contains('w-4');
+                    const iconSizeClass = isSmallIcon ? 'w-4 h-4' : 'w-5 h-5';
+                    icon.outerHTML = `<svg class="${iconSizeClass}" viewBox="0 0 24 24" fill="currentColor"><path d="M5 21V5q0-.825.588-1.413T7 3h10q.825 0 1.413.588T19 5v16l-7-3Z"/></svg>`;
+                }
+            });
         } else {
             showCustomAlert(result.error || '채널 저장에 실패했습니다.');
         }

@@ -245,37 +245,7 @@ document.addEventListener('click', function(e) {
         navigator.clipboard.writeText(searchTerm).then(() => showCopyNotification());
     }
     
-    if (e.target.classList.contains('delete-saved-video-btn')) {
-        e.preventDefault();
-        if (!confirm('정말로 이 영상을 삭제하시겠습니까?')) return;
-        const videoId = e.target.dataset.videoId;
-        fetch('/api/delete-saved-video', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ video_id: videoId })
-        }).then(res => res.json()).then(data => {
-            if (data.success) {
-                // 페이지를 새로고침하여 변경사항을 반영합니다.
-                window.location.reload();
-            } else alert(data.error);
-        });
-    }
-    
-    if (e.target.classList.contains('delete-saved-item-btn')) {
-        e.preventDefault();
-        if (!confirm('정말로 이 항목을 삭제하시겠습니까?')) return;
-        const itemId = e.target.dataset.itemId;
-        fetch('/delete-saved-item', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ item_id: itemId })
-        }).then(res => res.json()).then(data => {
-            if (data.success) {
-                // 페이지를 새로고침하여 변경사항을 반영합니다.
-                window.location.reload();
-            } else alert(data.error);
-        });
-    }
+    // 삭제 이벤트는 user_actions.js에서 처리됨
 });
 
 function showCopyNotification(message = '복사되었습니다') {
