@@ -22,12 +22,12 @@ class Config:
     # Redis 캐시 설정
     REDIS_URL = os.getenv('REDIS_URL')
     if REDIS_URL:
-        CACHE_TYPE = 'RedisCache'
+        CACHE_TYPE = 'redis'
         CACHE_REDIS_URL = REDIS_URL
         CACHE_DEFAULT_TIMEOUT = 3600  # 기본 캐시 시간 1시간
     else:
         # Redis가 없을 경우 메모리 캐시 사용
-        CACHE_TYPE = 'SimpleCache'
+        CACHE_TYPE = 'simple'
         CACHE_DEFAULT_TIMEOUT = 300
     # [수정 또는 추가할 코드 끝]
 
