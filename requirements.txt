@@ -38,7 +38,7 @@ PyMySQL==1.1.1
 psycopg2-binary==2.9.9
 pyparsing==3.2.3
 python-dotenv==1.1.1
-redis==6.2.0
+redis[ssl]==6.2.0
 requests==2.32.4
 requests-oauthlib==2.0.0
 rsa==4.9.1
