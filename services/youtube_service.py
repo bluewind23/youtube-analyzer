@@ -135,7 +135,7 @@ def search_videos_by_keyword(query, max_results=100, page_token=None, date_filte
                 params['publishedAfter'] = (datetime.datetime.now(
                     datetime.timezone.utc) - datetime.timedelta(days=days)).isoformat("T") + "Z"
 
-            search_response = Youtube().list(**params).execute()
+            search_response = youtube.search().list(**params).execute()
             video_ids = [item['id']['videoId'] for item in search_response.get(
                 "items", []) if item.get('id', {}).get('videoId')]
             if not video_ids:
