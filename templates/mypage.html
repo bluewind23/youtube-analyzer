@@ -161,9 +161,7 @@
                                             </div>
                                             <div class="flex items-center space-x-1 ml-2">
                                                 {% set category = video_categories|selectattr('id', 'equalto', video.category_id)|first if video.category_id else None %}
-                                                {% if category %}
-                                                <span class="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded-full">{{ category.name }}</span>
-                                                {% endif %}
+                                                <span class="text-xs px-2 py-1 rounded-full {% if category %}bg-blue-100 text-blue-700{% else %}invisible{% endif %}">{{ category.name if category else '카테고리' }}</span>
                                                 <button class="delete-saved-video-btn text-xs text-red-600 hover:text-red-800 p-1 rounded hover:bg-red-50" data-video-id="{{ video.id }}" title="영상 삭제">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                                 </button>
@@ -244,9 +242,7 @@
                                         </div>
                                         <div class="flex items-center space-x-1 ml-2">
                                             {% set category = channel_categories|selectattr('id', 'equalto', item.category_id)|first if item.category_id else None %}
-                                            {% if category %}
-                                            <span class="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full">{{ category.name }}</span>
-                                            {% endif %}
+                                            <span class="text-xs px-2 py-1 rounded-full {% if category %}bg-green-100 text-green-700{% else %}invisible{% endif %}">{{ category.name if category else '카테고리' }}</span>
                                             <button class="delete-saved-item-btn text-xs text-red-600 hover:text-red-800 p-1 rounded hover:bg-red-50" data-item-id="{{ item.id }}" title="채널 삭제">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                             </button>
@@ -311,13 +307,20 @@
 // 기존 스크립트와 동일
 // 페이지 로드 시 저장된 탭 복원
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('=== PAGE INITIALIZATION START ===');
     console.log('DOMContentLoaded - Initializing page');
     
+    // 전역 함수로 노출 (디버깅용) - 모든 함수가 정의된 후에 실행
+    window.toggleBulkMode = toggleBulkMode;
+    window.updateContentActions = updateContentActions;
+    
     // 기본 액션 버튼 설정
+    console.log('Setting up default content actions...');
     updateContentActions('saved-videos');
     
     const savedTab = localStorage.getItem('activeTab');
     if (savedTab && document.getElementById(savedTab)) {
+        console.log('Restoring saved tab:', savedTab);
         // 저장된 탭으로 전환
         switchToTab(savedTab);
         // 사용한 후 제거
@@ -325,10 +328,25 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // 디버깅: 요소 확인
+    console.log('=== ELEMENT CHECK ===');
+    console.log('Content actions container:', document.getElementById('content-actions'));
     console.log('Bulk videos actions element:', document.getElementById('bulk-videos-actions'));
     console.log('Bulk channels actions element:', document.getElementById('bulk-channels-actions'));
-    console.log('Video checkboxes:', document.querySelectorAll('.video-bulk-checkbox').length);
-    console.log('Channel checkboxes:', document.querySelectorAll('.channel-bulk-checkbox').length);
+    console.log('Video checkboxes found:', document.querySelectorAll('.video-bulk-checkbox').length);
+    console.log('Channel checkboxes found:', document.querySelectorAll('.channel-bulk-checkbox').length);
+    
+    // 선택 버튼이 제대로 생성되었는지 확인
+    setTimeout(() => {
+        console.log('=== BUTTON CHECK (after 1 second) ===');
+        console.log('Videos selection button:', document.getElementById('bulk-videos-btn'));
+        console.log('Channels selection button:', document.getElementById('bulk-channels-btn'));
+        
+        // 수동으로 테스트 가능하도록 전역으로 노출
+        console.log('Manual test available: window.toggleBulkMode("videos")');
+        console.log('Manual test available: window.updateContentActions("saved-videos")');
+    }, 1000);
+    
+    console.log('=== PAGE INITIALIZATION END ===');
 });
 
 function switchToTab(targetTab) {
@@ -361,15 +379,21 @@ function switchToTab(targetTab) {
 
 function updateContentActions(activeTab) {
     const actionsContainer = document.getElementById('content-actions');
+    console.log('Updating content actions for tab:', activeTab);
+    console.log('Actions container:', actionsContainer);
+    
     actionsContainer.innerHTML = '';
     
     if (activeTab === 'saved-videos') {
         // CSV 다운로드 버튼
         const csvBtn = document.createElement('button');
-        csvBtn.className = 'text-xs text-blue-600 hover:text-blue-800 px-3 py-1 border border-blue-200 rounded hover:bg-blue-50';
+        csvBtn.className = 'text-xs text-blue-600 hover:text-blue-800 px-3 py-1 border border-blue-200 rounded hover:bg-blue-50 mr-2';
         csvBtn.title = 'CSV 다운로드';
         csvBtn.innerHTML = '<svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg> CSV';
-        csvBtn.addEventListener('click', downloadVideosCSV);
+        csvBtn.onclick = function() {
+            console.log('CSV button clicked');
+            downloadVideosCSV();
+        };
         
         // 선택 버튼
         const selectBtn = document.createElement('button');
@@ -377,19 +401,25 @@ function updateContentActions(activeTab) {
         selectBtn.className = 'text-xs text-gray-600 hover:text-gray-800 px-3 py-1 border border-gray-200 rounded hover:bg-gray-50';
         selectBtn.title = '일괄 삭제 모드';
         selectBtn.innerHTML = '<svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> 선택';
-        selectBtn.addEventListener('click', () => toggleBulkMode('videos'));
+        selectBtn.onclick = function() {
+            console.log('Videos selection button clicked');
+            toggleBulkMode('videos');
+        };
         
-        csvBtn.classList.add('mr-2');
         actionsContainer.appendChild(csvBtn);
         actionsContainer.appendChild(selectBtn);
+        console.log('Added videos buttons to container');
         
     } else if (activeTab === 'saved-channels') {
         // CSV 다운로드 버튼
         const csvBtn = document.createElement('button');
-        csvBtn.className = 'text-xs text-blue-600 hover:text-blue-800 px-3 py-1 border border-blue-200 rounded hover:bg-blue-50';
+        csvBtn.className = 'text-xs text-blue-600 hover:text-blue-800 px-3 py-1 border border-blue-200 rounded hover:bg-blue-50 mr-2';
         csvBtn.title = 'CSV 다운로드';
         csvBtn.innerHTML = '<svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg> CSV';
-        csvBtn.addEventListener('click', downloadChannelsCSV);
+        csvBtn.onclick = function() {
+            console.log('CSV button clicked');
+            downloadChannelsCSV();
+        };
         
         // 선택 버튼
         const selectBtn = document.createElement('button');
@@ -397,11 +427,14 @@ function updateContentActions(activeTab) {
         selectBtn.className = 'text-xs text-gray-600 hover:text-gray-800 px-3 py-1 border border-gray-200 rounded hover:bg-gray-50';
         selectBtn.title = '일괄 삭제 모드';
         selectBtn.innerHTML = '<svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> 선택';
-        selectBtn.addEventListener('click', () => toggleBulkMode('channels'));
+        selectBtn.onclick = function() {
+            console.log('Channels selection button clicked');
+            toggleBulkMode('channels');
+        };
         
-        csvBtn.classList.add('mr-2');
         actionsContainer.appendChild(csvBtn);
         actionsContainer.appendChild(selectBtn);
+        console.log('Added channels buttons to container');
     }
 }
 
@@ -498,36 +531,67 @@ document.addEventListener('click', function(e) {
 
 // 일괄 삭제 모드 토글
 function toggleBulkMode(type) {
-    console.log('toggleBulkMode called with type:', type);
-    const checkboxes = document.querySelectorAll(type === 'videos' ? '.video-bulk-checkbox' : '.channel-bulk-checkbox');
+    console.log('=== toggleBulkMode START ===');
+    console.log('Type:', type);
+    
+    // 요소 찾기
+    const itemCheckboxes = document.querySelectorAll(type === 'videos' ? '.video-bulk-checkbox' : '.channel-bulk-checkbox');
     const categoryCheckboxes = document.querySelectorAll(`#saved-${type} .category-bulk-checkbox`);
     const bulkBtn = document.getElementById(`bulk-${type}-btn`);
     const bulkActions = document.getElementById(`bulk-${type}-actions`);
     
-    console.log('Found checkboxes:', checkboxes.length);
-    console.log('Found bulk actions:', bulkActions);
-    console.log('Bulk actions hidden?', bulkActions ? bulkActions.classList.contains('hidden') : 'not found');
+    console.log('Item checkboxes found:', itemCheckboxes.length);
+    console.log('Category checkboxes found:', categoryCheckboxes.length);
+    console.log('Bulk button found:', !!bulkBtn);
+    console.log('Bulk actions found:', !!bulkActions);
     
     if (!bulkActions) {
-        console.error('Bulk actions element not found for type:', type);
+        console.error('CRITICAL: Bulk actions element not found for type:', type);
+        console.log('Available elements with "bulk" in ID:');
+        document.querySelectorAll('[id*="bulk"]').forEach(el => {
+            console.log('- ', el.id, el);
+        });
         return;
     }
     
-    if (bulkActions.classList.contains('hidden')) {
+    const isCurrentlyHidden = bulkActions.classList.contains('hidden');
+    console.log('Currently hidden:', isCurrentlyHidden);
+    
+    if (isCurrentlyHidden) {
         // 일괄 모드 활성화
-        console.log('Activating bulk mode');
-        checkboxes.forEach(cb => cb.classList.remove('hidden'));
-        categoryCheckboxes.forEach(cb => cb.classList.remove('hidden'));
+        console.log('>>> ACTIVATING bulk mode');
+        
+        // 체크박스 표시
+        console.log('Showing item checkboxes...');
+        itemCheckboxes.forEach((cb, index) => {
+            console.log(`Checkbox ${index}:`, cb, 'hidden class:', cb.classList.contains('hidden'));
+            cb.classList.remove('hidden');
+        });
+        
+        console.log('Showing category checkboxes...');
+        categoryCheckboxes.forEach((cb, index) => {
+            console.log(`Category checkbox ${index}:`, cb, 'hidden class:', cb.classList.contains('hidden'));
+            cb.classList.remove('hidden');
+        });
+        
+        // 일괄 선택 영역 표시
+        console.log('Showing bulk actions...');
         bulkActions.classList.remove('hidden');
         
-        // 버튼 텍스트만 변경 (이벤트 리스너 유지)
+        // 버튼 텍스트 변경
         if (bulkBtn) {
             bulkBtn.textContent = '취소';
+            console.log('Button text changed to: 취소');
         }
+        
+        console.log('>>> Bulk mode ACTIVATED');
+        
     } else {
         // 일괄 모드 비활성화
-        console.log('Deactivating bulk mode');
-        checkboxes.forEach(cb => {
+        console.log('>>> DEACTIVATING bulk mode');
+        
+        // 체크박스 숨기기 및 선택 해제
+        itemCheckboxes.forEach(cb => {
             cb.classList.add('hidden');
             cb.checked = false;
         });
@@ -535,14 +599,21 @@ function toggleBulkMode(type) {
             cb.classList.add('hidden');
             cb.checked = false;
         });
+        
+        // 일괄 선택 영역 숨기기
         bulkActions.classList.add('hidden');
         
         // 버튼 복원
         if (bulkBtn) {
             bulkBtn.innerHTML = '<svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> 선택';
+            console.log('Button text restored to: 선택 (with icon)');
         }
+        
         updateSelectedCount(type);
+        console.log('>>> Bulk mode DEACTIVATED');
     }
+    
+    console.log('=== toggleBulkMode END ===');
 }
 
 // 전체 선택
