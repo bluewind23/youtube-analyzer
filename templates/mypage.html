@@ -102,8 +102,8 @@
 
                 <div class="tab-content-container">
                     <div id="saved-videos" class="tab-content" role="tabpanel">
-                        {% if saved_videos.items %}
                         <!-- 카테고리 탭 네비게이션 -->
+                        {% if saved_videos.items %}
                         <div class="border-b border-gray-100">
                             <nav class="flex space-x-4 px-6 py-2 overflow-x-auto" role="tablist">
                                 <div class="flex items-center space-x-2">
@@ -124,8 +124,9 @@
                                 {% endfor %}
                             </nav>
                         </div>
+                        {% endif %}
                         
-                        <!-- 일괄 선택 영역 -->
+                        <!-- 일괄 선택 영역 - 항상 존재 -->
                         <div id="bulk-videos-actions" class="hidden px-6 py-3 bg-yellow-50 border-b border-yellow-200">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center space-x-3">
@@ -138,6 +139,8 @@
                                 </div>
                             </div>
                         </div>
+                        
+                        {% if saved_videos.items %}
                         
                         <!-- 비디오 리스트 -->
                         <div class="h-96 overflow-y-auto px-6 py-4" id="videos-container">
@@ -186,8 +189,8 @@
                     </div>
 
                     <div id="saved-channels" class="tab-content hidden" role="tabpanel">
-                        {% if saved_channels.items %}
                         <!-- 카테고리 탭 네비게이션 -->
+                        {% if saved_channels.items %}
                         <div class="border-b border-gray-100">
                             <nav class="flex space-x-4 px-6 py-2 overflow-x-auto" role="tablist">
                                 <div class="flex items-center space-x-2">
@@ -208,8 +211,9 @@
                                 {% endfor %}
                             </nav>
                         </div>
+                        {% endif %}
                         
-                        <!-- 일괄 선택 영역 -->
+                        <!-- 일괄 선택 영역 - 항상 존재 -->
                         <div id="bulk-channels-actions" class="hidden px-6 py-3 bg-yellow-50 border-b border-yellow-200">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center space-x-3">
@@ -222,6 +226,8 @@
                                 </div>
                             </div>
                         </div>
+                        
+                        {% if saved_channels.items %}
                         
                         <!-- 채널 리스트 -->
                         <div class="h-96 overflow-y-auto px-6 py-4" id="channels-container">
@@ -305,6 +311,8 @@
 // 기존 스크립트와 동일
 // 페이지 로드 시 저장된 탭 복원
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOMContentLoaded - Initializing page');
+    
     // 기본 액션 버튼 설정
     updateContentActions('saved-videos');
     
@@ -315,6 +323,12 @@ document.addEventListener('DOMContentLoaded', function() {
         // 사용한 후 제거
         localStorage.removeItem('activeTab');
     }
+    
+    // 디버깅: 요소 확인
+    console.log('Bulk videos actions element:', document.getElementById('bulk-videos-actions'));
+    console.log('Bulk channels actions element:', document.getElementById('bulk-channels-actions'));
+    console.log('Video checkboxes:', document.querySelectorAll('.video-bulk-checkbox').length);
+    console.log('Channel checkboxes:', document.querySelectorAll('.channel-bulk-checkbox').length);
 });
 
 function switchToTab(targetTab) {
@@ -394,14 +408,21 @@ function updateContentActions(activeTab) {
 // 카테고리 탭 전환
 function switchToCategoryTab(categoryId, type) {
     // 카테고리 탭 UI 업데이트
-    const tabContainer = document.querySelector(`#saved-${type} .category-tab-btn[data-category="${categoryId}"]`).parentElement;
+    const tabContainer = document.querySelector(`#saved-${type} nav[role="tablist"]`);
+    if (!tabContainer) {
+        console.error('Tab container not found for type:', type);
+        return;
+    }
+    
+    // 모든 카테고리 탭 버튼의 스타일 초기화
     tabContainer.querySelectorAll('.category-tab-btn').forEach(btn => {
         btn.classList.remove('bg-blue-50', 'text-blue-600');
         btn.classList.add('text-gray-600');
         btn.setAttribute('aria-selected', 'false');
     });
     
-    const targetBtn = tabContainer.querySelector(`[data-category="${categoryId}"]`);
+    // 선택된 카테고리 탭 활성화
+    const targetBtn = tabContainer.querySelector(`.category-tab-btn[data-category="${categoryId}"]`);
     if (targetBtn) {
         targetBtn.classList.remove('text-gray-600');
         targetBtn.classList.add('bg-blue-50', 'text-blue-600');
@@ -485,15 +506,27 @@ function toggleBulkMode(type) {
     
     console.log('Found checkboxes:', checkboxes.length);
     console.log('Found bulk actions:', bulkActions);
+    console.log('Bulk actions hidden?', bulkActions ? bulkActions.classList.contains('hidden') : 'not found');
     
-    if (bulkActions && bulkActions.classList.contains('hidden')) {
+    if (!bulkActions) {
+        console.error('Bulk actions element not found for type:', type);
+        return;
+    }
+    
+    if (bulkActions.classList.contains('hidden')) {
         // 일괄 모드 활성화
+        console.log('Activating bulk mode');
         checkboxes.forEach(cb => cb.classList.remove('hidden'));
         categoryCheckboxes.forEach(cb => cb.classList.remove('hidden'));
         bulkActions.classList.remove('hidden');
-        bulkBtn.innerHTML = '취소';
+        
+        // 버튼 텍스트만 변경 (이벤트 리스너 유지)
+        if (bulkBtn) {
+            bulkBtn.textContent = '취소';
+        }
     } else {
         // 일괄 모드 비활성화
+        console.log('Deactivating bulk mode');
         checkboxes.forEach(cb => {
             cb.classList.add('hidden');
             cb.checked = false;
@@ -502,10 +535,12 @@ function toggleBulkMode(type) {
             cb.classList.add('hidden');
             cb.checked = false;
         });
-        if (bulkActions) {
-            bulkActions.classList.add('hidden');
+        bulkActions.classList.add('hidden');
+        
+        // 버튼 복원
+        if (bulkBtn) {
+            bulkBtn.innerHTML = '<svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> 선택';
         }
-        bulkBtn.innerHTML = '<svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> 선택';
         updateSelectedCount(type);
     }
 }
