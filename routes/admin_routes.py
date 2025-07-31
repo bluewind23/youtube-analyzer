@@ -225,3 +225,77 @@ def delete_feedback(feedback_id):
     db.session.commit()
     flash('피드백이 삭제되었습니다.', 'info')
     return redirect(url_for('admin_routes.view_feedback'))
+
+
+@admin_routes.route('/migrate-database', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def migrate_database():
+    """데이터베이스 마이그레이션 실행 (Render.com free tier용)"""
+    from flask_migrate import upgrade
+    from flask import jsonify
+    import traceback
+    
+    if request.method == 'GET':
+        # 마이그레이션 상태 확인 페이지
+        try:
+            from flask_migrate import current, show
+            current_revision = current()
+            return render_template('admin/migrate_database.html', 
+                                 current_revision=current_revision)
+        except Exception as e:
+            return render_template('admin/migrate_database.html', 
+                                 error=str(e))
+    
+    # POST 요청: 실제 마이그레이션 실행
+    try:
+        # 데이터베이스 마이그레이션 실행
+        upgrade()
+        
+        # 테이블 존재 여부 확인
+        from models.saved_video import SavedVideo, SavedVideoCategory
+        from models.saved_channel import SavedChannelCategory
+        
+        # 테이블 접근 테스트
+        SavedVideo.query.count()
+        SavedVideoCategory.query.count() 
+        SavedChannelCategory.query.count()
+        
+        flash('데이터베이스 마이그레이션이 성공적으로 완료되었습니다!', 'success')
+        current_app.logger.info(f"Database migration completed by admin: {current_user.email}")
+        
+        return jsonify({
+            'success': True, 
+            'message': '마이그레이션이 성공적으로 완료되었습니다.'
+        })
+        
+    except Exception as e:
+        error_msg = str(e)
+        current_app.logger.error(f"Migration failed: {error_msg}")
+        current_app.logger.error(traceback.format_exc())
+        
+        # 테이블이 없는 경우 강제 생성 시도
+        if 'no such table' in error_msg.lower() or 'table' in error_msg.lower():
+            try:
+                current_app.logger.info("Attempting to create all tables...")
+                db.create_all()
+                current_app.logger.info("Tables created successfully")
+                
+                flash('데이터베이스 테이블들이 생성되었습니다!', 'success')
+                return jsonify({
+                    'success': True,
+                    'message': '데이터베이스 테이블들이 생성되었습니다.'
+                })
+            except Exception as create_error:
+                current_app.logger.error(f"Table creation failed: {str(create_error)}")
+                flash(f'마이그레이션 실패: {str(create_error)}', 'danger')
+                return jsonify({
+                    'success': False,
+                    'error': str(create_error)
+                })
+        
+        flash(f'마이그레이션 실패: {error_msg}', 'danger')
+        return jsonify({
+            'success': False,
+            'error': error_msg
+        })

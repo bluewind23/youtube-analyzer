@@ -185,7 +185,7 @@
             <h3 class="text-lg font-semibold text-gray-900">빠른 액션</h3>
         </div>
         <div class="p-6">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <a href="{{ url_for('admin_routes.manage_keys') }}"
                     class="flex items-center p-4 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors">
                     <svg class="w-6 h-6 text-blue-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -222,6 +222,19 @@
                     <div>
                         <h4 class="font-medium text-gray-900">시스템 통계</h4>
                         <p class="text-sm text-gray-600">시스템 성능 및 통계</p>
+                    </div>
+                </a>
+
+                <a href="{{ url_for('admin_routes.migrate_database') }}"
+                    class="flex items-center p-4 bg-red-50 hover:bg-red-100 rounded-lg transition-colors">
+                    <svg class="w-6 h-6 text-red-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4">
+                        </path>
+                    </svg>
+                    <div>
+                        <h4 class="font-medium text-gray-900">DB 마이그레이션</h4>
+                        <p class="text-sm text-gray-600">데이터베이스 업데이트</p>
                     </div>
                 </a>
             </div>

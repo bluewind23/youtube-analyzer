@@ -1,0 +1,139 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}데이터베이스 마이그레이션{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="bg-white shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-800">데이터베이스 마이그레이션</h2>
+            <p class="text-sm text-gray-600 mt-1">Render.com Free Tier용 마이그레이션 도구</p>
+        </div>
+
+        <div class="p-6">
+            {% if error %}
+            <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                <p><strong>오류:</strong> {{ error }}</p>
+            </div>
+            {% endif %}
+
+            <div class="mb-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-2">현재 마이그레이션 상태</h3>
+                {% if current_revision %}
+                <p class="text-sm text-gray-600">현재 리비전: <code class="bg-gray-100 px-2 py-1 rounded">{{ current_revision }}</code></p>
+                {% else %}
+                <p class="text-sm text-gray-600">마이그레이션 상태를 확인할 수 없습니다.</p>
+                {% endif %}
+            </div>
+
+            <div class="mb-6">
+                <div class="bg-yellow-50 border border-yellow-200 rounded-md p-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-yellow-800">주의사항</h3>
+                            <div class="mt-2 text-sm text-yellow-700">
+                                <ul class="list-disc pl-5 space-y-1">
+                                    <li>마이그레이션 실행 전에 데이터베이스 백업을 권장합니다.</li>
+                                    <li>마이그레이션 중에는 애플리케이션이 일시적으로 중단될 수 있습니다.</li>
+                                    <li>실행 후 마이페이지 접속을 테스트하여 정상 작동을 확인하세요.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex space-x-4">
+                <button id="migrate-btn" 
+                        class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors">
+                    마이그레이션 실행
+                </button>
+                
+                <button id="create-tables-btn"
+                        class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md transition-colors">
+                    테이블 강제 생성
+                </button>
+                
+                <a href="{{ url_for('admin_routes.dashboard') }}" 
+                   class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-md transition-colors">
+                    관리자 대시보드로 돌아가기
+                </a>
+            </div>
+
+            <div id="migration-result" class="mt-6 hidden">
+                <div class="border rounded-md p-4">
+                    <h4 class="font-medium text-gray-900 mb-2">실행 결과</h4>
+                    <div id="result-content" class="text-sm"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const migrateBtn = document.getElementById('migrate-btn');
+    const createTablesBtn = document.getElementById('create-tables-btn');
+    const resultDiv = document.getElementById('migration-result');
+    const resultContent = document.getElementById('result-content');
+
+    function showResult(message, isSuccess) {
+        resultDiv.classList.remove('hidden');
+        resultContent.innerHTML = `
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    ${isSuccess ? 
+                        '<svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>' :
+                        '<svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" /></svg>'
+                    }
+                </div>
+                <div class="ml-3">
+                    <p class="${isSuccess ? 'text-green-800' : 'text-red-800'}">${message}</p>
+                </div>
+            </div>
+        `;
+    }
+
+    function executeRequest(action) {
+        const button = action === 'migrate' ? migrateBtn : createTablesBtn;
+        button.disabled = true;
+        button.textContent = '실행 중...';
+
+        fetch('{{ url_for("admin_routes.migrate_database") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token() if csrf_token else "" }}'
+            },
+            body: JSON.stringify({ action: action })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showResult(data.message, true);
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+            } else {
+                showResult(`실패: ${data.error}`, false);
+            }
+        })
+        .catch(error => {
+            showResult(`오류 발생: ${error.message}`, false);
+        })
+        .finally(() => {
+            button.disabled = false;
+            button.textContent = action === 'migrate' ? '마이그레이션 실행' : '테이블 강제 생성';
+        });
+    }
+
+    migrateBtn.addEventListener('click', () => executeRequest('migrate'));
+    createTablesBtn.addEventListener('click', () => executeRequest('create'));
+});
+</script>
+{% endblock %}
