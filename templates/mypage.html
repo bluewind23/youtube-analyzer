@@ -106,15 +106,21 @@
                         <!-- 카테고리 탭 네비게이션 -->
                         <div class="border-b border-gray-100">
                             <nav class="flex space-x-4 px-6 py-2 overflow-x-auto" role="tablist">
-                                <button class="category-tab-btn whitespace-nowrap py-2 px-3 text-xs font-medium rounded-lg border-transparent text-gray-600 hover:text-gray-800 bg-blue-50 text-blue-600" 
-                                        data-category="all" data-type="videos" role="tab" aria-selected="true">
-                                    전체 ({{ saved_videos.total }})
-                                </button>
+                                <div class="flex items-center space-x-2">
+                                    <input type="checkbox" class="category-bulk-checkbox hidden" data-category="all" data-type="videos">
+                                    <button class="category-tab-btn whitespace-nowrap py-2 px-3 text-xs font-medium rounded-lg border-transparent text-gray-600 hover:text-gray-800 bg-blue-50 text-blue-600" 
+                                            data-category="all" data-type="videos" role="tab" aria-selected="true">
+                                        전체 ({{ saved_videos.total }})
+                                    </button>
+                                </div>
                                 {% for category in video_categories %}
-                                <button class="category-tab-btn whitespace-nowrap py-2 px-3 text-xs font-medium rounded-lg border-transparent text-gray-600 hover:text-gray-800" 
-                                        data-category="{{ category.id or 'uncategorized' }}" data-type="videos" role="tab" aria-selected="false">
-                                    {{ category.name }} ({{ category.video_count }})
-                                </button>
+                                <div class="flex items-center space-x-2">
+                                    <input type="checkbox" class="category-bulk-checkbox hidden" data-category="{{ category.id or 'uncategorized' }}" data-type="videos">
+                                    <button class="category-tab-btn whitespace-nowrap py-2 px-3 text-xs font-medium rounded-lg border-transparent text-gray-600 hover:text-gray-800" 
+                                            data-category="{{ category.id or 'uncategorized' }}" data-type="videos" role="tab" aria-selected="false">
+                                        {{ category.name }} ({{ category.video_count }})
+                                    </button>
+                                </div>
                                 {% endfor %}
                             </nav>
                         </div>
@@ -184,15 +190,21 @@
                         <!-- 카테고리 탭 네비게이션 -->
                         <div class="border-b border-gray-100">
                             <nav class="flex space-x-4 px-6 py-2 overflow-x-auto" role="tablist">
-                                <button class="category-tab-btn whitespace-nowrap py-2 px-3 text-xs font-medium rounded-lg border-transparent text-gray-600 hover:text-gray-800 bg-blue-50 text-blue-600" 
-                                        data-category="all" data-type="channels" role="tab" aria-selected="true">
-                                    전체 ({{ saved_channels.total }})
-                                </button>
+                                <div class="flex items-center space-x-2">
+                                    <input type="checkbox" class="category-bulk-checkbox hidden" data-category="all" data-type="channels">
+                                    <button class="category-tab-btn whitespace-nowrap py-2 px-3 text-xs font-medium rounded-lg border-transparent text-gray-600 hover:text-gray-800 bg-blue-50 text-blue-600" 
+                                            data-category="all" data-type="channels" role="tab" aria-selected="true">
+                                        전체 ({{ saved_channels.total }})
+                                    </button>
+                                </div>
                                 {% for category in channel_categories %}
-                                <button class="category-tab-btn whitespace-nowrap py-2 px-3 text-xs font-medium rounded-lg border-transparent text-gray-600 hover:text-gray-800" 
-                                        data-category="{{ category.id or 'uncategorized' }}" data-type="channels" role="tab" aria-selected="false">
-                                    {{ category.name }} ({{ category.channel_count }})
-                                </button>
+                                <div class="flex items-center space-x-2">
+                                    <input type="checkbox" class="category-bulk-checkbox hidden" data-category="{{ category.id or 'uncategorized' }}" data-type="channels">
+                                    <button class="category-tab-btn whitespace-nowrap py-2 px-3 text-xs font-medium rounded-lg border-transparent text-gray-600 hover:text-gray-800" 
+                                            data-category="{{ category.id or 'uncategorized' }}" data-type="channels" role="tab" aria-selected="false">
+                                        {{ category.name }} ({{ category.channel_count }})
+                                    </button>
+                                </div>
                                 {% endfor %}
                             </nav>
                         </div>
@@ -465,18 +477,28 @@ document.addEventListener('click', function(e) {
 
 // 일괄 삭제 모드 토글
 function toggleBulkMode(type) {
+    console.log('toggleBulkMode called with type:', type);
     const checkboxes = document.querySelectorAll(type === 'videos' ? '.video-bulk-checkbox' : '.channel-bulk-checkbox');
+    const categoryCheckboxes = document.querySelectorAll(`#saved-${type} .category-bulk-checkbox`);
     const bulkBtn = document.getElementById(`bulk-${type}-btn`);
     const bulkActions = document.getElementById(`bulk-${type}-actions`);
+    
+    console.log('Found checkboxes:', checkboxes.length);
+    console.log('Found bulk actions:', bulkActions);
     
     if (bulkActions && bulkActions.classList.contains('hidden')) {
         // 일괄 모드 활성화
         checkboxes.forEach(cb => cb.classList.remove('hidden'));
+        categoryCheckboxes.forEach(cb => cb.classList.remove('hidden'));
         bulkActions.classList.remove('hidden');
         bulkBtn.innerHTML = '취소';
     } else {
         // 일괄 모드 비활성화
         checkboxes.forEach(cb => {
+            cb.classList.add('hidden');
+            cb.checked = false;
+        });
+        categoryCheckboxes.forEach(cb => {
             cb.classList.add('hidden');
             cb.checked = false;
         });
@@ -490,18 +512,30 @@ function toggleBulkMode(type) {
 
 // 전체 선택
 function selectAllVideos() {
-    const checkboxes = document.querySelectorAll('.video-bulk-checkbox:not(.hidden)');
-    const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+    // 현재 보이는 아이템들의 체크박스만 선택
+    const visibleItems = document.querySelectorAll('#saved-videos .video-item:not([style*="display: none"])');
+    const visibleCheckboxes = [];
+    visibleItems.forEach(item => {
+        const checkbox = item.querySelector('.video-bulk-checkbox:not(.hidden)');
+        if (checkbox) visibleCheckboxes.push(checkbox);
+    });
     
-    checkboxes.forEach(cb => cb.checked = !allChecked);
+    const allChecked = visibleCheckboxes.every(cb => cb.checked);
+    visibleCheckboxes.forEach(cb => cb.checked = !allChecked);
     updateSelectedCount('videos');
 }
 
 function selectAllChannels() {
-    const checkboxes = document.querySelectorAll('.channel-bulk-checkbox:not(.hidden)');
-    const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+    // 현재 보이는 아이템들의 체크박스만 선택
+    const visibleItems = document.querySelectorAll('#saved-channels .channel-item:not([style*="display: none"])');
+    const visibleCheckboxes = [];
+    visibleItems.forEach(item => {
+        const checkbox = item.querySelector('.channel-bulk-checkbox:not(.hidden)');
+        if (checkbox) visibleCheckboxes.push(checkbox);
+    });
     
-    checkboxes.forEach(cb => cb.checked = !allChecked);
+    const allChecked = visibleCheckboxes.every(cb => cb.checked);
+    visibleCheckboxes.forEach(cb => cb.checked = !allChecked);
     updateSelectedCount('channels');
 }
 
@@ -520,6 +554,28 @@ document.addEventListener('change', function(e) {
         updateSelectedCount('videos');
     } else if (e.target.classList.contains('channel-bulk-checkbox')) {
         updateSelectedCount('channels');
+    } else if (e.target.classList.contains('category-bulk-checkbox')) {
+        // 카테고리 체크박스 변경 시
+        const categoryId = e.target.dataset.category;
+        const type = e.target.dataset.type;
+        const isChecked = e.target.checked;
+        
+        if (categoryId === 'all') {
+            // 전체 선택/해제
+            const allCheckboxes = document.querySelectorAll(`#saved-${type} .${type === 'videos' ? 'video' : 'channel'}-bulk-checkbox:not(.hidden)`);
+            allCheckboxes.forEach(cb => cb.checked = isChecked);
+        } else {
+            // 특정 카테고리 선택/해제
+            const categoryItems = document.querySelectorAll(`#saved-${type} .${type === 'videos' ? 'video' : 'channel'}-item[data-category-id="${categoryId}"]`);
+            categoryItems.forEach(item => {
+                const checkbox = item.querySelector(`.${type === 'videos' ? 'video' : 'channel'}-bulk-checkbox`);
+                if (checkbox && !checkbox.classList.contains('hidden')) {
+                    checkbox.checked = isChecked;
+                }
+            });
+        }
+        
+        updateSelectedCount(type);
     }
 });
 
