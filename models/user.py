@@ -29,6 +29,7 @@ search_history = db.relationship(
 saved_items = db.relationship(
     'SavedItem', back_populates='user', lazy=True, cascade="all, delete-orphan")
 # [수정 또는 추가할 코드 끝]
+
 __table_args__ = (
     UniqueConstraint('username', name='uq_users_username'),
     UniqueConstraint('google_id', name='uq_users_google_id'),

@@ -14,10 +14,13 @@ class SavedItem(db.Model):
     item_value = db.Column(db.String(500), nullable=False)  # 검색어 또는 채널 ID
     item_display_name = db.Column(
         db.String(500), nullable=True)  # 채널명 등 표시될 이름
-    category_id = db.Column(db.Integer, nullable=True)  # 카테고리 ID (채널용)
+    category_id = db.Column(db.Integer, db.ForeignKey(
+        'saved_channel_categories.id'), nullable=True)  # ForeignKey 명시
     saved_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 
     user = relationship('User', back_populates='saved_items')
+    category = relationship(
+        'SavedChannelCategory', back_populates='saved_items', foreign_keys=[category_id])
 
     __table_args__ = (
         UniqueConstraint('user_id', 'item_type',
