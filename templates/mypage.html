@@ -107,12 +107,12 @@
                         <div class="border-b border-gray-100">
                             <nav class="flex space-x-4 px-6 py-2 overflow-x-auto" role="tablist">
                                 <button class="category-tab-btn whitespace-nowrap py-2 px-3 text-xs font-medium rounded-lg border-transparent text-gray-600 hover:text-gray-800 bg-blue-50 text-blue-600" 
-                                        data-category="" data-type="videos" role="tab" aria-selected="true">
+                                        data-category="all" data-type="videos" role="tab" aria-selected="true">
                                     전체 ({{ saved_videos.total }})
                                 </button>
                                 {% for category in video_categories %}
                                 <button class="category-tab-btn whitespace-nowrap py-2 px-3 text-xs font-medium rounded-lg border-transparent text-gray-600 hover:text-gray-800" 
-                                        data-category="{{ category.id or '' }}" data-type="videos" role="tab" aria-selected="false">
+                                        data-category="{{ category.id or 'uncategorized' }}" data-type="videos" role="tab" aria-selected="false">
                                     {{ category.name }} ({{ category.video_count }})
                                 </button>
                                 {% endfor %}
@@ -134,10 +134,10 @@
                         </div>
                         
                         <!-- 비디오 리스트 -->
-                        <div class="max-h-96 overflow-y-auto px-6 py-4" id="videos-container">
+                        <div class="h-96 overflow-y-auto px-6 py-4" id="videos-container">
                             <ul class="space-y-3">
                             {% for video in saved_videos.items %}
-                                <li class="video-item" data-video-id="{{ video.id }}" data-category-id="{{ video.category_id or '' }}">
+                                <li class="video-item" data-video-id="{{ video.id }}" data-category-id="{{ video.category_id or 'uncategorized' }}">
                                   <div class="flex items-start space-x-3 p-3 hover:bg-gray-50 rounded-lg">
                                     <div class="flex-shrink-0 flex items-center space-x-2">
                                         <input type="checkbox" class="video-bulk-checkbox hidden" data-video-id="{{ video.id }}">
@@ -155,7 +155,7 @@
                                                 {% if category %}
                                                 <span class="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded-full">{{ category.name }}</span>
                                                 {% endif %}
-                                                <button class="delete-category-btn text-xs text-red-600 hover:text-red-800 p-1 rounded hover:bg-red-50" data-category-id="{{ video.category_id or '' }}" data-item-type="video" title="카테고리 전체 삭제">
+                                                <button class="delete-category-btn text-xs text-red-600 hover:text-red-800 p-1 rounded hover:bg-red-50" data-category-id="{{ video.category_id or 'uncategorized' }}" data-item-type="video" title="카테고리 전체 삭제">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                                 </button>
                                                 <button class="delete-saved-video-btn text-xs text-red-600 hover:text-red-800 p-1 rounded hover:bg-red-50" data-video-id="{{ video.id }}" title="영상 삭제">
@@ -186,12 +186,12 @@
                         <div class="border-b border-gray-100">
                             <nav class="flex space-x-4 px-6 py-2 overflow-x-auto" role="tablist">
                                 <button class="category-tab-btn whitespace-nowrap py-2 px-3 text-xs font-medium rounded-lg border-transparent text-gray-600 hover:text-gray-800 bg-blue-50 text-blue-600" 
-                                        data-category="" data-type="channels" role="tab" aria-selected="true">
+                                        data-category="all" data-type="channels" role="tab" aria-selected="true">
                                     전체 ({{ saved_channels.total }})
                                 </button>
                                 {% for category in channel_categories %}
                                 <button class="category-tab-btn whitespace-nowrap py-2 px-3 text-xs font-medium rounded-lg border-transparent text-gray-600 hover:text-gray-800" 
-                                        data-category="{{ category.id or '' }}" data-type="channels" role="tab" aria-selected="false">
+                                        data-category="{{ category.id or 'uncategorized' }}" data-type="channels" role="tab" aria-selected="false">
                                     {{ category.name }} ({{ category.channel_count }})
                                 </button>
                                 {% endfor %}
@@ -213,10 +213,10 @@
                         </div>
                         
                         <!-- 채널 리스트 -->
-                        <div class="max-h-96 overflow-y-auto px-6 py-4" id="channels-container">
+                        <div class="h-96 overflow-y-auto px-6 py-4" id="channels-container">
                             <ul class="space-y-2">
                             {% for item in saved_channels.items %}
-                                <li class="channel-item" data-channel-id="{{ item.id }}" data-category-id="{{ item.category_id or '' }}">
+                                <li class="channel-item" data-channel-id="{{ item.id }}" data-category-id="{{ item.category_id or 'uncategorized' }}">
                                     <div class="flex items-center justify-between py-3 px-3 hover:bg-gray-50 rounded-lg">
                                         <div class="flex items-center space-x-3">
                                             <input type="checkbox" class="channel-bulk-checkbox hidden" data-channel-id="{{ item.id }}">
@@ -230,7 +230,7 @@
                                             {% if category %}
                                             <span class="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full">{{ category.name }}</span>
                                             {% endif %}
-                                            <button class="delete-category-btn text-xs text-red-600 hover:text-red-800 p-1 rounded hover:bg-red-50" data-category-id="{{ item.category_id or '' }}" data-item-type="channel" title="카테고리 전체 삭제">
+                                            <button class="delete-category-btn text-xs text-red-600 hover:text-red-800 p-1 rounded hover:bg-red-50" data-category-id="{{ item.category_id or 'uncategorized' }}" data-item-type="channel" title="카테고리 전체 삭제">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                             </button>
                                             <button class="delete-saved-item-btn text-xs text-red-600 hover:text-red-800 p-1 rounded hover:bg-red-50" data-item-id="{{ item.id }}" title="채널 삭제">
@@ -383,7 +383,11 @@ function switchToCategoryTab(categoryId, type) {
     const items = document.querySelectorAll(`#saved-${type} .${type === 'videos' ? 'video' : 'channel'}-item`);
     items.forEach(item => {
         const itemCategoryId = item.dataset.categoryId;
-        if (!categoryId || itemCategoryId === categoryId) {
+        if (categoryId === 'all') {
+            // 전체 탭인 경우 모든 아이템 표시
+            item.style.display = 'block';
+        } else if (itemCategoryId === categoryId) {
+            // 선택된 카테고리와 일치하는 아이템만 표시
             item.style.display = 'block';
         } else {
             item.style.display = 'none';
@@ -581,7 +585,7 @@ async function deleteCategoryItems(categoryId, itemType) {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
-                category_id: categoryId || null,
+                category_id: categoryId === 'uncategorized' ? null : categoryId,
                 item_type: itemType 
             })
         });
