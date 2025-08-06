@@ -33,8 +33,8 @@ class User(db.Model, UserMixin):
 
     def has_active_api_keys(self):
         """사용자가 활성화된 API 키를 가지고 있는지 확인합니다."""
-        from models.api_key import ApiKey
-        return ApiKey.query.filter_by(user_id=self.id, is_active=True).count() > 0
+        # SQLAlchemy relationship을 활용하여 순환 import 문제 해결
+        return any(key.is_active for key in self.api_keys)
 
     def __repr__(self):
         return f'<User {self.username or self.email}>'

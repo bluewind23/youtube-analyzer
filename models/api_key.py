@@ -17,12 +17,8 @@ class KeyEncryptor:
                     "ENCRYPTION_KEY is not set in the configuration.")
 
             # Fernet 키는 이미 base64로 인코딩된 문자열이므로 바로 사용
-            # 만약 문자열이 아니라 바이트라면 .encode() 없이 직접 사용
             try:
-                if isinstance(encryption_key, str):
-                    cls._fernet = Fernet(encryption_key.encode('utf-8'))
-                else:
-                    cls._fernet = Fernet(encryption_key)
+                cls._fernet = Fernet(encryption_key)
             except Exception as e:
                 current_app.logger.error(f"Failed to initialize Fernet: {e}")
                 raise ValueError(f"Invalid ENCRYPTION_KEY format: {e}")
