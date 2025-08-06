@@ -371,6 +371,48 @@ def api_guide():
     return render_template('api_guide.html', title="YouTube API 키 설정 가이드")
 
 
+@main_routes.route('/debug-api-keys')
+def debug_api_keys():
+    """임시 API 키 디버깅 엔드포인트"""
+    if not current_user.is_authenticated:
+        return jsonify({"error": "로그인이 필요합니다"}), 401
+        
+    from models.api_key import ApiKey
+    
+    # 사용자의 모든 API 키 확인
+    all_keys = ApiKey.query.filter_by(user_id=current_user.id).all()
+    active_keys = ApiKey.query.filter_by(user_id=current_user.id, is_active=True).all()
+    
+    debug_info = {
+        "user_id": current_user.id,
+        "user_email": current_user.email,
+        "total_keys": len(all_keys),
+        "active_keys": len(active_keys),
+        "has_active_keys": current_user.has_active_api_keys(),
+        "keys": []
+    }
+    
+    for key in all_keys:
+        try:
+            decrypted = key.key
+            key_info = {
+                "id": key.id,
+                "is_active": key.is_active,
+                "last_used": key.last_used.isoformat() if key.last_used else None,
+                "decryption_success": decrypted is not None,
+                "key_length": len(decrypted) if decrypted else 0
+            }
+        except Exception as e:
+            key_info = {
+                "id": key.id,
+                "is_active": key.is_active,
+                "decryption_error": str(e)
+            }
+        debug_info["keys"].append(key_info)
+    
+    return jsonify(debug_info)
+
+
 @main_routes.route('/api/warm-cache', methods=['POST'])
 def warm_cache_api():
     """캐시 워밍을 위한 API 엔드포인트 (GitHub Actions용)"""

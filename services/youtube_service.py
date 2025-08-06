@@ -42,33 +42,52 @@ def get_public_youtube_service():
 def get_personal_youtube_service():
     """로그인한 사용자의 개인 API 키만 순환하며 작동하는 서비스 객체를 반환합니다."""
     if not current_user or not current_user.is_authenticated:
+        current_app.logger.warning("User not authenticated for personal service")
         return None, None
 
     user_keys = ApiKey.query.filter_by(
         user_id=current_user.id, is_active=True).order_by(ApiKey.last_used.asc()).all()
+    
+    current_app.logger.info(f"Found {len(user_keys)} active API keys for user {current_user.id}")
+    
     if not user_keys:
         current_app.logger.warning(
             f"User {current_user.id} has no active personal API keys.")
         return None, None
 
-    for key_instance in user_keys:
+    for i, key_instance in enumerate(user_keys):
         try:
+            # API 키 복호화 시도
+            decrypted_key = key_instance.key
+            current_app.logger.info(f"Trying key {i+1}/{len(user_keys)} for user {current_user.id}")
+            
+            if not decrypted_key:
+                current_app.logger.error(f"Failed to decrypt key {key_instance.id}")
+                continue
+                
             service = build(
-                'youtube', 'v3', developerKey=key_instance.key, cache_discovery=False)
+                'youtube', 'v3', developerKey=decrypted_key, cache_discovery=False)
             service.videos().list(part='id', id='jNQXAC9IVRw').execute()  # 유효성 검사
+            
             key_instance.last_used = datetime.datetime.now(
                 datetime.timezone.utc)
             db.session.commit()
+            current_app.logger.info(f"Successfully using API key {key_instance.id} for user {current_user.id}")
             return service, key_instance
+            
         except HttpError as e:
+            current_app.logger.warning(f"HttpError with key {key_instance.id}: {e}")
             if e.resp.status in [400, 403]:
                 reason = e.content.decode('utf-8')
                 if 'quotaExceeded' in reason or 'keyInvalid' in reason:
+                    current_app.logger.warning(f"Deactivating key {key_instance.id}: {reason}")
                     key_instance.deactivate()
             continue
         except Exception as e:
-            current_app.logger.error(f"Personal key build failed: {e}")
+            current_app.logger.error(f"Personal key build failed for key {key_instance.id}: {e}")
             continue
+            
+    current_app.logger.error(f"All {len(user_keys)} API keys failed for user {current_user.id}")
     return None, None
 
 

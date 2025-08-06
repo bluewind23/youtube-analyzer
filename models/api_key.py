@@ -16,8 +16,16 @@ class KeyEncryptor:
                 raise ValueError(
                     "ENCRYPTION_KEY is not set in the configuration.")
 
-            # [수정] 환경 변수에서 읽은 문자열 키를 바이트로 인코딩합니다.
-            cls._fernet = Fernet(encryption_key.encode('utf-8'))
+            # Fernet 키는 이미 base64로 인코딩된 문자열이므로 바로 사용
+            # 만약 문자열이 아니라 바이트라면 .encode() 없이 직접 사용
+            try:
+                if isinstance(encryption_key, str):
+                    cls._fernet = Fernet(encryption_key.encode('utf-8'))
+                else:
+                    cls._fernet = Fernet(encryption_key)
+            except Exception as e:
+                current_app.logger.error(f"Failed to initialize Fernet: {e}")
+                raise ValueError(f"Invalid ENCRYPTION_KEY format: {e}")
         return cls._fernet
 
     @classmethod
@@ -30,7 +38,12 @@ class KeyEncryptor:
     def decrypt(cls, encrypted_data):
         if not encrypted_data:
             return None
-        return cls.get_fernet().decrypt(encrypted_data.encode('utf-8')).decode('utf-8')
+        try:
+            return cls.get_fernet().decrypt(encrypted_data.encode('utf-8')).decode('utf-8')
+        except Exception as e:
+            from flask import current_app
+            current_app.logger.error(f"Failed to decrypt API key: {e}")
+            return None
 
 # 이하 ApiKey 클래스는 수정할 필요 없이 그대로 둡니다.
 
