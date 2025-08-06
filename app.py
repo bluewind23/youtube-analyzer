@@ -62,7 +62,9 @@ def create_app():
 
     @app.route('/ads.txt')
     def ads_txt():
-        return send_from_directory(os.path.abspath('.'), 'ads.txt')
+        # 또는 os.path.abspath('.') 방식
+        return send_from_directory('static', 'ads.txt')
+
     # Jinja 필터 등록
 
     def human_format(num):
