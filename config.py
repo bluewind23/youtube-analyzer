@@ -18,7 +18,6 @@ class Config:
 
     SERVER_NAME = os.getenv('SERVER_NAME', None)
 
-    # [수정 또는 추가할 코드 시작]
     # Redis 캐시 설정
     REDIS_URL = os.getenv('REDIS_URL')
     if REDIS_URL:
@@ -29,11 +28,15 @@ class Config:
         # Redis가 없을 경우 메모리 캐시 사용
         CACHE_TYPE = 'simple'
         CACHE_DEFAULT_TIMEOUT = 300
+
+    # [수정 또는 추가할 코드 시작]
+    # 배포 환경 (https)과 로컬 환경 (http)에 따라 세션 쿠키 설정을 동적으로 변경합니다.
+    # Render.com과 같은 플랫폼은 일반적으로 FLASK_ENV=production으로 설정됩니다.
+    if os.getenv('FLASK_ENV') == 'production':
+        SESSION_COOKIE_SECURE = True
+        SESSION_COOKIE_SAMESITE = 'Lax'
+    else:
+        # 개발 환경에서는 HTTP를 사용하므로 SECURE를 False로 설정
+        SESSION_COOKIE_SECURE = False
+        SESSION_COOKIE_SAMESITE = 'Lax'
     # [수정 또는 추가할 코드 끝]
-
-    # [이 줄을 삭제하세요]
-    # SESSION_COOKIE_DOMAIN = os.getenv('SESSION_COOKIE_DOMAIN', None)
-
-    # 개발 환경에서는 HTTP를 사용하므로 SECURE를 False로 설정
-    SESSION_COOKIE_SAMESITE = 'Lax'
-    SESSION_COOKIE_SECURE = False
