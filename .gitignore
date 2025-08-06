@@ -23,3 +23,4 @@ visitor_log.csv
 .env
 
 client_secret.json
+.DS_Store
