@@ -80,20 +80,35 @@ def logout():
 def mypage():
     form = AddApiKeyForm()
     if form.validate_on_submit():
-        new_key_value = form.youtube_api_key.data
+        new_key_value = form.youtube_api_key.data.strip()
 
-        existing_key = ApiKey.query.filter(
-            ApiKey.user_id == current_user.id).all()
-        is_duplicate = any(k.key == new_key_value for k in existing_key)
-
-        if is_duplicate:
+        # 중복 키 검증
+        if ApiKey.is_key_duplicate(current_user.id, new_key_value):
             flash('이미 등록된 API 키입니다.', 'danger')
         else:
-            new_api_key = ApiKey(user=current_user)
-            new_api_key.key = new_key_value
-            db.session.add(new_api_key)
-            db.session.commit()
-            flash('새 API 키가 성공적으로 추가되었습니다!', 'success')
+            # YouTube API 키 유효성 검증
+            from googleapiclient.discovery import build
+            from googleapiclient.errors import HttpError
+            try:
+                # 테스트 API 호출로 키 유효성 검증
+                service = build('youtube', 'v3', developerKey=new_key_value, cache_discovery=False)
+                service.videos().list(part='id', id='jNQXAC9IVRw').execute()
+                
+                # 유효한 키라면 저장
+                new_api_key = ApiKey(user=current_user)
+                new_api_key.key = new_key_value
+                db.session.add(new_api_key)
+                db.session.commit()
+                flash('새 API 키가 성공적으로 추가되었습니다!', 'success')
+                
+            except HttpError as e:
+                if e.resp.status in [400, 403]:
+                    flash('유효하지 않은 API 키입니다. 키를 다시 확인해주세요.', 'danger')
+                else:
+                    flash('API 키 검증 중 오류가 발생했습니다. 나중에 다시 시도해주세요.', 'warning')
+            except Exception as e:
+                flash('API 키 검증 중 오류가 발생했습니다. 나중에 다시 시도해주세요.', 'warning')
+        
         return redirect(url_for('auth_routes.mypage'))
 
     user_api_keys = current_user.api_keys

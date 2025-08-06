@@ -18,7 +18,7 @@ main_routes = Blueprint("main_routes", __name__)
 def index():
     query = request.args.get("query", "")
     page_token = request.args.get("page_token")
-    can_search = current_user.is_authenticated and bool(current_user.api_keys)
+    can_search = current_user.is_authenticated and current_user.has_active_api_keys()
 
     saved_channel_ids = []
     is_query_saved = False
@@ -57,7 +57,7 @@ def index():
 def get_video_data_api():
     query = request.args.get("query", "")
     page_token = request.args.get("page_token")
-    can_search = current_user.is_authenticated and bool(current_user.api_keys)
+    can_search = current_user.is_authenticated and current_user.has_active_api_keys()
 
     # 검색과 인기동영상을 구분하여 캐시 키 생성
     if query and query.strip():
@@ -197,7 +197,7 @@ def download_csv():
     youtube_service = None
 
     if query:
-        if not current_user.is_authenticated or not current_user.api_keys:
+        if not current_user.is_authenticated or not current_user.has_active_api_keys():
             flash("CSV 다운로드는 로그인 및 API 키 등록이 필요합니다.", "danger")
             return redirect(url_for('main_routes.index'))
 

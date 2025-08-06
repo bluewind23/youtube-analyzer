@@ -23,7 +23,10 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Warm the trending cache
+        env:
+          APP_URL: ${{ secrets.APP_URL }}
+          CACHE_WARM_TOKEN: ${{ secrets.CACHE_WARM_TOKEN }}
         run: |
-          curl -X POST "${{ secrets.APP_URL }}/api/warm-cache" \
-            -H "Authorization: Bearer ${{ secrets.CACHE_WARM_TOKEN }}" \
+          curl -X POST "${APP_URL}/api/warm-cache" \
+            -H "Authorization: Bearer ${CACHE_WARM_TOKEN}" \
             -H "Content-Type: application/json"
