@@ -2,7 +2,7 @@
 
 # 1. 모든 import를 파일 최상단으로 이동 (자동 정렬 플러그인과 충돌하지 않음)
 import os
-from flask import Flask, render_template, session
+from flask import Flask, render_template, session, send_from_directory
 from flask_migrate import Migrate
 from jinja2.runtime import Undefined
 from werkzeug.middleware.proxy_fix import ProxyFix
@@ -60,7 +60,11 @@ def create_app():
         app.register_blueprint(admin_routes)
         app.register_blueprint(user_actions_routes)
 
+    @app.route('/ads.txt')
+    def ads_txt():
+        return send_from_directory(os.path.abspath('.'), 'ads.txt')
     # Jinja 필터 등록
+
     def human_format(num):
         if num is None or isinstance(num, Undefined):
             return ""
