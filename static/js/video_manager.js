@@ -55,30 +55,30 @@ function updateTooltipContent(tooltip, data) {
 function showTooltip(trigger, channelId) {
     // 더 강력한 툴팁 찾기 로직
     let tooltip = null;
-    
+
     // 1. 트리거의 부모 .relative 컨테이너에서 찾기
     const relativeParent = trigger.closest('.relative');
     if (relativeParent) {
         tooltip = relativeParent.querySelector('.channel-tooltip');
     }
-    
+
     // 2. 트리거의 직접 부모에서 찾기
     if (!tooltip && trigger.parentElement) {
         tooltip = trigger.parentElement.querySelector('.channel-tooltip');
     }
-    
+
     // 3. 트리거 자신 안에서 찾기
     if (!tooltip) {
         tooltip = trigger.querySelector('.channel-tooltip');
     }
-    
+
     // 4. 트리거의 다음 형제 요소에서 찾기
     if (!tooltip && trigger.nextElementSibling) {
-        tooltip = trigger.nextElementSibling.classList.contains('channel-tooltip') ? 
-                 trigger.nextElementSibling : 
-                 trigger.nextElementSibling.querySelector('.channel-tooltip');
+        tooltip = trigger.nextElementSibling.classList.contains('channel-tooltip') ?
+            trigger.nextElementSibling :
+            trigger.nextElementSibling.querySelector('.channel-tooltip');
     }
-    
+
     if (!tooltip) {
         console.error('No tooltip found for trigger:', trigger);
         return;
@@ -95,13 +95,13 @@ function showTooltip(trigger, channelId) {
     tooltip.style.setProperty('opacity', '1', 'important');
     tooltip.style.setProperty('z-index', '9999', 'important');
     tooltip.style.setProperty('position', 'absolute', 'important');
-    
+
     // 뷰별 다른 포지셔닝 설정
     const isInGrid = trigger.closest('.grid');
     const isInList = trigger.closest('table');
-    
+
     tooltip.style.setProperty('pointer-events', 'auto', 'important');
-    
+
     if (isInGrid) {
         // 그리드뷰: 채널명 위쪽, 좌측 정렬
         tooltip.style.setProperty('left', '0', 'important');
@@ -110,12 +110,12 @@ function showTooltip(trigger, channelId) {
         tooltip.style.setProperty('transform', 'none', 'important');
         tooltip.style.setProperty('margin-bottom', '4px', 'important');
         tooltip.style.setProperty('margin-left', '0', 'important');
-        
+
         // 상단 경계 체크 (뷰포트 상단에서 잘리지 않게)
         setTimeout(() => {
             const triggerRect = trigger.getBoundingClientRect();
             const tooltipRect = tooltip.getBoundingClientRect();
-            
+
             if (triggerRect.top - tooltipRect.height - 4 < 0) {
                 // 상단에 공간이 부족하면 아래쪽으로 이동
                 tooltip.style.setProperty('bottom', 'auto', 'important');
@@ -124,7 +124,7 @@ function showTooltip(trigger, channelId) {
                 tooltip.style.setProperty('margin-top', '4px', 'important');
             }
         }, 0);
-        
+
     } else if (isInList) {
         // 리스트뷰: 채널명 아래쪽, 좌측 정렬
         tooltip.style.setProperty('left', '0', 'important');
@@ -133,13 +133,13 @@ function showTooltip(trigger, channelId) {
         tooltip.style.setProperty('transform', 'none', 'important');
         tooltip.style.setProperty('margin-top', '4px', 'important');
         tooltip.style.setProperty('margin-left', '0', 'important');
-        
+
         // 하단 경계 체크 (뷰포트 하단에서 잘리지 않게)
         setTimeout(() => {
             const triggerRect = trigger.getBoundingClientRect();
             const tooltipRect = tooltip.getBoundingClientRect();
             const viewportHeight = window.innerHeight;
-            
+
             if (triggerRect.bottom + tooltipRect.height + 4 > viewportHeight) {
                 // 하단에 공간이 부족하면 위쪽으로 이동
                 tooltip.style.setProperty('top', 'auto', 'important');
@@ -149,7 +149,7 @@ function showTooltip(trigger, channelId) {
             }
         }, 0);
     }
-    
+
     activeTooltip = tooltip;
 
     const cached = channelDataCache.get(channelId);
@@ -159,7 +159,7 @@ function showTooltip(trigger, channelId) {
     }
 
     tooltip.querySelector('.channel-title').textContent = '로딩 중...';
-    
+
     fetch(`/channel-tooltip/${channelId}`)
         .then(response => {
             if (!response.ok) {
@@ -190,13 +190,13 @@ function handleTooltipMouseEnter(e) {
     if (!e.target || !e.target.classList) {
         return;
     }
-    
+
     // 툴팁 내부에 마우스 진입 (우선 처리)
     if (e.target.closest && e.target.closest('.channel-tooltip')) {
         clearTimeout(hideTimeout);
         return;
     }
-    
+
     // 채널 트리거에 마우스 진입 - 직접 타겟이거나 하위 요소일 경우 모두 처리
     let trigger = null;
     if (e.target.classList.contains('channel-tooltip-trigger')) {
@@ -205,7 +205,7 @@ function handleTooltipMouseEnter(e) {
         // 이벤트 타겟이 트리거가 아니라면, 부모 중에서 트리거를 찾기
         trigger = e.target.closest('.channel-tooltip-trigger');
     }
-    
+
     if (trigger) {
         const channelId = trigger.dataset.channelId;
         clearTimeout(hideTimeout);
@@ -215,7 +215,7 @@ function handleTooltipMouseEnter(e) {
         // 트리거가 아닌 요소에 마우스가 들어갔을 때, 툴팁과 관련된 영역인지 확인
         const relativeParent = e.target.closest('.relative');
         const cardContainer = e.target.closest('.bg-white.rounded-lg');
-        
+
         if (relativeParent && relativeParent.querySelector('.channel-tooltip-trigger')) {
             clearTimeout(hideTimeout);
         } else if (cardContainer && cardContainer.querySelector('.channel-tooltip-trigger')) {
@@ -230,7 +230,7 @@ function handleTooltipClick(e) {
     if (!e.target || !e.target.classList) {
         return;
     }
-    
+
     // 채널 트리거 클릭 - 직접 타겟이거나 하위 요소일 경우 모두 처리
     let trigger = null;
     if (e.target.classList.contains('channel-tooltip-trigger')) {
@@ -239,14 +239,14 @@ function handleTooltipClick(e) {
         // 이벤트 타겟이 트리거가 아니라면, 부모 중에서 트리거를 찾기
         trigger = e.target.closest('.channel-tooltip-trigger');
     }
-    
+
     if (trigger) {
         e.preventDefault();
         const channelId = trigger.dataset.channelId;
         clearTimeout(hideTimeout);
         clearTimeout(showTimeout);
         showTooltip(trigger, channelId);
-        
+
         // 클릭 시에는 더 오래 유지되도록 설정
         setTimeout(() => {
             if (activeTooltip) {
@@ -259,13 +259,13 @@ function handleTooltipClick(e) {
 
 function handleTooltipMouseLeave(e) {
     if (!e.target || !e.target.classList) return;
-    
+
     // 툴팁에서 마우스 이탈 (우선 처리)
     if (e.target.closest && e.target.closest('.channel-tooltip')) {
         hideTimeout = setTimeout(hideAllTooltips, 500); // 툴팁에서 이탈할 때도 여유 시간
         return;
     }
-    
+
     // 채널 트리거에서 마우스 이탈 - 직접 타겟이거나 하위 요소일 경우 모두 처리
     let trigger = null;
     if (e.target.classList.contains('channel-tooltip-trigger')) {
@@ -273,14 +273,14 @@ function handleTooltipMouseLeave(e) {
     } else {
         trigger = e.target.closest('.channel-tooltip-trigger');
     }
-    
+
     if (trigger) {
         clearTimeout(showTimeout);
         // 더 긴 지연으로 툴팁으로 마우스 이동할 시간 제공
         hideTimeout = setTimeout(hideAllTooltips, 800);
         return;
     }
-    
+
     // 트리거 영역에서 마우스 이탈 시 관대하게 처리
     const relativeParent = e.target.closest('.relative');
     if (relativeParent && relativeParent.querySelector('.channel-tooltip-trigger')) {
@@ -311,14 +311,14 @@ function setupChannelTooltips() {
     document.addEventListener('click', handleTooltipClick, true);
     // 스크롤 이벤트 추가 - 스크롤 시 툴팁 숨김
     document.addEventListener('scroll', handleScrollHideTooltip, true);
-    
+
     // 추가 디버깅: 이벤트가 제대로 등록되었는지 확인
-    
+
     // 기존 트리거 요소들 확인
     setTimeout(() => {
         const triggers = document.querySelectorAll('.channel-tooltip-trigger');
     }, 500);
-    
+
     tooltipEventHandlersAdded = true;
 }
 
@@ -340,7 +340,7 @@ class VideoManager {
 
         this.initialize();
     }
-    
+
     initialize() {
         if (window.pageData) {
             this.currentQuery = window.pageData.query || '';
@@ -349,8 +349,8 @@ class VideoManager {
         this.setupFilterListeners();
         this.setupSearchForm();
         setupChannelTooltips(); // 전역 이벤트 위임 설정
-        
-        
+
+
         this.loadInitialData();
     }
 
@@ -384,10 +384,10 @@ class VideoManager {
                     this.recommendedTags = data.recommended_tags || [];
                 }
                 this.nextPageToken = data.next_page_token || null;
-                
+
                 this.filterAndSortVideos();
                 this.renderVideos();
-                if(!isLoadMore) this.renderRecommendedTags();
+                if (!isLoadMore) this.renderRecommendedTags();
                 this.renderLoadMoreButton();
             } else {
                 showCustomAlert(data.error || "데이터 로딩에 실패했습니다.");
@@ -402,16 +402,16 @@ class VideoManager {
     }
 
     loadInitialData() {
-        
+
         // 이미 데이터가 있고 같은 쿼리라면 중복 로드 방지
         if (this.allVideos.length > 0 && !this.isLoading) {
             return;
         }
-        
+
         const initialLoadCount = this.currentQuery ? 100 : 50;
         this.fetchData(initialLoadCount, null, false);
     }
-    
+
     loadMoreResults() {
         if (this.nextPageToken) {
             this.fetchData(50, this.nextPageToken, true);
@@ -421,7 +421,7 @@ class VideoManager {
     renderLoadMoreButton() {
         const container = document.getElementById('pagination-container');
         const topButton = document.getElementById('load-more-top-btn');
-        
+
         if (this.nextPageToken) {
             // 하단 버튼
             if (container) {
@@ -432,7 +432,7 @@ class VideoManager {
                 `;
                 document.getElementById('load-more-btn').addEventListener('click', () => this.loadMoreResults());
             }
-            
+
             // 상단 버튼
             if (topButton) {
                 topButton.classList.remove('hidden');
@@ -447,7 +447,7 @@ class VideoManager {
                     container.innerHTML = '';
                 }
             }
-            
+
             // 상단 버튼 숨김
             if (topButton) {
                 topButton.classList.add('hidden');
@@ -464,8 +464,8 @@ class VideoManager {
                 if (dropdown.querySelector('.date-filter-button')) filterType = 'date';
                 else if (dropdown.querySelector('.subs-filter-button')) filterType = 'subs';
                 else if (dropdown.querySelector('.type-filter-button')) filterType = 'type';
-                
-                if(filterType) this.applyFilter(filterType, e.target.dataset.value);
+
+                if (filterType) this.applyFilter(filterType, e.target.dataset.value);
             });
         });
         document.querySelectorAll('.sort-option, .sortable-header').forEach(el => {
@@ -517,7 +517,7 @@ class VideoManager {
 
     filterAndSortVideos() {
         let videos = [...this.allVideos];
-        
+
         if (this.currentFilters.date !== '전체') {
             const daysAgo = parseInt(this.currentFilters.date.replace('일 전', ''));
             if (!isNaN(daysAgo)) {
@@ -526,7 +526,7 @@ class VideoManager {
                 videos = videos.filter(video => new Date(video.publishedAt) >= cutoffDate);
             }
         }
-        
+
         if (this.currentFilters.subs !== 'all') {
             const subThresholds = { 'tiny': [0, 5000], 'micro': [0, 10000], 'small': [10000, 100000], 'medium': [100000, 1000000], 'large': [1000000, Infinity] };
             const threshold = subThresholds[this.currentFilters.subs];
@@ -571,7 +571,7 @@ class VideoManager {
         const gridView = document.getElementById('grid-view');
         const listView = document.getElementById('list-view');
         const isListViewActive = listView && !listView.classList.contains('hidden');
-        
+
         const gridContent = gridView ? gridView.querySelector('.grid') : null;
         if (isListViewActive) {
             this.renderListView(listView);
@@ -580,138 +580,211 @@ class VideoManager {
         }
 
         this.updateVideoCount();
-        
+
     }
-    
+
     renderGridView(container) {
-        
+        // ====================== [광고 코드 시작] ======================
+        const adClientId = "ca-pub-5809883478660758";
+        const adSlotId = "3877365282";
+
+        const adHtml = `
+    <div class="bg-yellow-50 border-2 border-dashed border-yellow-300 rounded-lg p-4 text-center min-h-[280px] flex flex-col justify-center">
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="${adClientId}"
+             data-ad-slot="${adSlotId}"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+    </div>
+    `;
+        // ====================== [광고 코드 끝] ========================
+
         const savedIds = new Set(window.pageData.savedChannelIds || []);
-        const htmlContent = this.filteredVideos.length ? this.filteredVideos.map((video, index) => {
+        let adCount = 0;
+
+        // [수정] 광고 삽입을 위해 .map() 대신 .reduce()를 사용합니다.
+        const htmlContent = this.filteredVideos.length ? this.filteredVideos.reduce((acc, video, index) => {
             const isSaved = savedIds.has(video.channelId);
             const title = escapeAttr(video.title);
             const channelTitle = escapeAttr(video.channelTitle);
             const videoId = typeof video.id === 'object' ? video.id.videoId : video.id;
-            const htmlResult = `
-                <div class="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 flex flex-col" style="overflow: visible;">
-                    <div class="relative group">
-                        <a href="https://www.youtube.com/watch?v=${videoId}" target="_blank" class="block"><img class="w-full h-48 object-cover rounded-t-lg" src="${video.thumbnail_url}" alt="${title}"></a>
-                        <button class="save-video-btn absolute top-2 left-2 p-2 bg-black bg-opacity-50 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-opacity-75" title="영상 저장" data-video-id="${videoId}" data-video-title="${title}" data-channel-id="${video.channelId}" data-channel-title="${channelTitle}" data-thumbnail-url="${video.thumbnail_url}">
-                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.5 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z" />
-                            </svg>
-                        </button>
-                        ${video.viewCount < 10000 && video.publishedAt ? `<span class="absolute top-2 right-2 px-2 py-1 bg-yellow-400 text-white text-xs font-semibold rounded-full shadow-md">💎 숨은 보석</span>` : ''}
-                        <a href="/download-thumbnail?url=${encodeURIComponent(video.thumbnail_url)}&title=${encodeURIComponent(title)}" title="썸네일 다운로드" class="absolute ${video.viewCount < 10000 && video.publishedAt ? 'top-12 right-2' : 'top-2 right-2'} p-2 bg-black bg-opacity-50 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-opacity-75">
-                            <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-                            </svg>
-                        </a>
-                    </div>
-                    <div class="p-4 flex flex-col flex-grow">
-                        <h3 class="font-bold text-base mb-2 h-12 line-clamp-2"><a href="https://www.youtube.com/watch?v=${videoId}" target="_blank" class="hover:text-blue-600">${video.title}</a></h3>
-                        <div class="text-sm text-gray-600 mb-3">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center min-w-0">
-                                    <button class="save-channel-btn flex-shrink-0 p-1 rounded-full hover:bg-gray-100 ${isSaved ? 'text-blue-600' : 'text-gray-400'}" title="채널 저장/취소" data-channel-id="${video.channelId}" data-channel-title="${channelTitle}">
-                                        ${isSaved ? `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M5 21V5q0-.825.588-1.413T7 3h10q.825 0 1.413.588T19 5v16l-7-3Z"/></svg>` : `<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>`}
-                                    </button>
-                                    <div class="relative min-w-0 ml-2">
-                                        <span class="font-semibold hover:text-blue-600 cursor-pointer channel-tooltip-trigger block truncate" data-channel-id="${video.channelId}" style="pointer-events: auto; z-index: 1; position: relative;">${video.channelTitle}</span>
-                                        ${createChannelTooltipHTML()}
-                                    </div>
-                                    <span class="mx-1.5 text-gray-400 flex-shrink-0">•</span>
-                                    <span class="text-xs text-gray-500 flex-shrink-0">${formatNumber(video.subscriberCount)}</span>
-                                </div>
-                                <span class="text-xs text-gray-500 flex-shrink-0">${video.publishedAtFormatted}</span>
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-3 gap-1 mt-auto"><div class="bg-gray-50 rounded p-1.5 text-center"><div class="text-xs font-medium text-gray-800">${formatNumber(video.viewCount)}</div><div class="text-xs text-gray-500">조회수</div></div><div class="bg-blue-50 rounded p-1.5 text-center"><div class="text-xs font-medium text-blue-700">${formatNumber(video.likeCount)}</div><div class="text-xs text-blue-600">좋아요</div></div><div class="bg-green-50 rounded p-1.5 text-center"><div class="text-xs font-medium text-green-700">${formatNumber(video.commentCount)}</div><div class="text-xs text-green-600">댓글</div></div></div>
-                    </div>
-                </div>
-            `;
-            
-            
-            return htmlResult;
-        }).join('') : this.renderEmptyState();
-        
-        container.innerHTML = htmlContent;
-        
-        
-    }
 
+            // 님의 최신 비디오 카드 HTML 코드를 그대로 사용합니다.
+            const videoHtml = `
+            <div class="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 flex flex-col" style="overflow: visible;">
+                <div class="relative group">
+                    <a href="https://www.youtube.com/watch?v=${videoId}" target="_blank" class="block"><img class="w-full h-48 object-cover rounded-t-lg" src="${video.thumbnail_url}" alt="${title}" onerror="this.src='/static/images/default-thumbnail.svg'"></a>
+                    <button class="save-video-btn absolute top-2 left-2 p-2 bg-black bg-opacity-50 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-opacity-75" title="영상 저장" data-video-id="${videoId}" data-video-title="${title}" data-channel-id="${video.channelId}" data-channel-title="${channelTitle}" data-thumbnail-url="${video.thumbnail_url}">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.5 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z" />
+                        </svg>
+                    </button>
+                    ${video.viewCount < 10000 && video.publishedAt ? `<span class="absolute top-2 right-2 px-2 py-1 bg-yellow-400 text-white text-xs font-semibold rounded-full shadow-md">💎 숨은 보석</span>` : ''}
+                    <a href="/download-thumbnail?url=${encodeURIComponent(video.thumbnail_url)}&title=${encodeURIComponent(title)}" title="썸네일 다운로드" class="absolute ${video.viewCount < 10000 && video.publishedAt ? 'top-12 right-2' : 'top-2 right-2'} p-2 bg-black bg-opacity-50 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-opacity-75">
+                        <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                        </svg>
+                    </a>
+                </div>
+                <div class="p-4 flex flex-col flex-grow">
+                    <h3 class="font-bold text-base mb-2 h-12 line-clamp-2"><a href="https://www.youtube.com/watch?v=${videoId}" target="_blank" class="hover:text-blue-600">${video.title}</a></h3>
+                    <div class="text-sm text-gray-600 mb-3">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center min-w-0">
+                                <button class="save-channel-btn flex-shrink-0 p-1 rounded-full hover:bg-gray-100 ${isSaved ? 'text-blue-600' : 'text-gray-400'}" title="채널 저장/취소" data-channel-id="${video.channelId}" data-channel-title="${channelTitle}">
+                                    ${isSaved ? `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M5 21V5q0-.825.588-1.413T7 3h10q.825 0 1.413.588T19 5v16l-7-3Z"/></svg>` : `<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>`}
+                                </button>
+                                <div class="relative min-w-0 ml-2">
+                                    <span class="font-semibold hover:text-blue-600 cursor-pointer channel-tooltip-trigger block truncate" data-channel-id="${video.channelId}" style="pointer-events: auto; z-index: 1; position: relative;">${video.channelTitle}</span>
+                                    ${createChannelTooltipHTML()}
+                                </div>
+                                <span class="mx-1.5 text-gray-400 flex-shrink-0">•</span>
+                                <span class="text-xs text-gray-500 flex-shrink-0">${formatNumber(video.subscriberCount)}</span>
+                            </div>
+                            <span class="text-xs text-gray-500 flex-shrink-0">${video.publishedAtFormatted}</span>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-1 mt-auto"><div class="bg-gray-50 rounded p-1.5 text-center"><div class="text-xs font-medium text-gray-800">${formatNumber(video.viewCount)}</div><div class="text-xs text-gray-500">조회수</div></div><div class="bg-blue-50 rounded p-1.5 text-center"><div class="text-xs font-medium text-blue-700">${formatNumber(video.likeCount)}</div><div class="text-xs text-blue-600">좋아요</div></div><div class="bg-green-50 rounded p-1.5 text-center"><div class="text-xs font-medium text-green-700">${formatNumber(video.commentCount)}</div><div class="text-xs text-green-600">댓글</div></div></div>
+                </div>
+            </div>
+        `;
+
+            acc += videoHtml;
+
+            // [수정] 10번째 아이템마다 광고 HTML을 추가합니다.
+            if ((index + 1) % 10 === 0) {
+                acc += adHtml;
+                adCount++;
+            }
+
+            return acc;
+        }, '') : this.renderEmptyState();
+
+        container.innerHTML = htmlContent;
+
+        // 동적으로 추가된 광고를 AdSense가 인식하도록 초기화
+        if (adCount > 0) {
+            container.querySelectorAll('.adsbygoogle').forEach(() => {
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            });
+        }
+    }
     renderListView(container) {
+        // ====================== [광고 코드 시작] ======================
+        const adClientId = "ca-pub-5809883478660758";
+        const adSlotId = "3877365282";
+
+        const adHtml = `
+    <tr class="bg-yellow-50 border-y border-yellow-200">
+        <td colspan="7" class="px-2 py-2 text-center">
+            <ins class="adsbygoogle"
+                 style="display:block; text-align:center;"
+                 data-ad-layout="in-article"
+                 data-ad-format="fluid"
+                 data-ad-client="${adClientId}"
+                 data-ad-slot="${adSlotId}"></ins>
+        </td>
+    </tr>
+    `;
+        // ====================== [광고 코드 끝] ========================
+
         const savedIds = new Set(window.pageData.savedChannelIds || []);
         const tbody = container.querySelector('tbody');
         if (!tbody) return;
-        tbody.innerHTML = this.filteredVideos.length ? this.filteredVideos.map((video) => {
+        let adCount = 0;
+
+        // [수정] 광고 삽입을 위해 .map() 대신 .reduce()를 사용합니다.
+        const htmlContent = this.filteredVideos.length ? this.filteredVideos.reduce((acc, video, index) => {
             const isSaved = savedIds.has(video.channelId);
             const title = escapeAttr(video.title);
             const channelTitle = escapeAttr(video.channelTitle);
             const savedClass = isSaved ? 'is-saved text-blue-600' : 'text-gray-400';
             const iconSvg = isSaved ? `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M5 21V5q0-.825.588-1.413T7 3h10q.825 0 1.413.588T19 5v16l-7-3Z"/></svg>` : `<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>`;
             const videoId = typeof video.id === 'object' ? video.id.videoId : video.id;
-            return `
-                <tr class="hover:bg-gray-50">
-                    <td class="px-2 py-4 text-center"><span class="text-sm font-medium text-gray-700">${video.rank}</span></td>
-                    <td class="px-6 py-4">
-                        <div class="flex items-center space-x-4">
-                            <div class="flex-shrink-0 relative group">
-                                <a href="https://www.youtube.com/watch?v=${videoId}" target="_blank"><img class="h-16 w-28 object-cover rounded-md shadow" src="${video.thumbnail_url_medium}" alt="${title} 썸네일"></a>
-                                <button class="save-video-btn absolute top-1 left-1 p-1 bg-black bg-opacity-50 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-opacity-75" title="영상 저장" data-video-id="${videoId}" data-video-title="${title}" data-channel-id="${video.channelId}" data-channel-title="${channelTitle}" data-thumbnail-url="${video.thumbnail_url_medium}">
-                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.5 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z" />
-                                    </svg>
-                                </button>
-                            </div>
-                            <div class="min-w-0">
-                                <a href="https://www.youtube.com/watch?v=${videoId}" target="_blank" class="block text-sm font-semibold text-gray-900 truncate hover:text-blue-600" title="${title}">${video.title}</a>
-                                <div class="text-sm text-gray-500 mt-1">
-                                    <div class="flex items-center">
-                                        <button class="save-channel-btn flex-shrink-0 p-1 rounded-full hover:bg-gray-100 ${savedClass}" title="채널 저장/취소" data-channel-id="${video.channelId}" data-channel-title="${channelTitle}">${iconSvg}</button>
-                                        <div class="relative ml-2">
-                                            <span class="hover:text-gray-800 cursor-pointer channel-tooltip-trigger" data-channel-id="${video.channelId}" title="${channelTitle}">${video.channelTitle}</span>
-                                            ${createChannelTooltipHTML()}
-                                        </div>
-                                        ${video.subscriberCount ? `<span class="mx-1.5 text-gray-400">-</span><span class="text-xs">${formatNumber(video.subscriberCount)}</span>` : ''}
+
+            // 님의 최신 리스트 아이템 HTML 코드를 그대로 사용합니다.
+            const videoHtml = `
+            <tr class="hover:bg-gray-50">
+                <td class="px-2 py-4 text-center"><span class="text-sm font-medium text-gray-700">${video.rank}</span></td>
+                <td class="px-6 py-4">
+                    <div class="flex items-center space-x-4">
+                        <div class="flex-shrink-0 relative group">
+                            <a href="https://www.youtube.com/watch?v=${videoId}" target="_blank"><img class="h-16 w-28 object-cover rounded-md shadow" src="${video.thumbnail_url_medium}" alt="${title} 썸네일" onerror="this.src='/static/images/default-thumbnail.svg'"></a>
+                            <button class="save-video-btn absolute top-1 left-1 p-1 bg-black bg-opacity-50 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-opacity-75" title="영상 저장" data-video-id="${videoId}" data-video-title="${title}" data-channel-id="${video.channelId}" data-channel-title="${channelTitle}" data-thumbnail-url="${video.thumbnail_url_medium}">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.5 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="min-w-0">
+                            <a href="https://www.youtube.com/watch?v=${videoId}" target="_blank" class="block text-sm font-semibold text-gray-900 truncate hover:text-blue-600" title="${title}">${video.title}</a>
+                            <div class="text-sm text-gray-500 mt-1">
+                                <div class="flex items-center">
+                                    <button class="save-channel-btn flex-shrink-0 p-1 rounded-full hover:bg-gray-100 ${savedClass}" title="채널 저장/취소" data-channel-id="${video.channelId}" data-channel-title="${channelTitle}">${iconSvg}</button>
+                                    <div class="relative ml-2">
+                                        <span class="hover:text-gray-800 cursor-pointer channel-tooltip-trigger" data-channel-id="${video.channelId}" title="${channelTitle}">${video.channelTitle}</span>
+                                        ${createChannelTooltipHTML()}
                                     </div>
+                                    ${video.subscriberCount ? `<span class="mx-1.5 text-gray-400">-</span><span class="text-xs">${formatNumber(video.subscriberCount)}</span>` : ''}
                                 </div>
                             </div>
                         </div>
-                    </td>
-                    <td class="px-4 py-4 text-center whitespace-nowrap"><p class="text-sm font-medium text-gray-900">${formatNumber(video.likeCount)}</p><p class="text-xs text-green-600">(${(video.likeRate || 0).toFixed(2)}%)</p></td>
-                    <td class="px-4 py-4 text-center whitespace-nowrap"><p class="text-sm font-medium text-gray-900">${formatNumber(video.commentCount)}</p></td>
-                    <td class="px-4 py-4 text-center whitespace-nowrap"><p class="text-sm font-medium text-gray-900">${formatNumber(video.viewCount)}</p><p class="text-xs text-gray-500">${formatNumber(video.viewsPerDay)}/일</p></td>
-                    <td class="px-6 py-4 text-center whitespace-nowrap"><p class="text-sm text-gray-600">${video.publishedAtFormatted}</p></td>
-                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium"><a href="/download-thumbnail?url=${encodeURIComponent(video.thumbnail_url)}&title=${encodeURIComponent(title)}" title="썸네일 다운로드" class="inline-block p-2 text-gray-400 transition rounded-full hover:bg-gray-100 hover:text-blue-500"><svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" /></svg></a></td>
-                </tr>
-            `;
-        }).join('') : `<tr><td colspan="7">${this.renderEmptyState()}</td></tr>`;
+                    </div>
+                </td>
+                <td class="px-4 py-4 text-center whitespace-nowrap"><p class="text-sm font-medium text-gray-900">${formatNumber(video.likeCount)}</p><p class="text-xs text-green-600">(${(video.likeRate || 0).toFixed(2)}%)</p></td>
+                <td class="px-4 py-4 text-center whitespace-nowrap"><p class="text-sm font-medium text-gray-900">${formatNumber(video.commentCount)}</p></td>
+                <td class="px-4 py-4 text-center whitespace-nowrap"><p class="text-sm font-medium text-gray-900">${formatNumber(video.viewCount)}</p><p class="text-xs text-gray-500">${formatNumber(video.viewsPerDay)}/일</p></td>
+                <td class="px-6 py-4 text-center whitespace-nowrap"><p class="text-sm text-gray-600">${video.publishedAtFormatted}</p></td>
+                <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium"><a href="/download-thumbnail?url=${encodeURIComponent(video.thumbnail_url)}&title=${encodeURIComponent(title)}" title="썸네일 다운로드" class="inline-block p-2 text-gray-400 transition rounded-full hover:bg-gray-100 hover:text-blue-500"><svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" /></svg></a></td>
+            </tr>
+        `;
+
+            acc += videoHtml;
+
+            // [수정] 5번째 아이템마다 광고 HTML을 추가합니다.
+            if ((index + 1) % 5 === 0) {
+                acc += adHtml;
+                adCount++;
+            }
+
+            return acc;
+        }, '') : `<tr><td colspan="7">${this.renderEmptyState()}</td></tr>`;
+
+        tbody.innerHTML = htmlContent;
+
+        // 동적으로 추가된 광고를 AdSense가 인식하도록 초기화
+        if (adCount > 0) {
+            tbody.querySelectorAll('.adsbygoogle').forEach(() => {
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            });
+        }
     }
-    
+
     renderEmptyState() { return `<div class="text-center py-16"><p class="text-gray-500">표시할 영상이 없습니다.</p></div>`; }
-    
-    updateVideoCount() { 
-        const countElement = document.querySelector('.video-count'); 
-        if (countElement) countElement.textContent = `총 ${this.filteredVideos.length.toLocaleString()}개 영상`; 
+
+    updateVideoCount() {
+        const countElement = document.querySelector('.video-count');
+        if (countElement) countElement.textContent = `총 ${this.filteredVideos.length.toLocaleString()}개 영상`;
     }
-    
-    showLoading(isLoadMore = false) { 
-        const overlay = document.getElementById('loading-overlay'); 
+
+    showLoading(isLoadMore = false) {
+        const overlay = document.getElementById('loading-overlay');
         if (overlay) {
             const loadingText = document.getElementById('loading-text');
             if (loadingText) {
                 loadingText.textContent = isLoadMore ? '결과 추가 중...' : '영상 데이터 분석 중';
             }
-            overlay.classList.remove('hidden'); 
+            overlay.classList.remove('hidden');
         }
     }
-    
-    hideLoading() { 
-        const overlay = document.getElementById('loading-overlay'); 
-        if (overlay) overlay.classList.add('hidden'); 
+
+    hideLoading() {
+        const overlay = document.getElementById('loading-overlay');
+        if (overlay) overlay.classList.add('hidden');
     }
-    
-    parseDuration(duration) { 
+
+    parseDuration(duration) {
         if (!duration) return 0;
         const match = duration.match(/PT(?:(\d+)M)?(?:(\d+)S)?/);
         if (!match) return 0;
@@ -748,27 +821,27 @@ class VideoManager {
             }
         });
     }
-    
-    updateFilterDisplay(filterType, value) { 
-        const button = document.querySelector(`.${filterType}-filter-button`); 
-        if (button) { 
-            const displayValue = { date: { '전체': '기간', '1일 전': '1일 전', '7일 전': '1주일 전', '30일 전': '1개월 전' }, subs: { 'all': '구독자', 'tiny': '5천 미만', 'micro': '1만 미만', 'small': '1만-10만', 'medium': '10만-100만', 'large': '100만+' }, type: { 'all': '유형', 'short': '숏츠', 'video': '일반 영상' } }[filterType]?.[value] || value; 
-            button.querySelector('span').textContent = displayValue; 
-        } 
+
+    updateFilterDisplay(filterType, value) {
+        const button = document.querySelector(`.${filterType}-filter-button`);
+        if (button) {
+            const displayValue = { date: { '전체': '기간', '1일 전': '1일 전', '7일 전': '1주일 전', '30일 전': '1개월 전' }, subs: { 'all': '구독자', 'tiny': '5천 미만', 'micro': '1만 미만', 'small': '1만-10만', 'medium': '10만-100만', 'large': '100만+' }, type: { 'all': '유형', 'short': '숏츠', 'video': '일반 영상' } }[filterType]?.[value] || value;
+            button.querySelector('span').textContent = displayValue;
+        }
     }
-    
+
     updateSortDisplay(sortBy, direction) {
         document.querySelectorAll('.sortable-header .sort-indicator').forEach(ind => ind.textContent = '↕');
         const activeHeader = document.querySelector(`.sortable-header[data-sort="${sortBy}"] .sort-indicator`);
-        if(activeHeader) {
+        if (activeHeader) {
             activeHeader.textContent = direction === 'asc' ? '↑' : '↓';
         }
 
-        const button = document.querySelector('.sort-button'); 
-        if (button) { 
-            const displayValue = { 'publishedAt': '최신순', 'viewCount': '조회수 높은순', 'likeCount': '좋아요 높은순', 'commentCount': '댓글 많은순'}[sortBy] || sortBy; 
-            button.querySelector('span').textContent = `${displayValue}`; 
-        } 
+        const button = document.querySelector('.sort-button');
+        if (button) {
+            const displayValue = { 'publishedAt': '최신순', 'viewCount': '조회수 높은순', 'likeCount': '좋아요 높은순', 'commentCount': '댓글 많은순' }[sortBy] || sortBy;
+            button.querySelector('span').textContent = `${displayValue}`;
+        }
     }
 }
 

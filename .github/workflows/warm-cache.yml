@@ -24,7 +24,7 @@ jobs:
 
       - name: Warm the trending cache
         env:
-          APP_URL: ${{ secrets.APP_URL }}
+          APP_URL: ${{ secrets.APP_URL || 'https://tube-analytics.com/' }}
           CACHE_WARM_TOKEN: ${{ secrets.CACHE_WARM_TOKEN }}
         run: |
           curl -X POST "${APP_URL}/api/warm-cache" \

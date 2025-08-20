@@ -9,11 +9,18 @@
       <div class="flex justify-center items-center gap-3 mb-4">
         <h1 class="text-2xl md:text-3xl font-extrabold text-gray-800">'{{ query }}' 검색 결과</h1>
         {# [수정] is_query_saved 값에 따라 버튼 스타일과 아이콘을 다르게 표시 #}
-        <button id="save-query-btn" class="p-2 rounded-full hover:bg-gray-200 transition-colors {{ 'is-saved text-blue-600' if is_query_saved else 'text-gray-500' }}" title="이 검색어 저장/취소">
+        <button id="save-query-btn"
+          class="p-2 rounded-full hover:bg-gray-200 transition-colors {{ 'is-saved text-blue-600' if is_query_saved else 'text-gray-500' }}"
+          title="이 검색어 저장/취소">
           {% if is_query_saved %}
-            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor"><path d="M5 21V5q0-.825.588-1.413T7 3h10q.825 0 1.413.588T19 5v16l-7-3Z"/></svg>
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M5 21V5q0-.825.588-1.413T7 3h10q.825 0 1.413.588T19 5v16l-7-3Z" />
+          </svg>
           {% else %}
-            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.5 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z" /></svg>
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.5 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z" />
+          </svg>
           {% endif %}
         </button>
       </div>
@@ -25,13 +32,14 @@
 
     <div class="max-w-4xl mx-auto">
       {% include "search_form.html" %}
-      
+
       {% if not can_search %}
       <div class="mt-4 p-4 bg-blue-50 border-l-4 border-blue-400 rounded-r-md">
         <div class="flex items-center">
           <div class="flex-shrink-0">
             <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
           </div>
           <div class="ml-3">
@@ -39,7 +47,7 @@
               <strong>서비스 이용을 위해서 YouTube API 키를 등록해야 합니다.</strong>
             </p>
             <p class="text-sm text-blue-600 mt-1">
-              API 키 등록이 처음이시거나 도움이 필요하시다면 
+              API 키 등록이 처음이시거나 도움이 필요하시다면
               <a href="{{ url_for('main_routes.api_guide') }}" class="font-medium underline hover:text-blue-800">
                 설정 가이드
               </a>를 확인해주세요.
@@ -49,7 +57,7 @@
       </div>
       {% endif %}
     </div>
-    
+
     <div class="mt-2 recommended-tags-container"></div>
 
 
@@ -59,31 +67,97 @@
       <div class="mb-4 flex flex-col sm:flex-row justify-between items-center gap-4">
         <div class="flex items-center gap-3">
           <div class="text-sm text-gray-600 video-count">로딩 중...</div>
-          <button id="load-more-top-btn" class="hidden px-4 py-1.5 text-xs font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition">
+          <button id="load-more-top-btn"
+            class="hidden px-4 py-1.5 text-xs font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition">
             결과 더보기
           </button>
         </div>
-        
+
         <div class="flex items-center gap-2">
           <div class="flex flex-wrap gap-2">
-            <div class="relative filter-dropdown"><button class="date-filter-button dropdown-toggle w-full min-w-24 flex items-center justify-center text-xs font-medium text-gray-700 bg-white border border-gray-300 px-3 py-1.5 rounded-lg hover:bg-gray-50"><span>기간</span><svg class="w-3 h-3 ml-1 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button><div class="dropdown-menu hidden absolute z-10 mt-1 w-32 bg-white border border-gray-300 rounded-lg shadow-lg"><a class="date-filter-option block px-4 py-2 text-xs text-gray-700 hover:bg-gray-100" data-value="전체">전체</a><a class="date-filter-option block px-4 py-2 text-xs text-gray-700 hover:bg-gray-100" data-value="1일 전">1일 전</a><a class="date-filter-option block px-4 py-2 text-xs text-gray-700 hover:bg-gray-100" data-value="7일 전">1주일 전</a><a class="date-filter-option block px-4 py-2 text-xs text-gray-700 hover:bg-gray-100" data-value="30일 전">1개월 전</a><a class="date-filter-option block px-4 py-2 text-xs text-gray-700 hover:bg-gray-100" data-value="90일 전">3개월 전</a></div></div>
-            <div class="relative filter-dropdown"><button class="subs-filter-button dropdown-toggle w-full min-w-24 flex items-center justify-center text-xs font-medium text-gray-700 bg-white border border-gray-300 px-3 py-1.5 rounded-lg hover:bg-gray-50"><span>구독자</span><svg class="w-3 h-3 ml-1 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button><div class="dropdown-menu hidden absolute z-10 mt-1 w-32 bg-white border border-gray-300 rounded-lg shadow-lg"><a class="subs-filter-option block px-4 py-2 text-xs text-gray-700 hover:bg-gray-100" data-value="all">전체</a><a class="subs-filter-option block px-4 py-2 text-xs text-gray-700 hover:bg-gray-100" data-value="tiny">5천 미만</a><a class="subs-filter-option block px-4 py-2 text-xs text-gray-700 hover:bg-gray-100" data-value="micro">1만 미만</a><a class="subs-filter-option block px-4 py-2 text-xs text-gray-700 hover:bg-gray-100" data-value="small">1만-10만</a><a class="subs-filter-option block px-4 py-2 text-xs text-gray-700 hover:bg-gray-100" data-value="medium">10만-100만</a><a class="subs-filter-option block px-4 py-2 text-xs text-gray-700 hover:bg-gray-100" data-value="large">100만+</a></div></div>
-            <div class="relative filter-dropdown"><button class="type-filter-button dropdown-toggle w-full min-w-24 flex items-center justify-center text-xs font-medium text-gray-700 bg-white border border-gray-300 px-3 py-1.5 rounded-lg hover:bg-gray-50"><span>유형</span><svg class="w-3 h-3 ml-1 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button><div class="dropdown-menu hidden absolute z-10 mt-1 w-32 bg-white border border-gray-300 rounded-lg shadow-lg"><a class="type-filter-option block px-4 py-2 text-xs text-gray-700 hover:bg-gray-100" data-value="all">전체</a><a class="type-filter-option block px-4 py-2 text-xs text-gray-700 hover:bg-gray-100" data-value="short">숏츠</a><a class="type-filter-option block px-4 py-2 text-xs text-gray-700 hover:bg-gray-100" data-value="video">일반 영상</a></div></div>
-            <div class="relative filter-dropdown"><button class="sort-button dropdown-toggle w-full min-w-24 flex items-center justify-center text-xs font-medium text-gray-700 bg-white border border-gray-300 px-3 py-1.5 rounded-lg hover:bg-gray-50"><span>최신순</span><svg class="w-3 h-3 ml-1 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button><div class="dropdown-menu hidden absolute z-10 mt-1 w-32 bg-white border border-gray-300 rounded-lg shadow-lg">
-                <a class="sort-option block px-4 py-2 text-xs text-gray-700 hover:bg-gray-100" data-sort="publishedAt" data-direction="desc">최신순</a>
-                <a class="sort-option block px-4 py-2 text-xs text-gray-700 hover:bg-gray-100" data-sort="viewCount" data-direction="desc">조회수 높은순</a>
-                <a class="sort-option block px-4 py-2 text-xs text-gray-700 hover:bg-gray-100" data-sort="likeCount" data-direction="desc">좋아요 높은순</a>
-                <a class="sort-option block px-4 py-2 text-xs text-gray-700 hover:bg-gray-100" data-sort="commentCount" data-direction="desc">댓글 많은순</a>
-            </div></div>
+            <div class="relative filter-dropdown"><button
+                class="date-filter-button dropdown-toggle w-full min-w-24 flex items-center justify-center text-xs font-medium text-gray-700 bg-white border border-gray-300 px-3 py-1.5 rounded-lg hover:bg-gray-50"><span>기간</span><svg
+                  class="w-3 h-3 ml-1 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg></button>
+              <div
+                class="dropdown-menu hidden absolute z-10 mt-1 w-32 bg-white border border-gray-300 rounded-lg shadow-lg">
+                <a class="date-filter-option block px-4 py-2 text-xs text-gray-700 hover:bg-gray-100"
+                  data-value="전체">전체</a><a
+                  class="date-filter-option block px-4 py-2 text-xs text-gray-700 hover:bg-gray-100"
+                  data-value="1일 전">1일 전</a><a
+                  class="date-filter-option block px-4 py-2 text-xs text-gray-700 hover:bg-gray-100"
+                  data-value="7일 전">1주일 전</a><a
+                  class="date-filter-option block px-4 py-2 text-xs text-gray-700 hover:bg-gray-100"
+                  data-value="30일 전">1개월 전</a><a
+                  class="date-filter-option block px-4 py-2 text-xs text-gray-700 hover:bg-gray-100"
+                  data-value="90일 전">3개월 전</a>
+              </div>
+            </div>
+            <div class="relative filter-dropdown"><button
+                class="subs-filter-button dropdown-toggle w-full min-w-24 flex items-center justify-center text-xs font-medium text-gray-700 bg-white border border-gray-300 px-3 py-1.5 rounded-lg hover:bg-gray-50"><span>구독자</span><svg
+                  class="w-3 h-3 ml-1 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg></button>
+              <div
+                class="dropdown-menu hidden absolute z-10 mt-1 w-32 bg-white border border-gray-300 rounded-lg shadow-lg">
+                <a class="subs-filter-option block px-4 py-2 text-xs text-gray-700 hover:bg-gray-100"
+                  data-value="all">전체</a><a
+                  class="subs-filter-option block px-4 py-2 text-xs text-gray-700 hover:bg-gray-100"
+                  data-value="tiny">5천 미만</a><a
+                  class="subs-filter-option block px-4 py-2 text-xs text-gray-700 hover:bg-gray-100"
+                  data-value="micro">1만 미만</a><a
+                  class="subs-filter-option block px-4 py-2 text-xs text-gray-700 hover:bg-gray-100"
+                  data-value="small">1만-10만</a><a
+                  class="subs-filter-option block px-4 py-2 text-xs text-gray-700 hover:bg-gray-100"
+                  data-value="medium">10만-100만</a><a
+                  class="subs-filter-option block px-4 py-2 text-xs text-gray-700 hover:bg-gray-100"
+                  data-value="large">100만+</a>
+              </div>
+            </div>
+            <div class="relative filter-dropdown"><button
+                class="type-filter-button dropdown-toggle w-full min-w-24 flex items-center justify-center text-xs font-medium text-gray-700 bg-white border border-gray-300 px-3 py-1.5 rounded-lg hover:bg-gray-50"><span>유형</span><svg
+                  class="w-3 h-3 ml-1 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg></button>
+              <div
+                class="dropdown-menu hidden absolute z-10 mt-1 w-32 bg-white border border-gray-300 rounded-lg shadow-lg">
+                <a class="type-filter-option block px-4 py-2 text-xs text-gray-700 hover:bg-gray-100"
+                  data-value="all">전체</a><a
+                  class="type-filter-option block px-4 py-2 text-xs text-gray-700 hover:bg-gray-100"
+                  data-value="short">숏츠</a><a
+                  class="type-filter-option block px-4 py-2 text-xs text-gray-700 hover:bg-gray-100"
+                  data-value="video">일반 영상</a>
+              </div>
+            </div>
+            <div class="relative filter-dropdown"><button
+                class="sort-button dropdown-toggle w-full min-w-24 flex items-center justify-center text-xs font-medium text-gray-700 bg-white border border-gray-300 px-3 py-1.5 rounded-lg hover:bg-gray-50"><span>최신순</span><svg
+                  class="w-3 h-3 ml-1 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg></button>
+              <div
+                class="dropdown-menu hidden absolute z-10 mt-1 w-32 bg-white border border-gray-300 rounded-lg shadow-lg">
+                <a class="sort-option block px-4 py-2 text-xs text-gray-700 hover:bg-gray-100" data-sort="publishedAt"
+                  data-direction="desc">최신순</a>
+                <a class="sort-option block px-4 py-2 text-xs text-gray-700 hover:bg-gray-100" data-sort="viewCount"
+                  data-direction="desc">조회수 높은순</a>
+                <a class="sort-option block px-4 py-2 text-xs text-gray-700 hover:bg-gray-100" data-sort="likeCount"
+                  data-direction="desc">좋아요 높은순</a>
+                <a class="sort-option block px-4 py-2 text-xs text-gray-700 hover:bg-gray-100" data-sort="commentCount"
+                  data-direction="desc">댓글 많은순</a>
+              </div>
+            </div>
           </div>
-          
+
           {# CSV 버튼 #}
-          <a href="{{ url_for('main_routes.download_csv', query=query, category=active_category) }}" id="download-csv-btn" class="flex items-center justify-center text-xs font-medium text-gray-500 bg-white border border-gray-200 px-3 py-1.5 rounded-lg hover:bg-gray-100 hover:text-gray-600 shadow-sm">
-              <svg class="w-4 h-4 mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" />
-                <path d="M8,12V14H16V12H8M8,16V18H13V16H8Z" />
-              </svg>
-              CSV
+          <a href="{{ url_for('main_routes.download_csv', query=query, category=active_category) }}"
+            id="download-csv-btn"
+            class="flex items-center justify-center text-xs font-medium text-gray-500 bg-white border border-gray-200 px-3 py-1.5 rounded-lg hover:bg-gray-100 hover:text-gray-600 shadow-sm">
+            <svg class="w-4 h-4 mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" />
+              <path d="M8,12V14H16V12H8M8,16V18H13V16H8Z" />
+            </svg>
+            CSV
           </a>
           {% include "components/view_toggle.html" %}
         </div>
@@ -94,49 +168,78 @@
         <div class="w-full sm:w-auto">
           {% include "components/category_tabs.html" %}
         </div>
-        
+
         <div class="flex items-center gap-2 flex-shrink-0">
           {# CSV 버튼 #}
-          <a href="{{ url_for('main_routes.download_csv', query=query, category=active_category) }}" id="download-csv-btn" class="flex items-center justify-center text-xs font-medium text-gray-500 bg-white border border-gray-200 px-3 py-1.5 rounded-lg hover:bg-gray-100 hover:text-gray-600 shadow-sm">
-              <svg class="w-4 h-4 mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" />
-                <path d="M8,12V14H16V12H8M8,16V18H13V16H8Z" />
-              </svg>
-              CSV
+          <a href="{{ url_for('main_routes.download_csv', query=query, category=active_category) }}"
+            id="download-csv-btn"
+            class="flex items-center justify-center text-xs font-medium text-gray-500 bg-white border border-gray-200 px-3 py-1.5 rounded-lg hover:bg-gray-100 hover:text-gray-600 shadow-sm">
+            <svg class="w-4 h-4 mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" />
+              <path d="M8,12V14H16V12H8M8,16V18H13V16H8Z" />
+            </svg>
+            CSV
           </a>
           {% include "components/view_toggle.html" %}
         </div>
       </div>
       {% endif %}
-      
-      <div id="grid-view" class="{% if view_mode == 'list' %}hidden{% endif %}"><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div></div>
-      <div id="list-view" class="bg-white rounded-xl border border-gray-200 shadow-sm {% if view_mode != 'list' %}hidden{% endif %}"><div class="overflow-x-auto"><table class="w-full min-w-full divide-y divide-gray-200 table-fixed"><thead class="bg-gray-50"><tr><th class="px-2 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-16">순위</th><th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">영상 제목</th><th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider sortable-header cursor-pointer hover:bg-gray-100 w-28" data-sort="likeCount">좋아요 <span class="sort-indicator">↕</span></th><th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider sortable-header cursor-pointer hover:bg-gray-100 w-28" data-sort="commentCount">댓글 <span class="sort-indicator">↕</span></th><th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider sortable-header cursor-pointer hover:bg-gray-100 w-28" data-sort="viewCount">조회수 <span class="sort-indicator">↕</span></th><th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider sortable-header cursor-pointer hover:bg-gray-100 w-24" data-sort="publishedAt">업로드 <span class="sort-indicator">↕</span></th><th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-24">다운로드</th></tr></thead><tbody class="bg-white divide-y divide-gray-200"></tbody></table></div></div>
-      <div id="empty-state" class="hidden text-center py-16"><p class="text-gray-500">표시할 영상이 없습니다.</p></div>
+
+      <div id="grid-view" class="{% if view_mode == 'list' %}hidden{% endif %}">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+      </div>
+      <div id="list-view"
+        class="bg-white rounded-xl border border-gray-200 shadow-sm {% if view_mode != 'list' %}hidden{% endif %}">
+        <div class="overflow-x-auto">
+          <table class="w-full min-w-full divide-y divide-gray-200 table-fixed">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-2 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-16">순위
+                </th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">영상 제목</th>
+                <th
+                  class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider sortable-header cursor-pointer hover:bg-gray-100 w-28"
+                  data-sort="likeCount">좋아요 <span class="sort-indicator">↕</span></th>
+                <th
+                  class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider sortable-header cursor-pointer hover:bg-gray-100 w-28"
+                  data-sort="commentCount">댓글 <span class="sort-indicator">↕</span></th>
+                <th
+                  class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider sortable-header cursor-pointer hover:bg-gray-100 w-28"
+                  data-sort="viewCount">조회수 <span class="sort-indicator">↕</span></th>
+                <th
+                  class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider sortable-header cursor-pointer hover:bg-gray-100 w-24"
+                  data-sort="publishedAt">업로드 <span class="sort-indicator">↕</span></th>
+                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-24">다운로드
+                </th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200"></tbody>
+          </table>
+        </div>
+      </div>
+      <div id="empty-state" class="hidden text-center py-16">
+        <p class="text-gray-500">표시할 영상이 없습니다.</p>
+      </div>
 
       <div id="pagination-container" class="mt-8 flex justify-center"></div>
 
-    </div> 
-  </div> 
-</div> 
+    </div>
+  </div>
+  <!-- 교체 전 2줄 -->
+</div>
 <script>
   window.pageData = {
-    query: '{{ query|default("", true)|e }}',
-    category: '{{ active_category|default("0", true)|e }}',
-    viewMode: '{{ view_mode|default("grid", true)|e }}',
-    canSearch: {{ can_search|default(false)|tojson }},
-    savedChannelIds: {{ saved_channel_ids|tojson }},
-    isQuerySaved: {{ is_query_saved|tojson }},
-    isAuthenticated: {{ current_user.is_authenticated|tojson }}
+    query: {{ query | default ("", true) | tojson }},
+  category: { { active_category | default ("0", true) | tojson } },
+  viewMode: { { view_mode | default ("grid", true) | tojson } },
+  canSearch: { { can_search | default (false, true) | tojson } },
+  savedChannelIds: { { saved_channel_ids | default ([], true) | tojson } },
+  isQuerySaved: { { is_query_saved | default (false, true) | tojson } },
+  isAuthenticated: { { current_user.is_authenticated | tojson } },
+  currentUser: {% if current_user.is_authenticated %} {
+    "id": { { current_user.id | tojson } },
+    "email": { { current_user.email | tojson } }
+  } {% else %} null{% endif %}
   };
-  
-  // 사용자 정보 설정
-  {% if current_user.is_authenticated %}
-  window.pageData.currentUser = {
-    id: {{ current_user.id }},
-    email: '{{ current_user.email|e }}'
-  };
-  {% else %}
-  window.pageData.currentUser = null;
-  {% endif %}
 </script>
-{% endblock %}
+<!-- 교체 후 2줄 -->
