@@ -600,10 +600,11 @@ class VideoManager {
     `;
         // ====================== [광고 코드 끝] ========================
 
-        const savedIds = new Set(window.pageData.savedChannelIds || []);
+        const pd = (typeof window !== 'undefined' && window.pageData) ? window.pageData : {};
+        const savedIds = new Set(Array.isArray(pd.savedChannelIds) ? pd.savedChannelIds : []);
+
         let adCount = 0;
 
-        // [수정] 광고 삽입을 위해 .map() 대신 .reduce()를 사용합니다.
         const htmlContent = this.filteredVideos.length ? this.filteredVideos.reduce((acc, video, index) => {
             const isSaved = savedIds.has(video.channelId);
             const title = escapeAttr(video.title);
@@ -689,12 +690,13 @@ class VideoManager {
     `;
         // ====================== [광고 코드 끝] ========================
 
-        const savedIds = new Set(window.pageData.savedChannelIds || []);
+        const pd = (typeof window !== 'undefined' && window.pageData) ? window.pageData : {};
+        const savedIds = new Set(Array.isArray(pd.savedChannelIds) ? pd.savedChannelIds : []);
+
         const tbody = container.querySelector('tbody');
         if (!tbody) return;
         let adCount = 0;
 
-        // [수정] 광고 삽입을 위해 .map() 대신 .reduce()를 사용합니다.
         const htmlContent = this.filteredVideos.length ? this.filteredVideos.reduce((acc, video, index) => {
             const isSaved = savedIds.has(video.channelId);
             const title = escapeAttr(video.title);
@@ -785,11 +787,16 @@ class VideoManager {
     }
 
     parseDuration(duration) {
+        // [변경] 시간(H) 단위를 올바르게 처리하도록 수정
         if (!duration) return 0;
-        const match = duration.match(/PT(?:(\d+)M)?(?:(\d+)S)?/);
-        if (!match) return 0;
-        return (parseInt(match[1]) || 0) * 60 + (parseInt(match[2]) || 0);
+        const m = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+        if (!m) return 0;
+        const h = parseInt(m[1] || '0', 10);
+        const min = parseInt(m[2] || '0', 10);
+        const s = parseInt(m[3] || '0', 10);
+        return h * 3600 + min * 60 + s;
     }
+
 
     renderRecommendedTags() {
         const container = document.querySelector('.recommended-tags-container');
@@ -846,6 +853,9 @@ class VideoManager {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
+    // [추가] window.pageData가 없는 페이지에서도 오류가 나지 않도록 기본값 설정
+    if (!window.pageData) window.pageData = {};
+
     if (window.videoManager) {
         return;
     }
