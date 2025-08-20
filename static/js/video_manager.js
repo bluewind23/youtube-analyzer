@@ -638,9 +638,11 @@ class VideoManager {
         container.innerHTML = htmlContent;
 
         if (adCount > 0) {
-            container.querySelectorAll('.adsbygoogle').forEach(() => {
-                (adsbygoogle = window.adsbygoogle || []).push({});
-            });
+            setTimeout(() => {
+                container.querySelectorAll('.adsbygoogle').forEach(() => {
+                    (adsbygoogle = window.adsbygoogle || []).push({});
+                });
+            }, 100); // 0.1초 지연
         }
     }
 
@@ -695,9 +697,11 @@ class VideoManager {
         tbody.innerHTML = htmlContent;
 
         if (adCount > 0) {
-            tbody.querySelectorAll('.adsbygoogle').forEach(() => {
-                (adsbygoogle = window.adsbygoogle || []).push({});
-            });
+            setTimeout(() => {
+                tbody.querySelectorAll('.adsbygoogle').forEach(() => {
+                    (adsbygoogle = window.adsbygoogle || []).push({});
+                });
+            }, 100); // 0.1초 지연
         }
     }
     renderEmptyState() { return `<div class="text-center py-16"><p class="text-gray-500">표시할 영상이 없습니다.</p></div>`; }
