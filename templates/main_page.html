@@ -227,6 +227,11 @@
   </div>
 </div>
 <script>
+  {% set user_data = {
+    "id": current_user.id,
+    "email": current_user.email
+  } if current_user.is_authenticated else none %}
+
   window.pageData = {
     query: {{ query |default ("", true) | tojson }},
   category: { { active_category |default ("0", true) | tojson } },
@@ -234,14 +239,8 @@
   canSearch: { { can_search |default (false) | tojson } },
   savedChannelIds: { { saved_channel_ids |default ([]) | tojson } },
   isQuerySaved: { { is_query_saved |default (false) | tojson } },
-
-  // [수정] tojson 필터를 제거하고, 명시적으로 true/false 문자열을 생성하여 오류를 해결합니다.
   isAuthenticated: { { 'true' if current_user.is_authenticated else 'false' } },
-
-  currentUser: {% if current_user.is_authenticated %} {
-    "id": { { current_user.id | tojson } },
-    "email": { { current_user.email | tojson } }
-  } {% else %} null{% endif %}
+  currentUser: { { user_data | tojson } }
   };
 </script>
 {% endblock %}
