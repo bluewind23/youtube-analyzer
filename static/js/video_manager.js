@@ -673,19 +673,19 @@ class VideoManager {
     renderListView(container) {
         // ====================== [광고 코드 시작] ======================
         const adClientId = "ca-pub-5809883478660758";
-        const adSlotId = "3877365282";
+        const adSlotId = "3684991260";
 
         const adHtml = `
-    <tr class="bg-yellow-50 border-y border-yellow-200">
-        <td colspan="7" class="px-2 py-2 text-center">
-            <ins class="adsbygoogle"
-                 style="display:block; text-align:center;"
-                 data-ad-layout="in-article"
-                 data-ad-format="fluid"
-                 data-ad-client="${adClientId}"
-                 data-ad-slot="${adSlotId}"></ins>
-        </td>
-    </tr>
+       <tr class="bg-gray-50">
+            <td colspan="7" class="px-2 py-2 text-center">
+                <ins class="adsbygoogle"
+                     style="display:block; text-align:center;"
+                     data-ad-layout="in-article"
+                     data-ad-format="fluid"
+                     data-ad-client="${adClientId}"
+                     data-ad-slot="${adSlotId}"></ins>
+            </td>
+        </tr>
     `;
         // ====================== [광고 코드 끝] ========================
 
