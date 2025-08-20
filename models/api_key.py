@@ -53,13 +53,14 @@ class ApiKey(db.Model):
     last_used = db.Column(db.DateTime, nullable=True)
     quota_exceeded_at = db.Column(db.DateTime, nullable=True)
 
-    user_id = db.Column(db.Integer, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey(
+        'users.id', ondelete='CASCADE'), nullable=False)
     user = db.relationship('User', back_populates='api_keys')
 
     __table_args__ = (
         UniqueConstraint('encrypted_key', name='uq_api_keys_encrypted_key'),
-        ForeignKeyConstraint(['user_id'], ['users.id'],
-                             name='fk_api_keys_user_id_users', ondelete='CASCADE'),
+        # ForeignKeyConstraint(['user_id'], ['users.id'],
+        #                      name='fk_api_keys_user_id_users', ondelete='CASCADE'),
     )
 
     @property
@@ -85,17 +86,17 @@ class ApiKey(db.Model):
         """사용자의 API 키 중에 동일한 키가 있는지 확인합니다."""
         from cryptography.fernet import Fernet
         from flask import current_app
-        
+
         # 새 키를 암호화
         try:
             encrypted_new_key = KeyEncryptor.encrypt(new_key)
         except:
             return False
-        
+
         # 동일한 암호화된 키가 있는지 확인
         existing_key = ApiKey.query.filter_by(
-            user_id=user_id, 
+            user_id=user_id,
             _encrypted_key=encrypted_new_key
         ).first()
-        
+
         return existing_key is not None
