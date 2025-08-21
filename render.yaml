@@ -3,8 +3,8 @@ services:
     name: youtube-analyzer
     env: python
     plan: free
-    # [수정] 빌드 명령어를 DB 동기화 명령어로 변경합니다.
-    buildCommand: pip install -r requirements.txt && flask db stamp dfce2f6455d8 && flask db migrate -m "Sync DB state" && flask db upgrade
+    # [수정] 빌드 명령어를 DB 초기화 명령어로 변경합니다.
+    buildCommand: pip install -r requirements.txt && flask db-reset && flask db stamp head
     startCommand: gunicorn -w 4 -b 0.0.0.0:$PORT "app:create_app()"
     envVars:
       - key: PYTHON_VERSION
