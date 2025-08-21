@@ -588,16 +588,17 @@ class VideoManager {
         const adSlotId = "3877365282"; // 반응형 광고 슬롯 ID
 
         const adHtml = `
-            <div class="sm:col-span-2 lg:col-span-3 xl:col-span-4 ad-container-grid">
-                <ins class="adsbygoogle"
-                     style="display:block"
-                     data-ad-client="${adClientId}"
-                     data-ad-slot="${adSlotId}"
-                     data-ad-format="auto"
-                     data-full-width-responsive="true"></ins>
-            </div>
-        `;
-
+    <div class="sm:col-span-2 lg:col-span-3 xl:col-span-4 py-4">
+        <div style="width: 70%; max-width: 728px; margin: auto;">
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="${adClientId}"
+                 data-ad-slot="${adSlotId}"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+        </div>
+    </div>
+`;
         const pd = (typeof window !== 'undefined' && window.pageData) ? window.pageData : {};
         const savedIds = new Set(Array.isArray(pd.savedChannelIds) ? pd.savedChannelIds : []);
         let adCount = 0;
@@ -648,18 +649,19 @@ class VideoManager {
         const adSlotId = "3877365282"; // 그리드 뷰와 동일한 반응형 슬롯 ID 사용
 
         const adHtml = `
-           <tr class="ad-container-list">
-                <td colspan="7" class="px-2 py-2 text-center">
-                    <ins class="adsbygoogle"
-                         style="display:block; text-align:center;"
-                         data-ad-layout="in-article"
-                         data-ad-format="fluid"
-                         data-ad-client="${adClientId}"
-                         data-ad-slot="${adSlotId}"></ins>
-                </td>
-            </tr>
-        `;
-
+   <tr class="ad-container-list">
+        <td colspan="7" class="px-2 py-2 text-center">
+            <div style="width: 70%; max-width: 728px; margin: auto;">
+                <ins class="adsbygoogle"
+                     style="display:block; text-align:center;"
+                     data-ad-layout="in-article"
+                     data-ad-format="fluid"
+                     data-ad-client="${adClientId}"
+                     data-ad-slot="${adSlotId}"></ins>
+            </div>
+        </td>
+    </tr>
+`;
         const pd = (typeof window !== 'undefined' && window.pageData) ? window.pageData : {};
         const savedIds = new Set(Array.isArray(pd.savedChannelIds) ? pd.savedChannelIds : []);
         const tbody = container.querySelector('tbody');
