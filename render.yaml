@@ -1,10 +1,12 @@
+# render.yaml
+
 services:
   - type: web
     name: youtube-analyzer
     env: python
     plan: free
-    # [수정] 빌드 명령어를 DB 초기화 명령어로 변경합니다.
-    buildCommand: pip install -r requirements.txt && flask db-reset && flask db stamp head
+    # [복원] buildCommand를 원래의 정상 명령어로 되돌립니다.
+    buildCommand: pip install -r requirements.txt && flask db upgrade
     startCommand: gunicorn -w 4 -b 0.0.0.0:$PORT "app:create_app()"
     envVars:
       - key: PYTHON_VERSION

@@ -60,19 +60,6 @@ def create_app():
         app.register_blueprint(admin_routes)
         app.register_blueprint(user_actions_routes)
 
-    # [추가] DB 초기화를 위한 임시 CLI 명령어
-    @app.cli.command("db-reset")
-    def db_reset():
-        """Drops and recreates all database tables."""
-        from extensions import db
-        print("--- Dropping all database tables... ---")
-        db.drop_all()
-        print("--- Creating all database tables from models... ---")
-        db.create_all()
-        print("--- Database reset complete. ---")
-
-    # 에러 핸들러 등록
-    @app.errorhandler(404)
     @app.route('/ads.txt')
     def ads_txt():
         # 또는 os.path.abspath('.') 방식
